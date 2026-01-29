@@ -33,6 +33,29 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Email address is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'password.required' => 'Password is required.',
+        ];
+    }
+
+    /**
+     * Get custom attribute names for error messages.
+     */
+    public function attributes(): array
+    {
+        return [
+            'email' => 'email address',
+            'password' => 'password',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws \Illuminate\Validation\ValidationException

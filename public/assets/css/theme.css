@@ -176,6 +176,18 @@ h4,
     box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, .15);
 }
 
+/* Smaller placeholder text for all form inputs */
+.form-control::placeholder,
+.form-control-lg::placeholder {
+    font-size: 0.875rem;
+    color: #a8aab7;
+    font-weight: 400;
+}
+
+.form-control-lg::placeholder {
+    font-size: 0.9rem;
+}
+
 
 
 /* --- Auction Elements --- */

@@ -28,7 +28,7 @@
             <div class="col-lg-5 col-md-7">
                 <div class="card card-elite border-0 shadow-lg p-4 p-md-5" data-aos="fade-up">
                     
-                    <form method="POST" action="{{ route('register') }}">
+                    <form method="POST" action="{{ route('register') }}" id="registerForm" novalidate>
                         @csrf
 
                         <!-- Name -->
@@ -40,10 +40,9 @@
                                    name="name" 
                                    value="{{ old('name') }}" 
                                    placeholder="Enter your full name"
-                                   required
                                    autofocus>
                             @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -55,10 +54,9 @@
                                    id="email" 
                                    name="email" 
                                    value="{{ old('email') }}" 
-                                   placeholder="Enter your email"
-                                   required>
+                                   placeholder="Enter your email">
                             @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -69,12 +67,26 @@
                                    class="form-control form-control-lg bg-light border-0 shadow-none @error('password') is-invalid @enderror" 
                                    id="password" 
                                    name="password" 
-                                   placeholder="Create a strong password"
-                                   required>
+                                   placeholder="Create a strong password">
                             @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">At least 8 characters</small>
+                            
+                            <!-- Password Strength Indicator -->
+                            <div id="passwordStrength" class="mt-2" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <small class="text-muted">Password Strength:</small>
+                                    <span class="strength-label small fw-bold"></span>
+                                </div>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                            
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Must be at least 8 characters with uppercase, lowercase, and numbers
+                            </small>
                         </div>
 
                         <!-- Confirm Password -->
@@ -84,8 +96,7 @@
                                    class="form-control form-control-lg bg-light border-0 shadow-none" 
                                    id="password_confirmation" 
                                    name="password_confirmation" 
-                                   placeholder="Confirm your password"
-                                   required>
+                                   placeholder="Confirm your password">
                         </div>
 
                         <!-- Submit Button -->
@@ -108,3 +119,7 @@
 </section>
 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('assets/js/form-validation.js') }}"></script>
+@endpush

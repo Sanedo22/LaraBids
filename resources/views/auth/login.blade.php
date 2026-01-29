@@ -35,7 +35,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('login') }}" id="loginForm" novalidate>
                         @csrf
 
                         <!-- Email -->
@@ -47,10 +47,9 @@
                                    name="email" 
                                    value="{{ old('email') }}" 
                                    placeholder="Enter your email"
-                                   required
                                    autofocus>
                             @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -61,10 +60,9 @@
                                    class="form-control form-control-lg bg-light border-0 shadow-none @error('password') is-invalid @enderror" 
                                    id="password" 
                                    name="password" 
-                                   placeholder="Enter your password"
-                                   required>
+                                   placeholder="Enter your password">
                             @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -101,3 +99,7 @@
 </section>
 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('assets/js/form-validation.js') }}"></script>
+@endpush
