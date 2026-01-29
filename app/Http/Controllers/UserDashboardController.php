@@ -6,44 +6,34 @@ use Illuminate\Http\Request;
 
 class UserDashboardController extends Controller
 {
-    /**
-     * Display user dashboard
-     */
+    // Dashboard
     public function index()
     {
         return view('website.user.dashboard');
     }
 
-    /**
-     * Display user's bids
-     */
+    // My bids
     public function myBids()
     {
         // TODO: Fetch user's bids from database
         return view('website.user.my-bids');
     }
 
-    /**
-     * Display user's winning items
-     */
+    // Winning items
     public function winningItems()
     {
         // TODO: Fetch user's winning items from database
         return view('website.user.winning-items');
     }
 
-    /**
-     * Display user's wishlist
-     */
+    // Wishlist
     public function wishlist()
     {
         // TODO: Fetch user's wishlist from database
         return view('website.user.wishlist');
     }
 
-    /**
-     * Display user's profile
-     */
+    // Profile
     public function profile()
     {
         return view('website.user.profile');

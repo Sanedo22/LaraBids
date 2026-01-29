@@ -1,7 +1,4 @@
-/**
- * Auction Create Form Validation
- * Provides client-side validation for auction creation form
- */
+// Auction Create Form Validation
 
 class AuctionFormValidator {
     constructor(formId) {

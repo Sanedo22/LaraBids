@@ -14,11 +14,16 @@ class Category extends Model
         'name',
         'slug',
         'icon',
+        'is_active',
     ];
 
-    /**
-     * Get the auctions for the category.
-     */
+    // List auctions
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    // Get auctions
     public function auctions(): HasMany
     {
         return $this->hasMany(Auction::class);
