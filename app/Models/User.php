@@ -37,25 +37,19 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'deleted_by')->withTrashed();
     }
 
-    /**
-     * Check if user has super admin role
-     */
+    // Check super admin
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('super admin');
     }
 
-    /**
-     * Check if user has admin role
-     */
+    // Check admin
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
     }
 
-    /**
-     * Check if user has user role
-     */
+    // Check user
     public function isUser(): bool
     {
         return $this->hasRole('user');
