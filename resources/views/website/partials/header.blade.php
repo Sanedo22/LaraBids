@@ -1,3 +1,17 @@
+<style>
+    .nav-link[data-nav-active="true"] {
+        background: #4e73df !important;
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3) !important;
+        font-weight: 700 !important;
+        border-radius: 50px !important;
+        padding: 0.7rem 1.6rem !important;
+        display: inline-block !important;
+        transform: translateY(-1px) !important;
+    }
+</style>
+
 <nav class="navbar navbar-expand-lg navbar-elite sticky-top py-3">
     <div class="container">
         <a class="navbar-brand" href="{{ route('home') }}">
@@ -10,17 +24,17 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav mx-auto">
-                <li class="nav-item px-3">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('home') }}" data-nav-active="{{ request()->is('/') ? 'true' : 'false' }}">Home</a>
                 </li>
-                <li class="nav-item px-3">
-                    <a class="nav-link {{ request()->routeIs('auctions.*') ? 'active' : '' }}" href="{{ route('auctions.index') }}">Auctions</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('auctions.index') }}" data-nav-active="{{ request()->is('auctions*') ? 'true' : 'false' }}">Auctions</a>
                 </li>
-                <li class="nav-item px-3">
-                    <a class="nav-link {{ request()->routeIs('about') ? 'active' : '' }}" href="{{ route('about') }}">About</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('about') }}" data-nav-active="{{ request()->is('about*') ? 'true' : 'false' }}">About</a>
                 </li>
-                <li class="nav-item px-3">
-                    <a class="nav-link {{ request()->routeIs('contact') ? 'active' : '' }}" href="{{ route('contact') }}">Contact</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('contact') }}" data-nav-active="{{ request()->is('contact*') ? 'true' : 'false' }}">Contact</a>
                 </li>
             </ul>
             <div class="d-flex gap-3 align-items-center">

@@ -54,19 +54,50 @@ h4,
     box-shadow: 0 .15rem 1.75rem 0 rgba(58, 59, 69, .15);
 }
 
-.nav-link {
-    color: #858796 !important;
+.navbar-brand {
+    transition: transform 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand .gold-text {
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+/* Specific Navbar Styles */
+.navbar-elite .nav-link {
+    color: #4e73df;
+    /* Removed !important to allow easier overrides */
     text-transform: none;
-    letter-spacing: normal;
-    font-size: 0.9rem;
-    font-weight: 400;
+    letter-spacing: 0.01em;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.65rem 1.25rem !important;
+    transition: all 0.2s ease;
+    border-radius: 50px;
+    margin: 0 5px;
+    display: block;
 }
 
-.nav-link:hover,
-.nav-link.active {
-    color: var(--bs-primary) !important;
+.navbar-elite .nav-link:hover {
+    background-color: rgba(78, 115, 223, 0.1);
+    color: #2e59d9;
 }
 
+/* Aggressive active state highlighting */
+.navbar-nav .nav-link.active {
+    background: #4e73df !important;
+    background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3) !important;
+    font-weight: 700 !important;
+}
 
 .nav-search {
     position: relative;
@@ -75,18 +106,20 @@ h4,
 
 .nav-search .form-control {
     background: #f8f9fc;
-    border: 1px solid #d1d3e2;
+    border: 1px solid #e3e6f0;
     color: #6e707e;
-    border-radius: .35rem;
-    padding-left: 15px;
+    border-radius: 50px;
+    padding-left: 40px !important;
     font-size: 0.85rem;
-    transition: var(--transition);
+    height: 40px;
+    transition: all 0.3s ease;
 }
 
 .nav-search .form-control:focus {
     background: #fff;
-    border-color: #bac8f3;
-    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, .25);
+    border-color: #4e73df;
+    width: 280px;
+    box-shadow: 0 4px 15px rgba(78, 115, 223, 0.1);
 }
 
 .nav-search i {
@@ -94,15 +127,10 @@ h4,
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #d1d3e2;
+    color: #4e73df;
     font-size: 0.9rem;
+    z-index: 5;
 }
-
-.nav-search .form-control {
-    padding-left: 35px;
-}
-
-
 
 /* --- Buttons --- */
 .btn-gold {
@@ -519,16 +547,43 @@ h4,
     background: #f8f9fc;
 }
 
-.dropdown-item:hover {
-    background-color: #f8f9fc;
-    color: #2e59d9 !important;
+.navbar-elite .dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    padding: 0.8rem;
+    margin-top: 15px;
+    animation: navFadeIn 0.3s ease;
 }
 
+@keyframes navFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
 
-.dropdown-menu {
-    border-radius: 12px;
-    margin-top: 10px;
-    min-width: 200px;
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.navbar-elite .dropdown-item {
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.navbar-elite .dropdown-item:hover {
+    background: rgba(78, 115, 223, 0.05);
+    color: #4e73df !important;
+    transform: translateX(5px);
+}
+
+.dropdown-item:active {
+    background-color: #4e73df;
+    color: #ffffff !important;
 }
 
 /* --- Category Pills --- */
