@@ -1,8 +1,3 @@
-/* 
-   LaraBids Elite - Core Logic
-   Global Countdown Timer & UI Interactions
-*/
-
 document.addEventListener('DOMContentLoaded', () => {
 
     // Initializing AOS
@@ -11,21 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
             once: true,
             duration: 1000,
             easing: 'ease-out-cubic'
-        });
-    }
-
-    // Set active navigation link based on current route
-    function setActiveLink() {
-        const path = window.location.pathname;
-        const links = document.querySelectorAll('.nav-link');
-
-        links.forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && path.includes(href)) {
-                link.classList.add('active');
-            } else {
-                link.classList.remove('active');
-            }
         });
     }
 
@@ -51,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize
-    setActiveLink();
     initSidebarToggle();
 
     // --- Global Countdown System ---

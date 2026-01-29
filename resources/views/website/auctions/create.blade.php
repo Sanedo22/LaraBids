@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-lg-8" data-aos="fade-right">
                 <div class="card card-elite p-4 p-md-5 border-0 shadow-lg">
-                    <form action="{{ route('auctions.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('auctions.store') }}" method="POST" enctype="multipart/form-data" id="auctionCreateForm" novalidate>
                         @csrf
                         
                         <div class="row g-4">
@@ -34,15 +34,15 @@
                             <div class="col-12">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Item Title</label>
                                 <input type="text" name="title" class="form-control form-control-lg bg-light border-0 shadow-none @error('title') is-invalid @enderror" 
-                                    placeholder="What are you selling?" value="{{ old('title') }}" required>
+                                    placeholder="What are you selling?" value="{{ old('title') }}">
                                 @error('title')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Category</label>
-                                <select name="category_id" class="form-select form-select-lg bg-light border-0 shadow-none @error('category_id') is-invalid @enderror" required>
+                                <select name="category_id" class="form-select form-select-lg bg-light border-0 shadow-none @error('category_id') is-invalid @enderror">
                                     <option value="" disabled selected>Select Category</option>
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
@@ -51,7 +51,7 @@
                                     @endforeach
                                 </select>
                                 @error('category_id')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -59,11 +59,11 @@
                                 <label class="form-label fw-bold text-dark small text-uppercase">Starting Price ($)</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0 text-primary fw-bold border-end">$</span>
-                                    <input type="number" name="starting_price" step="0.01" class="form-control bg-light border-0 shadow-none @error('starting_price') is-invalid @enderror" 
-                                        placeholder="0.00" value="{{ old('starting_price') }}" required>
+                                    <input type="number" name="starting_price" step="0.01" min="0.01" class="form-control bg-light border-0 shadow-none @error('starting_price') is-invalid @enderror" 
+                                        placeholder="0.00" value="{{ old('starting_price') }}">
                                 </div>
                                 @error('starting_price')
-                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -71,9 +71,9 @@
                             <div class="col-12">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Description</label>
                                 <textarea name="description" rows="5" class="form-control bg-light border-0 shadow-none @error('description') is-invalid @enderror" 
-                                    placeholder="Describe your item in detail..." required>{{ old('description') }}</textarea>
+                                    placeholder="Describe your item in detail...">{{ old('description') }}</textarea>
                                 @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -85,29 +85,29 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Auction Start Date & Time</label>
                                 <input type="datetime-local" name="start_time" class="form-control form-control-lg bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
-                                    value="{{ old('start_time', now()->format('Y-m-d\TH:i')) }}" required>
+                                    value="{{ old('start_time', now()->format('Y-m-d\TH:i')) }}">
                                 <small class="text-muted">When should the bidding begin?</small>
                                 @error('start_time')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Auction End Date & Time</label>
                                 <input type="datetime-local" name="end_time" class="form-control form-control-lg bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
-                                    value="{{ old('end_time') }}" required>
+                                    value="{{ old('end_time') }}">
                                 <small class="text-muted">When should the bidding conclude?</small>
                                 @error('end_time')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="col-12">
                                 <label class="form-label fw-bold text-dark small text-uppercase">Item Photo</label>
-                                <input type="file" name="image" class="form-control form-control-lg bg-light border-0 shadow-none @error('image') is-invalid @enderror" id="imageInput">
+                                <input type="file" name="image" accept="image/jpeg,image/png,image/jpg,image/gif" class="form-control form-control-lg bg-light border-0 shadow-none @error('image') is-invalid @enderror" id="imageInput">
                                 <small class="text-muted">JPG, PNG or GIF (Max 2MB). High-quality photos attract more bids.</small>
                                 @error('image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
@@ -222,12 +222,12 @@
                     </div>
 
                     <div class="card bg-primary text-white p-4 border-0 shadow-sm rounded-4 overflow-hidden position-relative">
-                        <div class="position-relative z-1">
+                        <div class="position-relative" style="z-index: 2;">
                             <h5 class="fw-bold mb-3">Need Help?</h5>
                             <p class="small opacity-75 mb-4">Our support team is available 24/7 to help you with your listings.</p>
                             <a href="{{ route('contact') }}" class="btn btn-white btn-sm px-4 rounded-pill fw-bold text-primary">Contact Us</a>
                         </div>
-                        <i class="fas fa-headset position-absolute end-0 bottom-0 opacity-10 mb-n3 me-n3" style="font-size: 8rem;"></i>
+                        <i class="fas fa-headset position-absolute opacity-10" style="font-size: 8rem; right: -1rem; bottom: -1rem; z-index: 1;"></i>
                     </div>
                 </div>
             </div>
@@ -236,7 +236,46 @@
 </section>
 
 @push('scripts')
+<script src="{{ asset('assets/js/auction-form-validation.js') }}"></script>
 <script>
+    // Wait for script to load and initialize validator
+    (function() {
+        console.log('Initializing auction form validator...');
+        
+        // Initialize validator immediately
+        const validator = new AuctionFormValidator('auctionCreateForm');
+        console.log('Validator initialized:', validator);
+        
+        // Double-check form submission is prevented
+        const form = document.getElementById('auctionCreateForm');
+        if (form) {
+            console.log('Form found, adding backup submit handler');
+            form.onsubmit = function(e) {
+                console.log('Form submit triggered');
+                const isValid = validator.validateForm();
+                console.log('Form valid:', isValid);
+                
+                if (!isValid) {
+                    console.log('Preventing form submission due to validation errors');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Scroll to first error
+                    const firstError = form.querySelector('.is-invalid');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        firstError.focus();
+                    }
+                    
+                    return false;
+                }
+                
+                console.log('Form is valid, allowing submission');
+                return true;
+            };
+        }
+    })();
+    
     const imageInput = document.getElementById('imageInput');
     const imagePreviewContainer = document.getElementById('imagePreviewContainer');
     const imagePreview = document.getElementById('imagePreview');
