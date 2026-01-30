@@ -70,9 +70,9 @@ Route::middleware(['auth', 'role:admin|super admin'])
         // Auctions
         Route::get('/auctions', [AdminAuctionController::class, 'index'])->name('auctions.index');
         Route::get('/auctions/{auction}', [AdminAuctionController::class, 'show'])->name('auctions.show');
-        Route::post('/auctions/{id}/restore', [AdminAuctionController::class, 'restore'])->name('auctions.restore');
-        Route::post('/auctions/{id}/approve', [AdminAuctionController::class, 'approve'])->name('auctions.approve');
-        Route::delete('/auctions/{id}/force-delete', [AdminAuctionController::class, 'forceDelete'])->name('auctions.force_delete');
+        Route::post('/auctions/{auction}/restore', [AdminAuctionController::class, 'restore'])->name('auctions.restore');
+        Route::post('/auctions/{auction}/approve', [AdminAuctionController::class, 'approve'])->name('auctions.approve');
+        Route::delete('/auctions/{auction}/force-delete', [AdminAuctionController::class, 'forceDelete'])->name('auctions.force_delete');
         Route::delete('/auctions/{auction}', [AdminAuctionController::class, 'destroy'])->name('auctions.destroy');
         Route::post('/auctions/{auction}/cancel', [AdminAuctionController::class, 'cancel'])->name('auctions.cancel');
 

@@ -32,7 +32,22 @@ class AuctionController extends Controller
     // Show auction
     public function show($id)
     {
-        $auction = Auction::with(['user', 'category'])->findOrFail($id);
+        $auction = Auction::with(['user', 'category', 'images'])->findOrFail($id);
+
+        // if auction is not active, only owner or admin can view
+        if ($auction->status !== 'active') {
+            if (!auth()->check()) {
+                abort(404);
+            }
+
+            // Check if user is owner or admin
+            // Assuming 'role' column exists on User model for admin check
+            $user = auth()->user();
+            if ($user->id !== $auction->user_id && $user->role !== 'admin' && $user->role !== 'super admin') {
+                 abort(404);
+            }
+        }
+
         return view('website.auctions.show', compact('auction'));
     }
 
@@ -49,7 +64,7 @@ class AuctionController extends Controller
         $auction = $this->auctionService->createAuction($request->validated(), auth()->user());
 
         return redirect()->route('auctions.show', $auction->id)
-            ->with('success', 'Auction created successfully!');
+            ->with('success', 'Auction created successfully! It will be live after admin approval.');
     }
 
     // Search auctions

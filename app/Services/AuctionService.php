@@ -76,7 +76,7 @@ class AuctionService
         $auction->description = $data['description'];
         $auction->starting_price = $data['starting_price'];
         $auction->current_price = $data['starting_price'];
-        $auction->status = 'active';
+        $auction->status = 'pending';
         $auction->specifications = $data['specifications'] ?? null;
 
         // Snap start_time to now if it's in the past
@@ -94,16 +94,35 @@ class AuctionService
             $auction->end_time = $endTime;
         }
 
-        // Handle file uploads
-        if (isset($data['image']) && $data['image'] instanceof \Illuminate\Http\UploadedFile) {
-            $auction->image = $data['image']->store('auctions', 'public');
-        }
-
         if (isset($data['document']) && $data['document'] instanceof \Illuminate\Http\UploadedFile) {
             $auction->document = $data['document']->store('auctions/documents', 'public');
         }
 
         $auction->save();
+
+        // Handle multiple image uploads
+        if (isset($data['images']) && is_array($data['images'])) {
+            $primaryIndex = $data['primary_image_index'] ?? 0;
+            
+            foreach ($data['images'] as $index => $imageFile) {
+                if ($imageFile instanceof \Illuminate\Http\UploadedFile) {
+                    $path = $imageFile->store('auctions', 'public');
+                    $isPrimary = ($index == $primaryIndex);
+                    
+                    $auction->images()->create([
+                        'image_path' => $path,
+                        'sort_order' => $index,
+                        'is_primary' => $isPrimary,
+                    ]);
+
+                    // Set the primary image on the auction table itself
+                    if ($isPrimary) {
+                        $auction->image = $path;
+                        $auction->save();
+                    }
+                }
+            }
+        }
 
         return $auction;
     }
@@ -112,10 +131,35 @@ class AuctionService
     public function updateStatus(Auction $auction, string $status, ?string $reason = null)
     {
         $payload = ['status' => $status];
+        
         if ($reason) {
             $payload['cancellation_reason'] = $reason;
+        } elseif ($status === 'active') {
+            // Clear cancellation reason when activating
+            $payload['cancellation_reason'] = null;
         }
         
         return $auction->update($payload);
+    }
+
+    // Delete auction (Soft delete)
+    public function deleteAuction($id)
+    {
+        $auction = Auction::findOrFail($id);
+        return $auction->delete();
+    }
+
+    // Restore auction
+    public function restoreAuction($id)
+    {
+        $auction = Auction::withTrashed()->findOrFail($id);
+        return $auction->restore();
+    }
+
+    // Force delete auction
+    public function forceDeleteAuction($id)
+    {
+        $auction = Auction::withTrashed()->findOrFail($id);
+        return $auction->forceDelete();
     }
 }

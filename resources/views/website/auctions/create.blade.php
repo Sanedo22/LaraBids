@@ -102,13 +102,30 @@
                                 @enderror
                             </div>
 
-                            <div class="col-12">
-                                <label class="form-label fw-bold text-dark small text-uppercase">Item Photo</label>
-                                <input type="file" name="image" accept="image/jpeg,image/png,image/jpg,image/gif" class="form-control form-control-lg bg-light border-0 shadow-none @error('image') is-invalid @enderror" id="imageInput">
-                                <small class="text-muted">JPG, PNG or GIF (Max 2MB). High-quality photos attract more bids.</small>
-                                @error('image')
-                                    <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                            <div class="col-12 mt-4">
+                                <label class="form-label fw-bold text-dark small text-uppercase">Item Photos</label>
+                                <div class="image-upload-wrapper" onclick="document.getElementById('imageInput').click()">
+                                    <div class="upload-content text-center">
+                                        <i class="fas fa-images fa-3x text-primary mb-3"></i>
+                                        <h6 class="fw-bold mb-1">Click to upload multiple images</h6>
+                                        <p class="text-muted small mb-0">Drag and drop photos or click to browse. Max 10 photos.</p>
+                                    </div>
+                                    <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/jpg,image/gif" class="d-none" id="imageInput">
+                                </div>
+                                <input type="hidden" name="primary_image_index" id="primaryImageIndex" value="0">
+                                <small class="text-muted d-block mt-2">JPG, PNG or GIF (Max 2MB per image). Reorder by dragging. Click "Set Primary" to choose the main photo.</small>
+                                
+                                <div id="imagePreviewGrid" class="image-preview-grid">
+                                    <!-- Previews will be injected here by JS -->
+                                    <div class="col-12 text-center text-muted p-4">No images uploaded yet.</div>
+                                </div>
+
+                                @error('images')
+                                    <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                                 @enderror
+                                @foreach($errors->get('images.*') as $message)
+                                    <div class="invalid-feedback d-block" data-server-error>{{ $message[0] }}</div>
+                                @endforeach
                             </div>
 
                             <!-- Dynamic Category Fields -->
@@ -173,12 +190,6 @@
                             </div>
 
 
-                            <div class="col-12 mt-4 text-center">
-                                <div id="imagePreviewContainer" class="d-none">
-                                    <img id="imagePreview" src="#" alt="Preview" class="img-fluid rounded-4 shadow-sm border border-4 border-white" style="max-height: 300px;">
-                                    <div class="mt-2 small text-primary fw-bold">Image Preview</div>
-                                </div>
-                            </div>
 
                             <div class="col-12 mt-5">
                                 <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill shadow fw-bold">
@@ -235,93 +246,14 @@
     </div>
 </section>
 
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/image-upload.css') }}">
+@endpush
+
 @push('scripts')
+<script src="{{ asset('assets/js/image-upload-manager.js') }}"></script>
 <script src="{{ asset('assets/js/auction-form-validation.js') }}"></script>
-<script>
-    // Wait for script to load and initialize validator
-    (function() {
-        console.log('Initializing auction form validator...');
-        
-        // Initialize validator immediately
-        const validator = new AuctionFormValidator('auctionCreateForm');
-        console.log('Validator initialized:', validator);
-        
-        // Double-check form submission is prevented
-        const form = document.getElementById('auctionCreateForm');
-        if (form) {
-            console.log('Form found, adding backup submit handler');
-            form.onsubmit = function(e) {
-                console.log('Form submit triggered');
-                const isValid = validator.validateForm();
-                console.log('Form valid:', isValid);
-                
-                if (!isValid) {
-                    console.log('Preventing form submission due to validation errors');
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Scroll to first error
-                    const firstError = form.querySelector('.is-invalid');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        firstError.focus();
-                    }
-                    
-                    return false;
-                }
-                
-                console.log('Form is valid, allowing submission');
-                return true;
-            };
-        }
-    })();
-    
-    const imageInput = document.getElementById('imageInput');
-    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
-    const imagePreview = document.getElementById('imagePreview');
-    const categorySelect = document.querySelector('select[name="category_id"]');
-    const dynamicFieldsContainer = document.getElementById('dynamicFieldsContainer');
-    const categoryGroups = document.querySelectorAll('.category-fields-group');
-
-    // Image Preview
-    imageInput.onchange = evt => {
-        const [file] = imageInput.files;
-        if (file) {
-            imagePreview.src = URL.createObjectURL(file);
-            imagePreviewContainer.classList.remove('d-none');
-        }
-    }
-
-    // Dynamic Category Fields
-    categorySelect.onchange = function() {
-        const categoryId = this.value;
-        
-        // Hide all groups first
-        categoryGroups.forEach(group => group.classList.add('d-none'));
-        dynamicFieldsContainer.classList.add('d-none');
-
-        // Show relevant group
-        const targetGroup = document.getElementById(`category_fields_${categoryId}`);
-        if (targetGroup) {
-            dynamicFieldsContainer.classList.remove('d-none');
-            targetGroup.classList.remove('d-none');
-            
-            // Add fade-in effect
-            targetGroup.style.opacity = 0;
-            let opacity = 0;
-            const timer = setInterval(function() {
-                if (opacity >= 1) clearInterval(timer);
-                targetGroup.style.opacity = opacity;
-                opacity += 0.1;
-            }, 20);
-        }
-    }
-
-    // Trigger change on load if category already selected (e.g. after validation error)
-    if (categorySelect.value) {
-        categorySelect.dispatchEvent(new Event('change'));
-    }
-</script>
+<script src="{{ asset('assets/js/auction-create.js') }}"></script>
 @endpush
 
 @endsection

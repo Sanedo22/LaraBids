@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Services\AuctionService;
+use App\Http\Requests\Admin\CancelAuctionRequest;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -23,7 +24,7 @@ class AuctionController extends Controller
         if ($request->ajax()) {
             $data = $this->auctionService->getFilteredAuctions($request, false)
                 ->withTrashed();
-            
+
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('user', function($row){
@@ -46,21 +47,29 @@ class AuctionController extends Controller
                 })
                 ->addColumn('action', function($row){
                     $btn = '';
-                    
+
                     // View (Always visible)
                     $btn .= '<a href="'.route('admin.auctions.show', $row->id).'" class="btn btn-info btn-sm mr-1" title="View"><i class="fas fa-eye"></i></a>';
-                    
+
+                    if ($row->status === 'pending') {
+                        // Approve Button
+                         $btn .= '<form action="'.route('admin.auctions.approve', $row->id).'" method="POST" class="d-inline mr-1">
+                                    '.csrf_field().'
+                                    <button type="submit" class="btn btn-success btn-sm" title="Approve"><i class="fas fa-check"></i></button>
+                                  </form>';
+                    }
+
                     if ($row->trashed()) {
                          // Restore
                          $btn .= '<button type="button" class="btn btn-success btn-sm mr-1 restore-auction" data-id="'.$row->id.'" data-url="'.route('admin.auctions.restore', $row->id).'" title="Restore"><i class="fas fa-trash-restore"></i></button>';
-                         
+
                          // Permanent Delete
                          $btn .= '<button type="button" class="btn btn-danger btn-sm force-delete-auction" data-id="'.$row->id.'" data-url="'.route('admin.auctions.force_delete', $row->id).'" title="Permanent Delete"><i class="fas fa-times"></i></button>';
                     } else {
                         // Delete (Soft Delete)
                         $btn .= '<button type="button" class="btn btn-danger btn-sm delete-auction" data-id="'.$row->id.'" data-url="'.route('admin.auctions.destroy', $row->id).'" title="Delete"><i class="fas fa-trash"></i></button>';
                     }
-                    
+
                     return $btn;
                 })
                 ->rawColumns(['status', 'action'])
@@ -82,8 +91,7 @@ class AuctionController extends Controller
     // Delete auction
     public function destroy($id)
     {
-        $auction = Auction::findOrFail($id);
-        $auction->delete();
+        $this->auctionService->deleteAuction($id);
 
         if (request()->ajax()) {
             return response()->json(['success' => 'Auction deleted successfully.']);
@@ -93,12 +101,8 @@ class AuctionController extends Controller
     }
 
     // Cancel auction
-    public function cancel(Request $request, $id)
+    public function cancel(CancelAuctionRequest $request, $id)
     {
-        $request->validate([
-            'reason' => 'required|string|max:255'
-        ]);
-
         $auction = Auction::findOrFail($id);
         $this->auctionService->updateStatus($auction, 'cancelled', $request->reason);
 
@@ -121,8 +125,7 @@ class AuctionController extends Controller
     // Restore auction
     public function restore($id)
     {
-        $auction = Auction::withTrashed()->findOrFail($id);
-        $auction->restore();
+        $this->auctionService->restoreAuction($id);
 
         if (request()->ajax()) {
             return response()->json(['success' => 'Auction restored successfully.']);
@@ -134,8 +137,7 @@ class AuctionController extends Controller
     // Force delete
     public function forceDelete($id)
     {
-        $auction = Auction::withTrashed()->findOrFail($id);
-        $auction->forceDelete();
+        $this->auctionService->forceDeleteAuction($id);
 
         if (request()->ajax()) {
             return response()->json(['success' => 'Auction permanently deleted.']);

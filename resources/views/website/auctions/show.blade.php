@@ -10,30 +10,32 @@
         <div class="row g-5">
             <!-- Image Gallery -->
             <div class="col-lg-6" data-aos="fade-right">
-                <div class="position-relative overflow-hidden rounded-3 mb-3" style="height: 500px;">
+                <div class="position-relative overflow-hidden rounded-3 mb-3 auction-main-img-container" style="height: 500px; cursor: zoom-in;">
                     @if($auction->image)
-                        <img src="{{ str_starts_with($auction->image, 'http') ? $auction->image : asset('storage/' . $auction->image) }}" class="w-100 h-100 object-fit-cover main-auction-image" alt="{{ $auction->title }}">
+                        <img src="{{ str_starts_with($auction->image, 'http') ? $auction->image : asset('storage/' . $auction->image) }}" class="w-100 h-100 object-fit-cover main-auction-image" alt="{{ $auction->title }}" onclick="openLightbox()">
                     @else
                         <img src="https://images.unsplash.com/photo-1523275335684-21481017106d?auto=format&fit=crop&w=1200"
-                            class="w-100 h-100 object-fit-cover main-auction-image" alt="{{ $auction->title }}">
+                            class="w-100 h-100 object-fit-cover main-auction-image" alt="{{ $auction->title }}" onclick="openLightbox()">
                     @endif
+                    <div class="zoom-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center opacity-0 transition-all" onclick="openLightbox()">
+                        <i class="fas fa-search-plus fa-3x text-white"></i>
+                    </div>
                 </div>
                 
-                <!-- Thumbnail Slider (Static for now) -->
-                <div class="row g-2">
-                    <div class="col-3">
-                        <div class="rounded-3 overflow-hidden border border-primary border-2 shadow-sm" style="height: 80px; cursor: pointer;">
-                            <img src="{{ str_starts_with($auction->image, 'http') ? $auction->image : asset('storage/' . $auction->image) }}" class="w-100 h-100 object-fit-cover opacity-100" alt="Thumb 1">
+                <!-- Thumbnail Slider -->
+                @if($auction->images->count() > 1)
+                <div class="row g-2 mt-2">
+                    @foreach($auction->images as $img)
+                    <div class="col-3 col-md-2">
+                        <div class="rounded-3 overflow-hidden border {{ $img->is_primary ? 'border-primary border-2' : 'border-light' }} shadow-sm auction-thumb" 
+                            style="height: 70px; cursor: pointer; transition: all 0.2s;"
+                            onclick="changeMainImage('{{ asset('storage/' . $img->image_path) }}', this)">
+                            <img src="{{ asset('storage/' . $img->image_path) }}" class="w-100 h-100 object-fit-cover" alt="Thumbnail">
                         </div>
                     </div>
-                    @for($i = 1; $i <= 3; $i++)
-                    <div class="col-3">
-                        <div class="rounded-3 overflow-hidden border border-light shadow-sm thumb-inactive" style="height: 80px; cursor: pointer; transition: all 0.2s;">
-                            <img src="https://picsum.photos/400/300?random={{ $i + 10 }}" class="w-100 h-100 object-fit-cover" alt="Thumb {{ $i + 1 }}">
-                        </div>
-                    </div>
-                    @endfor
+                    @endforeach
                 </div>
+                @endif
 
             </div>
 
@@ -189,5 +191,48 @@
 
     </div>
 </section>
+
+<!-- Lightbox Modal -->
+<div id="imageLightbox" class="lightbox-modal">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    
+    <div class="lightbox-controls">
+        <span class="lightbox-counter" id="lightboxCounter">1 / 1</span>
+        <button class="close-lightbox" onclick="closeLightbox()" title="Close (Esc)">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <button class="lightbox-nav-btn prev" onclick="changeLightboxImage(-1)" title="Previous (Left Arrow)">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="lightbox-content-wrapper">
+        <img class="lightbox-image" id="lightboxImage">
+        <div id="lightboxCaption" class="lightbox-caption"></div>
+    </div>
+    
+    <button class="lightbox-nav-btn next" onclick="changeLightboxImage(1)" title="Next (Right Arrow)">
+        <i class="fas fa-chevron-right"></i>
+    </button>
+</div>
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/auction-gallery.css') }}">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('assets/js/auction-gallery.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = [
+            @foreach($auction->images as $img)
+                "{{ asset('storage/' . $img->image_path) }}",
+            @endforeach
+        ];
+        initGallery(images, "{{ str_replace('"', '\"', $auction->title) }}");
+    });
+</script>
+@endpush
 
 @endsection

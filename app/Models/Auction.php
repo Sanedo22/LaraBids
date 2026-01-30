@@ -74,4 +74,10 @@ class Auction extends Model
     {
         return $this->belongsTo(Category::class)->withTrashed();
     }
+
+    // Get images
+    public function images()
+    {
+        return $this->hasMany(AuctionImage::class)->orderBy('sort_order');
+    }
 }

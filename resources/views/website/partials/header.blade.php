@@ -1,16 +1,3 @@
-<style>
-    .nav-link[data-nav-active="true"] {
-        background: #4e73df !important;
-        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%) !important;
-        color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3) !important;
-        font-weight: 700 !important;
-        border-radius: 50px !important;
-        padding: 0.7rem 1.6rem !important;
-        display: inline-block !important;
-        transform: translateY(-1px) !important;
-    }
-</style>
 
 <nav class="navbar navbar-expand-lg navbar-elite sticky-top py-3">
     <div class="container">
