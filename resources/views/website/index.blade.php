@@ -229,23 +229,55 @@
         </div>
         
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="glass-panel p-5 text-center" data-aos="zoom-in">
-                    <i class="fas fa-quote-left text-primary fs-1 mb-4 opacity-25"></i>
-                    <p class="h4 display-font text-dark mb-4 lh-base">
-                        "LaraBids redefined my concept of online auctions. The transparency of the platform
-                        and the ease of bidding are simply unmatched in the industry."
-                    </p>
-                    <div class="d-flex align-items-center justify-content-center gap-3">
-                        <img src="https://ui-avatars.com/api/?name=James+Roth&background=4e73df&color=ffffff"
-                            class="rounded-circle border border-primary border-opacity-25" width="50" alt="Client">
-                        <div class="text-start">
-                            <h6 class="text-primary mb-0">James Rothwell</h6>
-                            <small class="text-secondary">Private Collector</small>
-                        </div>
+            <div class="col-lg-9">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+                    <!-- Carousel Indicators -->
+                    <div class="carousel-indicators mb-n4">
+                        @foreach($testimonials as $index => $testimonial)
+                        <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index == 0 ? 'active' : '' }} bg-primary" aria-current="{{ $index == 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
                     </div>
-                </div>
 
+                    <div class="carousel-inner overflow-visible">
+                        @foreach($testimonials as $index => $testimonial)
+                        <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                            <div class="glass-panel-premium p-5 text-center mx-3 my-4">
+                                <div class="mb-4">
+                                    @for($i = 0; $i < 5; $i++)
+                                    <i class="fas fa-star text-warning small"></i>
+                                    @endfor
+                                </div>
+                                <i class="fas fa-quote-left text-primary fs-1 mb-4 opacity-25"></i>
+                                <p class="h4 display-font text-dark mb-4 lh-base fw-semibold px-lg-5">
+                                    "{{ $testimonial->content }}"
+                                </p>
+                                <div class="d-flex align-items-center justify-content-center gap-3">
+                                    <div class="position-relative">
+                                        <img src="{{ $testimonial->avatar_url }}"
+                                            class="rounded-circle border border-primary border-2 shadow-sm" width="60" height="60" alt="{{ $testimonial->name }}" style="object-fit: cover;">
+                                        <div class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style="width: 14px; height: 14px; border-width: 2px !important;"></div>
+                                    </div>
+                                    <div class="text-start">
+                                        <h6 class="text-primary mb-0 fw-bold">{{ $testimonial->name }}</h6>
+                                        <small class="text-secondary opacity-75">{{ $testimonial->role }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    
+                    @if($testimonials->count() > 1)
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon bg-primary rounded-circle p-3" aria-hidden="true" style="background-size: 50%;"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon bg-primary rounded-circle p-3" aria-hidden="true" style="background-size: 50%;"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -345,5 +377,27 @@
     </div>
 </section>
 
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var myCarousel = document.getElementById('testimonialCarousel');
+    if (myCarousel) {
+        // Initialize the carousel
+        var carousel = new bootstrap.Carousel(myCarousel, {
+            interval: 4000,
+            pause: 'hover',
+            ride: 'carousel',
+            wrap: true
+        });
+        
+        // Force start cycling
+        carousel.cycle();
+        
+        console.log('Testimonials carousel initialized and cycle forced.');
+    }
+});
+</script>
+@endpush
 
 @endsection

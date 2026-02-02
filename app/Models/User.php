@@ -54,4 +54,10 @@ class User extends Authenticatable
     {
         return $this->hasRole('user');
     }
+
+    // Get bids
+    public function bids()
+    {
+        return $this->hasMany(Bid::class)->latest();
+    }
 }

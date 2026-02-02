@@ -80,4 +80,16 @@ class Auction extends Model
     {
         return $this->hasMany(AuctionImage::class)->orderBy('sort_order');
     }
+
+    // Get bids
+    public function bids()
+    {
+        return $this->hasMany(Bid::class)->latest();
+    }
+
+    // Get highest bid
+    public function highestBid()
+    {
+        return $this->bids()->first();
+    }
 }

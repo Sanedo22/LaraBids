@@ -51,8 +51,8 @@ class AuctionController extends Controller
                     // View (Always visible)
                     $btn .= '<a href="'.route('admin.auctions.show', $row->id).'" class="btn btn-info btn-sm mr-1" title="View"><i class="fas fa-eye"></i></a>';
 
-                    if ($row->status === 'pending') {
-                        // Approve Button
+                    // Approve Button (Only for pending AND not deleted)
+                    if ($row->status === 'pending' && !$row->trashed()) {
                          $btn .= '<form action="'.route('admin.auctions.approve', $row->id).'" method="POST" class="d-inline mr-1">
                                     '.csrf_field().'
                                     <button type="submit" class="btn btn-success btn-sm" title="Approve"><i class="fas fa-check"></i></button>

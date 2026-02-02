@@ -102,6 +102,8 @@ h4,
 .nav-search {
     position: relative;
     max-width: 250px;
+    display: flex;
+    align-items: center;
 }
 
 .nav-search .form-control {
@@ -112,13 +114,13 @@ h4,
     padding-left: 40px !important;
     font-size: 0.85rem;
     height: 40px;
+    width: 100%;
     transition: all 0.3s ease;
 }
 
 .nav-search .form-control:focus {
     background: #fff;
     border-color: #4e73df;
-    width: 280px;
     box-shadow: 0 4px 15px rgba(78, 115, 223, 0.1);
 }
 
@@ -165,9 +167,42 @@ h4,
 .glass-panel {
     background: #ffffff;
     border: 1px solid #e3e6f0;
-    border-radius: 0.75rem;
+    border-radius: 1rem;
     box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
     transition: all 0.3s ease;
+}
+
+.glass-panel-premium {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(78, 115, 223, 0.1);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    min-height: 450px;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.glass-panel-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #4e73df, #224abe);
+    opacity: 0.8;
+}
+
+.glass-panel-premium:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 30px 60px rgba(78, 115, 223, 0.12);
+    border-color: rgba(78, 115, 223, 0.3);
 }
 
 .card-elite:hover {

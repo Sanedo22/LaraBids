@@ -21,7 +21,7 @@ class FormValidator {
         });
 
         // Add real-time validation on blur
-        const inputs = this.form.querySelectorAll('input[name]');
+        const inputs = this.form.querySelectorAll('input[name], textarea[name]');
         inputs.forEach(input => {
             input.addEventListener('blur', () => this.validateField(input));
             input.addEventListener('input', () => this.clearFieldError(input));
@@ -30,7 +30,7 @@ class FormValidator {
 
     validateForm() {
         this.errors = {};
-        const inputs = this.form.querySelectorAll('input[name]');
+        const inputs = this.form.querySelectorAll('input[name], textarea[name]');
         let isValid = true;
 
         inputs.forEach(input => {
@@ -64,6 +64,12 @@ class FormValidator {
             case 'password_confirmation':
                 const password = input.form.querySelector('input[name="password"]').value;
                 error = this.validatePasswordConfirmation(value, password);
+                break;
+            case 'subject':
+                error = this.validateSubject(value);
+                break;
+            case 'message':
+                error = this.validateMessage(value);
                 break;
         }
 
@@ -137,9 +143,29 @@ class FormValidator {
         return null;
     }
 
+    validateSubject(value) {
+        if (!value) {
+            return 'Subject is required.';
+        }
+        if (value.length > 255) {
+            return 'Subject must not exceed 255 characters.';
+        }
+        return null;
+    }
+
+    validateMessage(value) {
+        if (!value) {
+            return 'Message is required.';
+        }
+        if (value.length < 10) {
+            return 'Message must be at least 10 characters.';
+        }
+        return null;
+    }
+
     showError(input, message) {
         input.classList.add('is-invalid');
-        
+
         // Create or update error message element
         let errorDiv = input.parentElement.querySelector('.invalid-feedback');
         if (!errorDiv) {
@@ -167,7 +193,7 @@ class PasswordStrengthIndicator {
     constructor(passwordInputId, indicatorId) {
         this.passwordInput = document.getElementById(passwordInputId);
         this.indicator = document.getElementById(indicatorId);
-        
+
         if (this.passwordInput && this.indicator) {
             this.init();
         }
@@ -181,14 +207,14 @@ class PasswordStrengthIndicator {
 
     calculateStrength(password) {
         let strength = 0;
-        
+
         if (password.length >= 8) strength += 25;
         if (password.length >= 12) strength += 10;
         if (/[a-z]/.test(password)) strength += 15;
         if (/[A-Z]/.test(password)) strength += 15;
         if (/[0-9]/.test(password)) strength += 15;
         if (/[^a-zA-Z0-9]/.test(password)) strength += 20;
-        
+
         return Math.min(strength, 100);
     }
 
@@ -226,7 +252,7 @@ class PasswordStrengthIndicator {
 }
 
 // Initialize validators when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize login form validation
     if (document.getElementById('loginForm')) {
         new FormValidator('loginForm');
@@ -236,5 +262,10 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('registerForm')) {
         new FormValidator('registerForm');
         new PasswordStrengthIndicator('password', 'passwordStrength');
+    }
+
+    // Initialize contact form validation
+    if (document.getElementById('contactForm')) {
+        new FormValidator('contactForm');
     }
 });

@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
+
+        $middleware->redirectTo(
+            guests: '/login',
+            users: '/',
+        );
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

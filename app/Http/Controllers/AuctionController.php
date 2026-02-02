@@ -32,7 +32,7 @@ class AuctionController extends Controller
     // Show auction
     public function show($id)
     {
-        $auction = Auction::with(['user', 'category', 'images'])->findOrFail($id);
+        $auction = Auction::with(['user', 'category', 'images', 'bids.user'])->findOrFail($id);
 
         // if auction is not active, only owner or admin can view
         if ($auction->status !== 'active') {

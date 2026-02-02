@@ -85,6 +85,13 @@
             <span>Categories</span></a>
     </li>
 
+    <!-- Nav Item - Contacts -->
+    <li class="nav-item {{ request()->routeIs('admin.contacts.*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.contacts.index') }}">
+            <i class="fas fa-fw fa-envelope"></i>
+            <span>Contact Messages</span></a>
+    </li>
+
     <!-- Nav Item - Settings -->
     <li class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.settings') }}">

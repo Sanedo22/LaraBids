@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\ContactController;
 
 // Public Routes
 
@@ -57,6 +58,9 @@ Route::middleware('auth')->group(function () {
 
 // Parameterized Routes (Catch-all for /auctions/ prefix)
 Route::get('/auctions/{id}', [AuctionController::class, 'show'])->name('auctions.show');
+Route::post('/auctions/{auction}/bid', [\App\Http\Controllers\BidController::class, 'store'])
+    ->middleware('auth')
+    ->name('auctions.bid');
 
 
 // Admin Routes
@@ -113,6 +117,13 @@ Route::middleware(['auth', 'role:admin|super admin'])
             ->name('categories.force_delete');
             
         Route::resource('categories', CategoryController::class);
+
+        // Contacts
+        Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
+        Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
+        Route::put('/contacts/{contact}', [ContactController::class, 'update'])->name('contacts.update');
+        Route::post('/contacts/{contact}/restore', [ContactController::class, 'restore'])->name('contacts.restore');
+        Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->name('contacts.destroy');
 
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
