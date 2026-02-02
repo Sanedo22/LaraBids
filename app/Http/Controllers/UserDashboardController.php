@@ -15,8 +15,13 @@ class UserDashboardController extends Controller
     // My bids
     public function myBids()
     {
-        // TODO: Fetch user's bids from database
-        return view('website.user.my-bids');
+        $bids = auth()->user()->bids()
+            ->with('auction')
+            ->latest()
+            ->get()
+            ->unique('auction_id');
+
+        return view('website.user.my-bids', compact('bids'));
     }
 
     // Winning items
