@@ -28,6 +28,7 @@ class PlaceBidRequest extends FormRequest
                 'required',
                 'numeric',
                 'min:' . $minBid,
+                'max:99999999.99',
             ],
         ];
     }
@@ -41,6 +42,7 @@ class PlaceBidRequest extends FormRequest
             'amount.required' => 'Please enter a bid amount.',
             'amount.numeric' => 'The bid amount must be a number.',
             'amount.min' => 'Your bid must be higher than the current price.',
+            'amount.max' => 'The bid amount cannot exceed 99,999,999.99.',
         ];
     }
 }

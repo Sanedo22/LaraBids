@@ -108,7 +108,7 @@
                                     <div class="upload-content text-center">
                                         <i class="fas fa-images fa-3x text-primary mb-3"></i>
                                         <h6 class="fw-bold mb-1">Click to upload multiple images</h6>
-                                        <p class="text-muted small mb-0">Drag and drop photos or click to browse. Max 10 photos.</p>
+                                        <p class="text-muted small mb-0">Drag and drop photos or click to browse. Max 5 photos.</p>
                                     </div>
                                     <input type="file" name="images[]" multiple accept="image/jpeg,image/png,image/jpg,image/gif" class="d-none" id="imageInput">
                                 </div>

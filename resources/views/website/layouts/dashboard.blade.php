@@ -46,12 +46,16 @@
                    class="sidebar-link rounded mb-1 {{ request()->routeIs('user.my-bids') ? 'active' : '' }}">
                     <i class="fas fa-fw fa-gavel me-2"></i> Active Bids
                 </a>
+                <a href="{{ route('user.my-auctions') }}" 
+                   class="sidebar-link rounded mb-1 {{ request()->routeIs('user.my-auctions') ? 'active' : '' }}">
+                    <i class="fas fa-fw fa-boxes me-2"></i> My Auctions
+                </a>
                 <a href="{{ route('user.winning-items') }}" 
                    class="sidebar-link rounded mb-1 {{ request()->routeIs('user.winning-items') ? 'active' : '' }}">
                     <i class="fas fa-fw fa-trophy me-2"></i> Won Items
                 </a>
-                <a href="{{ route('user.wishlist') }}" 
-                   class="sidebar-link rounded mb-1 {{ request()->routeIs('user.wishlist') ? 'active' : '' }}">
+                <a href="{{ route('user.watchlist') }}" 
+                   class="sidebar-link rounded mb-1 {{ request()->routeIs('user.watchlist') ? 'active' : '' }}">
                     <i class="fas fa-fw fa-heart me-2"></i> Watchlist
                 </a>
                 

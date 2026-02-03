@@ -9,7 +9,16 @@ class UserDashboardController extends Controller
     // Dashboard
     public function index()
     {
-        return view('website.user.dashboard');
+        $user = auth()->user();
+        
+        $stats = [
+            'active_bids' => $user->bids()->count(),
+            'total_wins' => 0, // TODO: Implement win logic
+            'watchlist_count' => $user->watchlist()->count(),
+            'messages_count' => 0,
+        ];
+
+        return view('website.user.dashboard', compact('stats'));
     }
 
     // My bids
@@ -24,6 +33,17 @@ class UserDashboardController extends Controller
         return view('website.user.my-bids', compact('bids'));
     }
 
+    // My auctions
+    public function myAuctions()
+    {
+        $auctions = auth()->user()->auctions()
+            ->with(['category', 'bids'])
+            ->latest()
+            ->paginate(10);
+
+        return view('website.user.my-auctions', compact('auctions'));
+    }
+
     // Winning items
     public function winningItems()
     {
@@ -31,11 +51,15 @@ class UserDashboardController extends Controller
         return view('website.user.winning-items');
     }
 
-    // Wishlist
-    public function wishlist()
+    // Watchlist
+    public function watchlist()
     {
-        // TODO: Fetch user's wishlist from database
-        return view('website.user.wishlist');
+        $watchlists = auth()->user()->watchlist()
+            ->with(['auction.category', 'auction.bids'])
+            ->latest()
+            ->paginate(10);
+
+        return view('website.user.watchlist', compact('watchlists'));
     }
 
     // Profile

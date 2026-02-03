@@ -40,7 +40,7 @@
 
             <!-- Right: Action Sidebar (Col-lg-5) -->
             <div class="col-lg-5">
-                <div class="sticky-top" style="top: 100px;">
+                <div class="sticky-lg-top" style="top: 120px; z-index: 1010;">
                     <div class="card card-elite p-4 mb-4 border-0 shadow-sm" data-aos="fade-left">
                         <h2 class="h3 text-dark mb-2 fw-bold">{{ $auction->title }}</h2>
                         <div class="mb-4">
@@ -139,9 +139,18 @@
                         @endif
 
                         <div class="d-flex gap-3 mt-2">
-                            <button class="btn btn-outline-primary flex-fill rounded-pill py-2">
-                                <i class="far fa-heart me-2"></i>Wishlist
-                            </button>
+                            @auth
+                            <form action="{{ route('user.watchlist.toggle', $auction->id) }}" method="POST" class="flex-fill watchlist-toggle-form">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-primary w-100 rounded-pill py-2">
+                                    <i class="{{ $auction->watchlists->isNotEmpty() ? 'fas' : 'far' }} fa-heart me-2"></i>Watchlist
+                                </button>
+                            </form>
+                            @else
+                            <a href="{{ route('login') }}" class="btn btn-outline-primary flex-fill rounded-pill py-2">
+                                <i class="far fa-heart me-2"></i>Watchlist
+                            </a>
+                            @endauth
                             <button class="btn btn-outline-secondary rounded-pill px-4">
                                 <i class="fas fa-share-alt"></i>
                             </button>

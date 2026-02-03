@@ -74,6 +74,14 @@
                         <div class="position-absolute top-0 start-0 m-3" style="z-index: 2;">
                             <span class="badge bg-gold text-dark shadow-sm">{{ $auction->category->name ?? 'Uncategorized' }}</span>
                         </div>
+                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 2;">
+                            <form action="{{ route('user.watchlist.toggle', $auction->id ?? 0) }}" method="POST" class="watchlist-toggle-form">
+                                @csrf
+                                <button type="submit" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border: none; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);">
+                                    <i class="{{ $auction->watchlists->isNotEmpty() ? 'fas' : 'far' }} fa-heart text-danger"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
 
                     <!-- Content Section -->

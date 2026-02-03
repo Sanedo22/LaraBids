@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\WatchlistController;
 
 // Public Routes
 
@@ -49,9 +50,11 @@ Route::middleware('auth')->group(function () {
     // User Dashboard Routes
     Route::prefix('user')->name('user.')->group(function () {
         Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/my-auctions', [UserDashboardController::class, 'myAuctions'])->name('my-auctions');
         Route::get('/my-bids', [UserDashboardController::class, 'myBids'])->name('my-bids');
         Route::get('/winning-items', [UserDashboardController::class, 'winningItems'])->name('winning-items');
-        Route::get('/wishlist', [UserDashboardController::class, 'wishlist'])->name('wishlist');
+        Route::get('/watchlist', [UserDashboardController::class, 'watchlist'])->name('watchlist');
+        Route::post('/watchlist/{auction}/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
         Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
     });
 });

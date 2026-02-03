@@ -15,7 +15,13 @@ class WebsiteController extends Controller
         $auctions = Auction::active()
             ->latestFirst()
             ->take(3)
-            ->with(['user', 'category'])
+            ->with(['user', 'category', 'watchlists' => function($q) {
+                if (auth()->check()) {
+                    $q->where('user_id', auth()->id());
+                } else {
+                    $q->whereRaw('1 = 0');
+                }
+            }])
             ->get();
             
         $categories = Category::where('is_active', true)->get();

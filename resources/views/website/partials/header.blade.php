@@ -58,12 +58,17 @@
                                 </a>
                             </li>
                             <li>
+                                <a class="dropdown-item text-dark small" href="{{ route('user.my-auctions') }}">
+                                    <i class="fas fa-gavel me-2 text-primary"></i> My Auctions
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item text-dark small" href="{{ route('user.profile') }}">
                                     <i class="fas fa-user-edit me-2 text-primary"></i> Profile
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item text-dark small" href="{{ route('user.wishlist') }}">
+                                <a class="dropdown-item text-dark small" href="{{ route('user.watchlist') }}">
                                     <i class="fas fa-heart me-2 text-primary"></i> Watchlist
                                 </a>
                             </li>

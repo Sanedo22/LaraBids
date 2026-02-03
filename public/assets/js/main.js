@@ -84,5 +84,79 @@ document.addEventListener('DOMContentLoaded', () => {
         setInterval(updateCountdowns, 1000);
     }
 
+    // --- Watchlist Toggle System ---
+    const watchlistForms = document.querySelectorAll('.watchlist-toggle-form');
+
+    watchlistForms.forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const button = form.querySelector('button');
+            const icon = button.querySelector('i');
+            const url = form.getAttribute('action');
+            const csrf = form.querySelector('input[name="_token"]').value;
+
+            // Optional: Add loading state
+            button.style.opacity = '0.5';
+            button.disabled = true;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.status === 401 || response.redirected) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    // Fallback to normal submission if not JSON
+                    form.submit();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'added') {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    // If it's a card icon, it already has text-danger usually, 
+                    // but for the detail page button we might want to handle text
+                } else if (data.status === 'removed') {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+
+                    // If we are on the watchlist page, remove the row
+                    if (window.location.pathname.includes('/user/watchlist')) {
+                        const row = form.closest('tr');
+                        if (row) {
+                            row.style.opacity = '0';
+                            setTimeout(() => {
+                                row.remove();
+                                // Check if table is empty
+                                const tbody = document.querySelector('tbody');
+                                if (tbody && tbody.children.length === 0) {
+                                    window.location.reload(); // Simple way to show empty state
+                                }
+                            }, 300);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Watchlist toggle failed:', error);
+            } finally {
+                button.style.opacity = '1';
+                button.disabled = false;
+            }
+        });
+    });
+
     console.log('LaraBids Elite System Initialized.');
 });

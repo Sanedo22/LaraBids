@@ -14,8 +14,12 @@ class AuctionService
     {
         $query = Auction::query();
 
-        if ($activeOnly) {
-            $query->where('status', 'active');
+        $status = $request->input('status', $activeOnly ? 'active' : 'all');
+
+        if ($status === 'active') {
+            $query->active();
+        } elseif ($status === 'past') {
+            $query->past();
         }
 
         // Search filter
@@ -63,7 +67,13 @@ class AuctionService
                 break;
         }
 
-        return $query->with(['user', 'category']);
+        return $query->with(['user', 'category', 'watchlists' => function($q) {
+            if (auth()->check()) {
+                $q->where('user_id', auth()->id());
+            } else {
+                $q->whereRaw('1 = 0');
+            }
+        }]);
     }
 
     // Create new auction

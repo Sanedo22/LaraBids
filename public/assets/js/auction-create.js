@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
             inputSelector: '#imageInput',
             gridSelector: '#imagePreviewGrid',
             primaryInputSelector: '#primaryImageIndex',
-            maxFiles: 10
+            maxFiles: 5
         });
     }
 
