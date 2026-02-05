@@ -12,14 +12,21 @@ class AuctionService
     // Get filtered auctions
     public function getFilteredAuctions(Request $request, bool $activeOnly = true)
     {
-        $query = Auction::query();
+        $query = Auction::select('auctions.*');
 
         $status = $request->input('status', $activeOnly ? 'active' : 'all');
 
         if ($status === 'active') {
             $query->active();
-        } elseif ($status === 'past') {
-            $query->past();
+        } elseif ($status === 'past' || $status === 'closed') {
+            $query->where(function($q) {
+                $q->where('status', 'closed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'active')->where('end_time', '<=', now());
+                  });
+            });
+        } elseif ($status !== 'all' && !empty($status)) {
+            $query->where('status', $status);
         }
 
         // Search filter
@@ -43,11 +50,23 @@ class AuctionService
         }
 
         // Price range filter
-        if ($request->filled('min_price')) {
-            $query->where('current_price', '>=', $request->input('min_price'));
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            if ($minPrice > $maxPrice) {
+                // Swap values if ordered incorrectly
+                $temp = $minPrice;
+                $minPrice = $maxPrice;
+                $maxPrice = $temp;
+            }
         }
-        if ($request->filled('max_price')) {
-            $query->where('current_price', '<=', $request->input('max_price'));
+
+        if ($minPrice !== null && $minPrice !== '') {
+            $query->where('current_price', '>=', $minPrice);
+        }
+        if ($maxPrice !== null && $maxPrice !== '') {
+            $query->where('current_price', '<=', $maxPrice);
         }
 
         // Sorting
@@ -63,7 +82,7 @@ class AuctionService
                 $query->orderBy('end_time', 'asc');
                 break;
             default:
-                $query->latest();
+                $query->orderBy('auctions.created_at', 'desc');
                 break;
         }
 
@@ -149,7 +168,14 @@ class AuctionService
             $payload['cancellation_reason'] = null;
         }
         
-        return $auction->update($payload);
+        $result = $auction->update($payload);
+
+        // Send notification to auction owner when cancelled
+        if ($status === 'cancelled' && $reason && $auction->user) {
+            $auction->user->notify(new \App\Notifications\AuctionCanceledNotification($auction, $reason));
+        }
+        
+        return $result;
     }
 
     // Delete auction (Soft delete)

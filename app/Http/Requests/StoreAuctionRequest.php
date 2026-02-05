@@ -16,13 +16,13 @@ class StoreAuctionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => ['required', 'string', 'min:3', 'max:255'],
+            'title' => ['required', 'string', 'min:3', 'max:100'],
             'category_id' => ['required', 'exists:categories,id'],
             'description' => ['required', 'string', 'min:20', 'max:5000'],
             'starting_price' => ['required', 'numeric', 'min:0.01', 'max:999999999'],
             'start_time' => ['required', 'date', 'after_or_equal:' . now()->subDay()->toDateTimeString()],
             'end_time' => ['required', 'date', 'after:start_time'],
-            'images' => ['nullable', 'array', 'max:5'],
+            'images' => ['required', 'array', 'min:1', 'max:5'],
             'images.*' => ['file', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'primary_image_index' => ['nullable', 'integer', 'min:0'],
             'document' => ['nullable', 'file', 'mimes:pdf,jpg,png,jpeg,doc,docx', 'max:5120'],
@@ -36,7 +36,7 @@ class StoreAuctionRequest extends FormRequest
         return [
             'title.required' => 'Item title is required.',
             'title.min' => 'Title must be at least 3 characters.',
-            'title.max' => 'Title must not exceed 255 characters.',
+            'title.max' => 'Title must not exceed 100 characters.',
             'category_id.required' => 'Please select a category.',
             'category_id.exists' => 'Selected category is invalid.',
             'description.required' => 'Description is required.',
@@ -55,6 +55,8 @@ class StoreAuctionRequest extends FormRequest
             'image.image' => 'The file must be an image.',
             'image.mimes' => 'Image must be a JPEG, PNG, JPG, or GIF file.',
             'image.max' => 'Image size must not exceed 2MB.',
+            'images.required' => 'At least one image is required.',
+            'images.min' => 'At least one image is required.',
             'images.max' => 'You cannot upload more than 5 images.',
             'images.*.image' => 'One of the files is not a valid image.',
             'images.*.mimes' => 'Images must be JPEG, PNG, JPG, or GIF format.',

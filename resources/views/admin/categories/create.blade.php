@@ -64,22 +64,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (value === '') {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Category name is required.';
             return false;
         } else if (value.length < 2) {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Category name must be at least 2 characters.';
             return false;
         } else if (value.length > 255) {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Category name must not exceed 255 characters.';
             return false;
         } else {
             nameInput.classList.remove('is-invalid');
-            nameInput.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }
@@ -91,14 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (value !== '' && value.length > 100) {
             iconInput.classList.add('is-invalid');
-            iconInput.classList.remove('is-valid');
             errorDiv.textContent = 'Icon class must not exceed 50 characters.';
             return false;
         } else {
             iconInput.classList.remove('is-invalid');
-            if (value !== '') {
-                iconInput.classList.add('is-valid');
-            }
             errorDiv.textContent = '';
             return true;
         }

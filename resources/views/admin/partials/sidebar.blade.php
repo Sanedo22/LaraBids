@@ -34,13 +34,6 @@
             <span>Auctions</span></a>
     </li>
 
-    <!-- Nav Item - Bids -->
-    <li class="nav-item {{ request()->routeIs('admin.bids.*') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('admin.bids.index') }}">
-            <i class="fas fa-fw fa-hand-holding-usd"></i>
-            <span>Bids History</span></a>
-    </li>
-
     <!-- Nav Item - Users -->
     <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.users.index') }}">
@@ -105,13 +98,28 @@
             <i class="fas fa-fw fa-bell"></i>
             <span>Notifications</span></a>
     </li>
+    
+    <!-- Divider -->
+    <hr class="sidebar-divider">
+    
+    <!-- Heading -->
+    <div class="sidebar-heading">
+        Account
+    </div>
+    
+    <!-- Nav Item - Logout -->
+    <li class="nav-item">
+        <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-sidebar-form').submit();">
+            <i class="fas fa-fw fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+        <form id="logout-sidebar-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
+    </li>
 
     <!-- Divider -->
-    {{-- <hr class="sidebar-divider">
-
-
-    <!-- Divider -->
-    <hr class="sidebar-divider d-none d-md-block"> --}}
+    <hr class="sidebar-divider d-none d-md-block">
 
     <!-- Sidebar Toggler (Sidebar) -->
     <div class="text-center d-none d-md-inline">
@@ -119,6 +127,7 @@
     </div>
 
 </ul>
+
 <script>
     if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
         document.body.classList.add('sidebar-toggled');

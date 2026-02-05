@@ -61,6 +61,9 @@
             processing: true,
             serverSide: true,
             ajax: "{{ route('admin.users.index') }}",
+            language: {
+                searchPlaceholder: "Search Name, Email..."
+            },
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                 {data: 'name', name: 'name'},

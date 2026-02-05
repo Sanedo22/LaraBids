@@ -158,5 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- Search Reset System ---
+    const searchInput = document.querySelector('.nav-search input[name="q"]');
+    if (searchInput) {
+        const handleSearchReset = () => {
+            if (searchInput.value === '') {
+                // If input is cleared and we are on a search results page, reset
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('q')) {
+                    searchInput.closest('form').submit();
+                }
+            }
+        };
+
+        searchInput.addEventListener('search', handleSearchReset);
+        searchInput.addEventListener('input', handleSearchReset);
+    }
+
     console.log('LaraBids Elite System Initialized.');
 });

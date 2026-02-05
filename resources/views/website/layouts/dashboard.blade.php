@@ -29,6 +29,12 @@
                 </a>
             </div>
 
+            <div class="px-3 mb-4">
+                <a href="{{ route('home') }}" class="btn btn-outline-light btn-sm w-100 rounded-pill opacity-75 hover-opacity-100 transition-all">
+                    <i class="fas fa-arrow-left me-2"></i> Back to Website
+                </a>
+            </div>
+
             <hr class="sidebar-divider">
 
 
@@ -89,10 +95,44 @@
 
         <!-- Main Content -->
         <main class="flex-grow-1"
-            style="background: #f8f9fc; min-height: 100vh;">
+            style="background: #f8f9fc; min-height: 100vh; overflow-x: hidden;">
 
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm px-4 py-3">
+                <div class="container-fluid d-flex justify-content-between">
+                    <div class="h5 mb-0 text-gray-800 d-none d-md-inline-block">
+                        Welcome back, <span class="fw-bold text-primary">{{ auth()->user()->name }}</span>
+                    </div>
 
-            <div class="p-4 p-lg-5">
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small me-2">{{ auth()->user()->name }}</span>
+                                <img class="img-profile rounded-circle" width="32" height="32" style="object-fit: cover;"
+                                    src="{{ auth()->user()->avatar_url }}">
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in mt-2"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item text-decoration-none px-3 py-2 d-block text-dark small" href="{{ route('user.profile') }}">
+                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                    Profile
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start px-3 py-2 d-block text-dark small">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <div class="p-4 p-lg-5 pt-lg-2">
                 @yield('content')
             </div>
         </main>

@@ -37,7 +37,7 @@ class UserDashboardController extends Controller
     public function myAuctions()
     {
         $auctions = auth()->user()->auctions()
-            ->with(['category', 'bids'])
+            ->with(['category', 'bids.user'])
             ->latest()
             ->paginate(10);
 

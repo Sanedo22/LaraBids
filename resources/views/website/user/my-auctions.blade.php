@@ -5,10 +5,15 @@
 @section('content')
 
 <!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-5">
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
     <div>
-        <span class="text-primary fw-bold small text-uppercase mb-1 d-block">Manage My Items</span>
         <h1 class="h3 text-dark fw-bold mb-0">My Auctions</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-primary">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">My Auctions</li>
+            </ol>
+        </nav>
     </div>
     <a href="{{ route('auctions.create') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
         <i class="fas fa-plus-circle me-1"></i> List New Item
@@ -25,6 +30,7 @@
                     <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">CATEGORY</th>
                     <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">STATUS</th>
                     <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">CURRENT PRICE</th>
+                    <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">WINNER</th>
                     <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">BIDS</th>
                     <th class="border-light py-3 pe-4 text-end text-xs font-weight-bold text-gray-600 text-uppercase small">ACTION</th>
                 </tr>
@@ -41,8 +47,8 @@
                                     <img src="https://images.unsplash.com/photo-1523275335684-21481017106d?auto=format&fit=crop&w=120" class="w-100 h-100 object-fit-cover">
                                 @endif
                             </div>
-                            <div>
-                                <h6 class="text-dark fw-bold mb-0 small">{{ $auction->title }}</h6>
+                            <div style="max-width: 250px;">
+                                <h6 class="text-dark fw-bold mb-0 small text-truncate" title="{{ $auction->title }}">{{ $auction->title }}</h6>
                                 <small class="text-muted" style="font-size: 0.7rem;">Created: {{ $auction->created_at->format('M d, Y') }}</small>
                             </div>
                         </div>
@@ -64,6 +70,21 @@
                     </td>
                     <td class="py-3 fw-bold text-primary">
                         ${{ number_format($auction->current_price, 2) }}
+                    </td>
+                    <td class="py-3">
+                        @php
+                            $highestBid = $auction->highestBid();
+                        @endphp
+                        @if($highestBid)
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="{{ $highestBid->user->avatar_url }}" class="rounded-circle border" width="24" height="24" alt="Winner Avatar">
+                                <span class="small text-dark fw-bold text-truncate" style="max-width: 100px;" title="{{ $highestBid->user->name }}">
+                                    {{ $highestBid->user->name }}
+                                </span>
+                            </div>
+                        @else
+                            <span class="text-muted small">No Bids</span>
+                        @endif
                     </td>
                     <td class="py-3">
                         <span class="badge bg-light text-dark rounded-pill px-3 py-1 border small">

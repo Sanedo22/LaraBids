@@ -14,16 +14,31 @@
 
 
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">All Auctions ({{ $total_auctions }})</h6>
+            <div class="form-inline">
+                <label for="statusFilter" class="mr-2 mb-0">Filter by Status:</label>
+                <select id="statusFilter" class="form-control form-control-sm">
+                    <option value="all" selected>All</option>
+                    <option value="pending">Pending</option>
+                    <option value="active">Active</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="closed">Closed</option>
+                </select>
+            </div>
         </div>
         <div class="card-body">
+            <div class="mb-2 text-muted small">
+                <i class="fas fa-info-circle"></i> Search by Title, Cancel Reason, Category, or User Name.
+            </div>
             <div class="table-responsive">
                 <table class="table table-bordered" id="auctions-table" width="100%" cellspacing="0">
                     <thead>
                         <tr>
                             <th width="30">#</th>
+                            <th width="60">Image</th>
                             <th>Title</th>
+                            <th>Category</th>
                             <th>User</th>
                             <th>Current Price</th>
                             <th>Status</th>
@@ -53,19 +68,37 @@
                 }
             });
 
+            var currentStatus = 'all';
+
             var table = $('#auctions-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.auctions.index') }}",
+                ajax: {
+                    url: "{{ route('admin.auctions.index') }}",
+                    data: function (d) {
+                        d.status = currentStatus;
+                    }
+                },
+                language: {
+                    searchPlaceholder: "Search Title, User, Category..."
+                },
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                    {data: 'image', name: 'image', orderable: false, searchable: false},
                     {data: 'title', name: 'title'},
+                    {data: 'category', name: 'category.name'},
                     {data: 'user', name: 'user.name'}, // Ensure this matches controller
                     {data: 'current_price', name: 'current_price'},
                     {data: 'status', name: 'status'},
                     {data: 'end_time', name: 'end_time'},
                     {data: 'action', name: 'action', orderable: false, searchable: false},
                 ]
+            });
+
+            // Status Filter Dropdown Change Handler
+            $('#statusFilter').on('change', function() {
+                currentStatus = $(this).val();
+                table.draw();
             });
 
             // Cancel Auction Removed - Only in View now

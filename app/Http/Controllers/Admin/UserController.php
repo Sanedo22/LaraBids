@@ -24,8 +24,12 @@ class UserController extends Controller
                 ->addIndexColumn()
                 ->addColumn('role_name', function($row){
                     $rolesHtml = '';
+                    if ($row->roles->isEmpty()) {
+                        return '<span class="badge badge-secondary">User</span>';
+                    }
                     foreach($row->roles as $role){
-                        $rolesHtml .= '<span class="badge badge-info mr-1">'.ucfirst($role->name).'</span>';
+                        $badgeClass = $role->name == 'admin' ? 'badge-danger' : ($role->name == 'super-admin' ? 'badge-warning' : 'badge-info');
+                        $rolesHtml .= '<span class="badge '.$badgeClass.' mr-1">'.ucfirst($role->name).'</span>';
                     }
                     return $rolesHtml;
                 })

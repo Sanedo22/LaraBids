@@ -4,7 +4,18 @@
 
 @section('content')
 
-<h2 class="h3 text-dark fw-bold mb-4">My Active Bids</h2>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+    <div>
+        <h1 class="h3 text-dark fw-bold mb-0">My Active Bids</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-primary">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">My Bids</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
 <div class="card card-elite p-0 overflow-hidden shadow-sm border-light">
     <div class="table-responsive">

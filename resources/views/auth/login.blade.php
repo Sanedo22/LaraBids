@@ -46,10 +46,10 @@
                                    id="email" 
                                    name="email" 
                                    value="{{ old('email') }}" 
-                                   placeholder="Enter your email"
-                                   autofocus>
+                                   placeholder="Enter your email">
+                            <div class="invalid-feedback" id="email-error"></div>
                             @error('email')
-                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -61,8 +61,9 @@
                                    id="password" 
                                    name="password" 
                                    placeholder="Enter your password">
+                            <div class="invalid-feedback" id="password-error"></div>
                             @error('password')
-                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -101,5 +102,19 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('assets/js/form-validation.js') }}"></script>
+@if (session('kicked_out'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Logged Out',
+                text: "{{ session('kicked_out') }}",
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+@endif
 @endpush

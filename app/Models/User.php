@@ -16,6 +16,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'location',
+        'avatar',
+        'bio',
         'deleted_by',
     ];
 
@@ -71,5 +75,15 @@ class User extends Authenticatable
     public function watchlist()
     {
         return $this->hasMany(Watchlist::class);
+    }
+
+    // Get avatar URL
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar && file_exists(public_path('storage/' . $this->avatar))) {
+            return asset('storage/' . $this->avatar);
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=4e73df&color=ffffff&size=150';
     }
 }

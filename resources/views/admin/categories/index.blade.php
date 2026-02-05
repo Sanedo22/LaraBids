@@ -78,6 +78,9 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.categories.index') }}",
+                language: {
+                    searchPlaceholder: "Search Name, Slug..."
+                },
                 columns: [
                     {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: 'icon', name: 'icon', orderable: false, searchable: false},

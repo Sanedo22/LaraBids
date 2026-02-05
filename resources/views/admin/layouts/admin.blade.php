@@ -22,6 +22,98 @@
     <link href="{{ asset('admin-assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    
+    <style>
+        /* Fixed Sidebar with Independent Scrolling */
+        #wrapper {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        #accordionSidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            width: 14rem;
+            z-index: 1000;
+        }
+        
+        /* Custom Scrollbar for Sidebar */
+        #accordionSidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        #accordionSidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        #accordionSidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+        
+        #accordionSidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        #content-wrapper {
+            margin-left: 14rem;
+            width: calc(100% - 14rem);
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        /* When sidebar is toggled (collapsed) */
+        #wrapper.toggled #accordionSidebar {
+            width: 6.5rem;
+        }
+        
+        #wrapper.toggled #content-wrapper {
+            margin-left: 6.5rem;
+            width: calc(100% - 6.5rem);
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            #accordionSidebar {
+                width: 0;
+                margin-left: -14rem;
+            }
+            
+            #content-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            #wrapper.toggled #accordionSidebar {
+                width: 14rem;
+                margin-left: 0;
+            }
+            
+            #wrapper.toggled #content-wrapper {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        /* Sidebar Alignment Fix */
+        #accordionSidebar .nav-item .nav-link {
+            padding-left: 1.5rem;
+        }
+        #accordionSidebar .sidebar-heading {
+            padding-left: 1.5rem;
+            margin-top: 1rem;
+        }
+        #accordionSidebar .sidebar-brand {
+            padding-left: 1.5rem;
+            justify-content: flex-start !important;
+        }
+    </style>
+    
     @stack('styles')
 
 </head>
@@ -39,10 +131,8 @@
             <!-- Main Content -->
             <div id="content">
 
-                @include('admin.partials.topbar')
-
                 <!-- Begin Page Content -->
-                <div class="container-fluid">
+                <div class="container-fluid pt-4">
                     @yield('content')
                 </div>
                 <!-- /.container-fluid -->

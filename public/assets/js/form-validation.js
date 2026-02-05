@@ -20,11 +20,17 @@ class FormValidator {
             }
         });
 
-        // Add real-time validation on blur
+        // Add real-time validation
         const inputs = this.form.querySelectorAll('input[name], textarea[name]');
         inputs.forEach(input => {
             input.addEventListener('blur', () => this.validateField(input));
-            input.addEventListener('input', () => this.clearFieldError(input));
+            input.addEventListener('input', () => {
+                if (input.classList.contains('is-invalid')) {
+                    this.validateField(input);
+                } else {
+                    this.clearFieldError(input);
+                }
+            });
         });
     }
 
@@ -166,23 +172,47 @@ class FormValidator {
     showError(input, message) {
         input.classList.add('is-invalid');
 
-        // Create or update error message element
-        let errorDiv = input.parentElement.querySelector('.invalid-feedback');
+        // Try to find the specific error div first
+        const errorId = `${input.id || input.name}-error`;
+        let errorDiv = document.getElementById(errorId);
+
         if (!errorDiv) {
-            errorDiv = document.createElement('div');
-            errorDiv.className = 'invalid-feedback';
-            input.parentElement.appendChild(errorDiv);
+            // Fallback to parent element search
+            errorDiv = input.parentElement.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback';
+                input.parentElement.appendChild(errorDiv);
+            }
         }
+
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
+
+        // Hide server errors when showing client errors
+        const serverError = input.parentElement.querySelector('[data-server-error]');
+        if (serverError) {
+            serverError.style.display = 'none';
+        }
     }
 
     clearFieldError(input) {
         input.classList.remove('is-invalid');
-        const errorDiv = input.parentElement.querySelector('.invalid-feedback');
-        if (errorDiv && !errorDiv.hasAttribute('data-server-error')) {
+
+        const errorId = `${input.id || input.name}-error`;
+        const errorDiv = document.getElementById(errorId);
+
+        if (errorDiv) {
             errorDiv.style.display = 'none';
+        } else {
+            const feedbackDiv = input.parentElement.querySelector('.invalid-feedback');
+            if (feedbackDiv && !feedbackDiv.hasAttribute('data-server-error')) {
+                feedbackDiv.style.display = 'none';
+            }
         }
+
+        // Show server error again if input is empty and was previously shown
+        // Actually, better to keep it hidden once client takes over
     }
 }
 

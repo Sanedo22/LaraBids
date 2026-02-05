@@ -8,13 +8,11 @@ use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AuctionController as AdminAuctionController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\BidController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\PaymentController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\WatchlistController;
 
@@ -38,6 +36,9 @@ Route::get('/dashboard', [WebsiteController::class, 'dashboard'])
 
 // Profile Routes
 
+// Public Seller Profiles
+Route::get('/sellers/{id}', [App\Http\Controllers\PublicProfileController::class, 'show'])->name('sellers.show');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -56,6 +57,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/watchlist', [UserDashboardController::class, 'watchlist'])->name('watchlist');
         Route::post('/watchlist/{auction}/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
         Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+        
+        // Notifications
+        Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read_all');
+        Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
     });
 });
 
@@ -82,9 +89,6 @@ Route::middleware(['auth', 'role:admin|super admin'])
         Route::delete('/auctions/{auction}/force-delete', [AdminAuctionController::class, 'forceDelete'])->name('auctions.force_delete');
         Route::delete('/auctions/{auction}', [AdminAuctionController::class, 'destroy'])->name('auctions.destroy');
         Route::post('/auctions/{auction}/cancel', [AdminAuctionController::class, 'cancel'])->name('auctions.cancel');
-
-        // Bids
-        Route::get('/bids', [BidController::class, 'index'])->name('bids.index');
 
         /*
         |--------------------------------------------------------------------------
@@ -115,10 +119,10 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])
             ->name('categories.restore');
-            
+
         Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])
             ->name('categories.force_delete');
-            
+
         Route::resource('categories', CategoryController::class);
 
         // Contacts
@@ -130,10 +134,6 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
-
-        // Admin Profile
-        Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile');
-        Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
         // Blank Page
         Route::get('/blank', [DashboardController::class, 'blank'])->name('blank');

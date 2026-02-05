@@ -15,8 +15,19 @@ class ContactController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            // Include soft deleted contacts
+            // Get status filter
+            $status = $request->get('status', 'all');
+            
+            // Base query - include soft deleted contacts
             $contacts = Contact::withTrashed()->latestFirst();
+            
+            // Apply status filter (only for non-deleted contacts)
+            if ($status !== 'all') {
+                $contacts->where(function($query) use ($status) {
+                    $query->where('status', $status)
+                          ->whereNull('deleted_at'); // Only filter active contacts
+                });
+            }
 
             return DataTables::of($contacts)
                 ->addIndexColumn()

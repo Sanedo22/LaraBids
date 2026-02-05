@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function () {
             categoryGroups.forEach(group => group.classList.add('d-none'));
             dynamicFieldsContainer.classList.add('d-none');
 
+            // If no category is selected, just stop here
+            if (!categoryId || categoryId === "") return;
+
             // Show relevant group
             const targetGroup = document.getElementById(`category_fields_${categoryId}`);
             if (targetGroup) {
@@ -73,7 +76,8 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Trigger change on load if category already selected (e.g. after validation error)
-        if (categorySelect.value) {
+        // Strictly check if it's a valid ID (numeric or non-empty string that isn't the disabled one)
+        if (categorySelect.value && categorySelect.value !== "" && !categorySelect.options[categorySelect.selectedIndex].disabled) {
             categorySelect.dispatchEvent(new Event('change'));
         }
     }

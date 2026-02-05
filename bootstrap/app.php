@@ -17,6 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
         ]);
 
+        $middleware->web(append: [
+            \App\Http\Middleware\CheckKickedOut::class,
+        ]);
+
         $middleware->redirectTo(
             guests: '/login',
             users: '/',

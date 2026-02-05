@@ -126,6 +126,7 @@
                                 @foreach($errors->get('images.*') as $message)
                                     <div class="invalid-feedback d-block" data-server-error>{{ $message[0] }}</div>
                                 @endforeach
+                                <div class="invalid-feedback" id="image-client-error"></div>
                             </div>
 
                             <!-- Dynamic Category Fields -->

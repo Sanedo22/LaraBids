@@ -117,22 +117,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (value === '') {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Full name is required.';
             return false;
         } else if (value.length < 2) {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Name must be at least 2 characters.';
             return false;
         } else if (value.length > 255) {
             nameInput.classList.add('is-invalid');
-            nameInput.classList.remove('is-valid');
             errorDiv.textContent = 'Name must not exceed 255 characters.';
             return false;
         } else {
             nameInput.classList.remove('is-invalid');
-            nameInput.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }
@@ -145,22 +141,18 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (value === '') {
             emailInput.classList.add('is-invalid');
-            emailInput.classList.remove('is-valid');
             errorDiv.textContent = 'Email address is required.';
             return false;
         } else if (!emailRegex.test(value)) {
             emailInput.classList.add('is-invalid');
-            emailInput.classList.remove('is-valid');
             errorDiv.textContent = 'Please enter a valid email address.';
             return false;
         } else if (value.length > 255) {
             emailInput.classList.add('is-invalid');
-            emailInput.classList.remove('is-valid');
             errorDiv.textContent = 'Email must not exceed 255 characters.';
             return false;
         } else {
             emailInput.classList.remove('is-invalid');
-            emailInput.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }
@@ -172,17 +164,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (value === '') {
             passwordInput.classList.add('is-invalid');
-            passwordInput.classList.remove('is-valid');
             errorDiv.textContent = 'Password is required.';
             return false;
         } else if (value.length < 8) {
             passwordInput.classList.add('is-invalid');
-            passwordInput.classList.remove('is-valid');
             errorDiv.textContent = 'Password must be at least 8 characters.';
             return false;
         } else {
             passwordInput.classList.remove('is-invalid');
-            passwordInput.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }
@@ -195,17 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (confirmation === '') {
             passwordConfirmInput.classList.add('is-invalid');
-            passwordConfirmInput.classList.remove('is-valid');
             errorDiv.textContent = 'Please confirm your password.';
             return false;
         } else if (password !== confirmation) {
             passwordConfirmInput.classList.add('is-invalid');
-            passwordConfirmInput.classList.remove('is-valid');
             errorDiv.textContent = 'Passwords do not match.';
             return false;
         } else {
             passwordConfirmInput.classList.remove('is-invalid');
-            passwordConfirmInput.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }
@@ -217,12 +203,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (value === '' || value === null) {
             roleSelect.classList.add('is-invalid');
-            roleSelect.classList.remove('is-valid');
             errorDiv.textContent = 'Please select a user role.';
             return false;
         } else {
             roleSelect.classList.remove('is-invalid');
-            roleSelect.classList.add('is-valid');
             errorDiv.textContent = '';
             return true;
         }

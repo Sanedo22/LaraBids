@@ -22,7 +22,99 @@
     --glass-bg: rgba(255, 255, 255, 0.9);
     --glass-border: rgba(0, 0, 0, 0.1);
     --transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+    --gray-100: #f8f9fc;
+    --gray-200: #eaecf4;
+    --gray-300: #dddfeb;
+    --gray-400: #d1d3e2;
+    --gray-500: #b7b9cc;
+    --gray-600: #858796;
+    --gray-700: #6e707e;
+    --gray-800: #5a5c69;
+    --gray-900: #3a3b45;
 }
+
+/* --- Utility Classes --- */
+.text-xs {
+    font-size: .7rem;
+}
+
+.text-sm {
+    font-size: .85rem;
+}
+
+.text-lg {
+    font-size: 1.25rem;
+}
+
+.text-gray-100 {
+    color: var(--gray-100) !important;
+}
+
+.text-gray-200 {
+    color: var(--gray-200) !important;
+}
+
+.text-gray-300 {
+    color: var(--gray-300) !important;
+}
+
+.text-gray-400 {
+    color: var(--gray-400) !important;
+}
+
+.text-gray-500 {
+    color: var(--gray-500) !important;
+}
+
+.text-gray-600 {
+    color: var(--gray-600) !important;
+}
+
+.text-gray-700 {
+    color: var(--gray-700) !important;
+}
+
+.text-gray-800 {
+    color: var(--gray-800) !important;
+}
+
+.text-gray-900 {
+    color: var(--gray-900) !important;
+}
+
+.font-weight-bold {
+    font-weight: 700 !important;
+}
+
+.font-weight-normal {
+    font-weight: 400 !important;
+}
+
+.border-start-primary {
+    border-left: .25rem solid var(--bs-primary) !important;
+}
+
+.border-start-success {
+    border-left: .25rem solid var(--bs-success) !important;
+}
+
+.border-start-info {
+    border-left: .25rem solid var(--bs-info) !important;
+}
+
+.border-start-warning {
+    border-left: .25rem solid var(--bs-warning) !important;
+}
+
+.border-start-danger {
+    border-left: .25rem solid var(--bs-danger) !important;
+}
+
+.cursor-not-allowed {
+    cursor: not-allowed;
+}
+
 
 /* --- Base Styles --- */
 body {
@@ -125,13 +217,29 @@ h4,
 }
 
 .nav-search i {
+    color: #4e73df;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.search-submit-btn {
     position: absolute;
     left: 15px;
     top: 50%;
     transform: translateY(-50%);
-    color: #4e73df;
-    font-size: 0.9rem;
+    background: none;
+    border: none;
+    padding: 0;
     z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.search-submit-btn:hover i {
+    color: #2e59d9;
+    transform: scale(1.1);
 }
 
 /* --- Buttons --- */
@@ -382,6 +490,15 @@ h4,
     background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
     background-size: cover;
     min-height: 100vh;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    flex-shrink: 0;
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
 }
 
 

@@ -39,10 +39,10 @@
                                    id="name" 
                                    name="name" 
                                    value="{{ old('name') }}" 
-                                   placeholder="Enter your full name"
-                                   autofocus>
+                                   placeholder="Enter your full name">
+                            <div class="invalid-feedback" id="name-error"></div>
                             @error('name')
-                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -55,8 +55,9 @@
                                    name="email" 
                                    value="{{ old('email') }}" 
                                    placeholder="Enter your email">
+                            <div class="invalid-feedback" id="email-error"></div>
                             @error('email')
-                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -68,8 +69,9 @@
                                    id="password" 
                                    name="password" 
                                    placeholder="Create a strong password">
+                            <div class="invalid-feedback" id="password-error"></div>
                             @error('password')
-                                <div class="invalid-feedback" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                             @enderror
                             
                             <!-- Password Strength Indicator -->
@@ -97,6 +99,7 @@
                                    id="password_confirmation" 
                                    name="password_confirmation" 
                                    placeholder="Confirm your password">
+                            <div class="invalid-feedback" id="password_confirmation-error"></div>
                         </div>
 
                         <!-- Submit Button -->

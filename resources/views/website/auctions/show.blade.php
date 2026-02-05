@@ -159,13 +159,17 @@
 
                     <!-- Compact Seller Info -->
                     <div class="card card-elite p-4 border-0 shadow-sm" data-aos="fade-left" data-aos-delay="100">
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($auction->user->name) }}&background=4e73df&color=ffffff"
-                                class="rounded-circle border border-primary border-opacity-25" height="45" alt="Seller">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <a href="{{ route('sellers.show', $auction->user->id) }}">
+                                <img src="{{ $auction->user->avatar_url }}"
+                                    class="rounded-circle border border-light shadow-sm" height="50" width="50" style="object-fit: cover;" alt="Seller">
+                            </a>
                             <div class="flex-grow-1">
-                                <h6 class="text-dark fw-bold mb-0">{{ $auction->user->name }}</h6>
+                                <a href="{{ route('sellers.show', $auction->user->id) }}" class="text-decoration-none">
+                                    <h6 class="text-dark fw-bold mb-0 transition-all hover-primary">{{ $auction->user->name }}</h6>
+                                </a>
                                 <div class="d-flex align-items-center gap-2">
-                                    <small class="text-success fw-bold" style="font-size: 0.7rem;">VERIFIED</small>
+                                    <small class="text-success fw-bold" style="font-size: 0.7rem;"><i class="fas fa-check-circle me-1"></i>VERIFIED</small>
                                     <div class="text-warning small" style="font-size: 0.7rem;">
                                         <i class="fas fa-star"></i> 4.9
                                     </div>
@@ -173,6 +177,20 @@
                             </div>
                             <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">Contact</a>
                         </div>
+                        @if($auction->user->location || $auction->user->bio)
+                            <div class="border-top pt-3">
+                                @if($auction->user->location)
+                                    <div class="small text-secondary mb-2">
+                                        <i class="fas fa-map-marker-alt text-primary me-2"></i>{{ $auction->user->location }}
+                                    </div>
+                                @endif
+                                @if($auction->user->bio)
+                                    <p class="small text-muted mb-0 text-truncate-2">
+                                        {{ Str::limit($auction->user->bio, 80) }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -238,8 +256,8 @@
                         @forelse($auction->bids->take(5) as $bid)
                         <li class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light last-child-border-0">
                             <div class="d-flex align-items-center gap-3">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($bid->user->name) }}&background=random" 
-                                    class="rounded-circle" height="35" width="35" alt="{{ $bid->user->name }}">
+                                <img src="{{ $bid->user->avatar_url }}" 
+                                    class="rounded-circle border" height="35" width="35" style="object-fit: cover;" alt="{{ $bid->user->name }}">
                                 <div>
                                     <span class="d-block text-dark fw-bold small">{{ $bid->user->name }}</span>
                                     <small class="text-muted" style="font-size: 0.7rem;">{{ $bid->created_at->diffForHumans() }}</small>

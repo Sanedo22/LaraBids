@@ -5,17 +5,17 @@
 @section('content')
 
 <!-- Dashboard Header -->
-<div class="d-flex justify-content-between align-items-center mb-5">
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
     <div>
-        <span class="text-primary fw-bold small text-uppercase mb-1 d-block">User Dashboard</span>
         <h1 class="h3 text-dark fw-bold mb-0">Overview</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+            </ol>
+        </nav>
     </div>
-    <div class="d-flex align-items-center gap-3">
-        <div class="bg-white p-2 px-3 small border rounded shadow-sm text-dark fw-bold">
-            <i class="fas fa-wallet text-primary me-2"></i> Balance: <span class="text-primary">$0.00</span>
-        </div>
-        <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=4e73df&color=ffffff"
-            class="rounded-circle border border-light shadow-sm" height="45" alt="Avatar">
+    <div class="bg-white p-2 px-3 small border rounded shadow-sm text-dark fw-bold">
+        <i class="fas fa-wallet text-primary me-2"></i> Balance: <span class="text-primary">$0.00</span>
     </div>
 </div>
 

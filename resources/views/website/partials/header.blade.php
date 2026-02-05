@@ -27,8 +27,10 @@
             <div class="d-flex gap-3 align-items-center">
                 <!-- Search Bar -->
                 <form action="{{ route('auctions.index') }}" method="GET" class="nav-search d-none d-lg-block me-3 mb-0">
-                    <i class="fas fa-search"></i>
-                    <input type="text" name="q" class="form-control" placeholder="Search auctions..." value="{{ request('q') }}">
+                    <button type="submit" class="search-submit-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <input type="search" name="q" class="form-control" placeholder="Search auctions..." value="{{ request('q') }}">
                 </form>
 
                 @guest
@@ -38,16 +40,65 @@
                         <a href="{{ route('register') }}" class="btn btn-primary px-4 btn-sm fw-bold">Join Now</a>
                     </div>
 
-                @else
+                 @else
                     <!-- Member State -->
                     <a href="{{ route('auctions.create') }}" class="btn btn-primary d-none d-lg-inline-block rounded-pill px-4 fw-bold me-2 shadow-sm">
                         <i class="fas fa-plus-circle me-1"></i> Sell Item
                     </a>
+                     <!-- Notifications -->
+                    <div class="dropdown ms-3">
+                        <a class="text-dark position-relative" href="#" id="alertsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell fa-lg"></i>
+                            @if(auth()->user()->unreadNotifications->count() > 0)
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; padding: 0.2rem 0.3rem;">
+                                    {{ auth()->user()->unreadNotifications->count() > 9 ? '9+' : auth()->user()->unreadNotifications->count() }}
+                                </span>
+                            @endif
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="alertsDropdown" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                            <li><h6 class="dropdown-header text-uppercase text-secondary fw-bold" style="font-size: 0.75rem;">Alerts Center</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            
+                            @forelse(auth()->user()->notifications()->take(5)->get() as $notification)
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-start p-3 {{ $notification->read_at ? 'bg-light bg-opacity-25' : 'bg-primary bg-opacity-10' }}" 
+                                       href="{{ route('user.notifications.index') }}"
+                                       onclick="event.preventDefault(); document.getElementById('mark-read-{{ $notification->id }}').submit();">
+                                        <div class="me-3">
+                                            <div class="bg-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'danger' : 'primary' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'gavel' : 'bell' }}"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="small text-muted">{{ $notification->created_at->diffForHumans() }}</div>
+                                            <span class="fw-bold d-block">{{ $notification->data['title'] ?? 'Notification' }}</span>
+                                            <span class="small text-truncate d-block" style="max-width: 240px;">{{ $notification->data['message'] ?? '' }}</span>
+                                        </div>
+                                    </a>
+                                    <form id="mark-read-{{ $notification->id }}" action="{{ route('user.notifications.read', $notification->id) }}" method="POST" style="display: none;">
+                                        @csrf
+                                    </form>
+                                </li>
+                            @empty
+                                <li>
+                                    <div class="dropdown-item text-center text-muted py-4">
+                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                                        <p class="mb-0">No notifications yet</p>
+                                    </div>
+                                </li>
+                            @endforelse
+                            
+                            @if(auth()->user()->notifications->count() > 0)
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center small text-secondary py-2" href="{{ route('user.notifications.index') }}">Show All Alerts</a></li>
+                            @endif
+                        </ul>
+                    </div>
                     <div class="dropdown">
                         <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark"
                             data-bs-toggle="dropdown">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=4e73df&color=ffffff"
-                                class="rounded-circle border border-primary border-opacity-25 me-2" height="35" alt="Avatar">
+                            <img src="{{ auth()->user()->avatar_url }}"
+                                class="rounded-circle border border-primary border-opacity-25 me-2" height="35" width="35" style="object-fit: cover;" alt="Avatar">
                             <span class="small d-none d-md-inline">{{ auth()->user()->name }}</span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0">
@@ -86,6 +137,8 @@
                             </li>
                         </ul>
                     </div>
+
+
                 @endguest
             </div>
         </div>

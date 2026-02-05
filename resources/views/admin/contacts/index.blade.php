@@ -13,8 +13,17 @@
 </div>
 
 <div class="card shadow mb-4">
-    <div class="card-header py-3">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <h6 class="m-0 font-weight-bold text-primary">All Contact Messages</h6>
+        <div class="form-inline">
+            <label for="statusFilter" class="mr-2 mb-0">Filter by Status:</label>
+            <select id="statusFilter" class="form-control form-control-sm">
+                <option value="all" selected>All</option>
+                <option value="unread">Unread</option>
+                <option value="read">Read</option>
+                <option value="replied">Replied</option>
+            </select>
+        </div>
     </div>
 
     <div class="card-body">
@@ -51,11 +60,22 @@
             }
         });
 
+        // Current filter status
+        var currentStatus = 'all';
+
         // Initialize DataTable
         var table = $('#contacts-table').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('admin.contacts.index') }}",
+            ajax: {
+                url: "{{ route('admin.contacts.index') }}",
+                data: function (d) {
+                    d.status = currentStatus;
+                }
+            },
+            language: {
+                searchPlaceholder: "Search Name, Email, Subject..."
+            },
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                 {data: 'name', name: 'name'},
@@ -66,6 +86,12 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [[5, 'desc']]
+        });
+
+        // Status Filter Dropdown Change Handler
+        $('#statusFilter').on('change', function() {
+            currentStatus = $(this).val();
+            table.draw();
         });
 
 

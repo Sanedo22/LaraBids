@@ -17,13 +17,17 @@ class AuctionFormValidator {
             if (!isValid) {
                 e.preventDefault();
                 e.stopPropagation();
-                e.stopImmediatePropagation();
 
                 // Scroll to first error
                 const firstError = this.form.querySelector('.is-invalid');
                 if (firstError) {
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    firstError.focus();
+                    // Only focus if it's a text input or textarea, avoid selects to prevent auto-opening
+                    if (firstError.tagName === 'INPUT' && (firstError.type === 'text' || firstError.type === 'number' || firstError.type === 'datetime-local')) {
+                        firstError.focus();
+                    } else if (firstError.tagName === 'TEXTAREA') {
+                        firstError.focus();
+                    }
                 }
 
                 return false;
@@ -31,7 +35,7 @@ class AuctionFormValidator {
 
             // If valid, allow form to submit normally
             return true;
-        }, true);
+        });
 
         // Add real-time validation on blur and input
         const inputs = this.form.querySelectorAll('input[name], select[name], textarea[name]');
@@ -41,7 +45,7 @@ class AuctionFormValidator {
         });
 
         // Special handling for file inputs
-        const imageInput = this.form.querySelector('input[name="image"]');
+        const imageInput = this.form.querySelector('input[name="images[]"]');
         if (imageInput) {
             imageInput.addEventListener('change', () => this.validateImage(imageInput));
         }
@@ -64,8 +68,8 @@ class AuctionFormValidator {
         });
 
         // Validate file inputs
-        const imageInput = this.form.querySelector('input[name="image"]');
-        if (imageInput && imageInput.files.length > 0) {
+        const imageInput = this.form.querySelector('input[name="images[]"]');
+        if (imageInput) {
             if (!this.validateImage(imageInput)) {
                 isValid = false;
             }
@@ -83,6 +87,8 @@ class AuctionFormValidator {
 
     validateField(input) {
         const name = input.name;
+        // Handle input names like specifications[year]
+        const cleanName = name.split('[')[0];
         const value = input.value.trim();
         let error = null;
 
@@ -91,12 +97,12 @@ class AuctionFormValidator {
 
         // Skip validation for optional fields that are empty
         const requiredFields = ['title', 'category_id', 'description', 'starting_price', 'start_time', 'end_time'];
-        if (!requiredFields.includes(name) && !value) {
+        if (!requiredFields.includes(cleanName) && !value) {
             return true;
         }
 
         // Validation rules based on field name
-        switch (name) {
+        switch (cleanName) {
             case 'title':
                 error = this.validateTitle(value);
                 break;
@@ -113,8 +119,8 @@ class AuctionFormValidator {
                 error = this.validateStartTime(value);
                 break;
             case 'end_time':
-                const startTime = this.form.querySelector('input[name="start_time"]').value;
-                error = this.validateEndTime(value, startTime);
+                const startTimeInput = this.form.querySelector('input[name="start_time"]');
+                error = this.validateEndTime(value, startTimeInput ? startTimeInput.value : null);
                 break;
         }
 
@@ -134,8 +140,8 @@ class AuctionFormValidator {
         if (value.length < 3) {
             return 'Title must be at least 3 characters.';
         }
-        if (value.length > 255) {
-            return 'Title must not exceed 255 characters.';
+        if (value.length > 100) {
+            return 'Title must not exceed 100 characters.';
         }
         return null;
     }
@@ -200,24 +206,34 @@ class AuctionFormValidator {
 
     validateImage(input) {
         if (!input.files || input.files.length === 0) {
-            return true;
+            const error = 'At least one image is required.';
+            this.showError(input, error);
+            this.errors['images'] = error;
+            return false;
         }
 
-        const file = input.files[0];
         const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
         const maxSize = 2 * 1024 * 1024; // 2MB
-
         let error = null;
 
-        if (!allowedTypes.includes(file.type)) {
-            error = 'Image must be a JPEG, PNG, JPG, or GIF file.';
-        } else if (file.size > maxSize) {
-            error = 'Image size must not exceed 2MB.';
+        if (input.files.length > 5) {
+            error = 'You cannot upload more than 5 images.';
+        } else {
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+                if (!allowedTypes.includes(file.type)) {
+                    error = `File "${file.name}" is not a valid image.`;
+                    break;
+                } else if (file.size > maxSize) {
+                    error = `Image "${file.name}" exceeds 2MB limit.`;
+                    break;
+                }
+            }
         }
 
         if (error) {
             this.showError(input, error);
-            this.errors['image'] = error;
+            this.errors['images'] = error;
             return false;
         }
 
@@ -262,27 +278,49 @@ class AuctionFormValidator {
     showError(input, message) {
         input.classList.add('is-invalid');
 
+        // Target for displaying error
+        let target = input;
+
+        // If it's an image input, we might want to target the wrapper or specialized grid
+        if (input.id === 'imageInput') {
+            const wrapper = input.closest('.image-upload-wrapper');
+            if (wrapper) target = wrapper;
+        }
+
         // Create or update error message element
-        let errorDiv = input.parentElement.querySelector('.invalid-feedback');
-        if (!errorDiv) {
+        let errorDiv = target.parentElement.querySelector('.invalid-feedback');
+
+        // Special case for input-group (like price)
+        if (input.parentElement.classList.contains('input-group')) {
+            errorDiv = input.parentElement.parentElement.querySelector('.invalid-feedback');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block';
+                input.parentElement.parentElement.appendChild(errorDiv);
+            }
+        } else if (!errorDiv) {
             errorDiv = document.createElement('div');
             errorDiv.className = 'invalid-feedback';
-            if (input.parentElement.classList.contains('input-group')) {
-                input.parentElement.parentElement.appendChild(errorDiv);
-                errorDiv.classList.add('d-block');
-            } else {
-                input.parentElement.appendChild(errorDiv);
-            }
+            target.parentElement.appendChild(errorDiv);
         }
+
         errorDiv.textContent = message;
         errorDiv.style.display = 'block';
+        errorDiv.removeAttribute('data-server-error'); // Client side error takes precedence during validation
     }
 
     clearFieldError(input) {
         input.classList.remove('is-invalid');
-        const errorDiv = input.parentElement.querySelector('.invalid-feedback') ||
-            input.parentElement.parentElement.querySelector('.invalid-feedback');
-        if (errorDiv && !errorDiv.hasAttribute('data-server-error')) {
+        let target = input;
+        if (input.id === 'imageInput') {
+            const wrapper = input.closest('.image-upload-wrapper');
+            if (wrapper) target = wrapper;
+        }
+
+        const errorDiv = target.parentElement.querySelector('.invalid-feedback') ||
+            (target.parentElement.parentElement ? target.parentElement.parentElement.querySelector('.invalid-feedback') : null);
+
+        if (errorDiv) {
             errorDiv.style.display = 'none';
         }
     }

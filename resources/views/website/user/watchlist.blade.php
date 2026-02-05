@@ -5,10 +5,15 @@
 @section('content')
 
 <!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-5">
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
     <div>
-        <span class="text-primary fw-bold small text-uppercase mb-1 d-block">Favorites</span>
         <h1 class="h3 text-dark fw-bold mb-0">My Watchlist</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-primary">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Watchlist</li>
+            </ol>
+        </nav>
     </div>
     <a href="{{ route('auctions.index') }}" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm">
         <i class="fas fa-search me-1"></i> Browse Auctions
@@ -41,8 +46,8 @@
                                     <img src="https://images.unsplash.com/photo-1523275335684-21481017106d?auto=format&fit=crop&w=120" class="w-100 h-100 object-fit-cover">
                                 @endif
                             </div>
-                            <div>
-                                <h6 class="text-dark fw-bold mb-0 small">{{ $auction->title }}</h6>
+                            <div style="max-width: 250px;">
+                                <h6 class="text-dark fw-bold mb-0 small text-truncate" title="{{ $auction->title }}">{{ $auction->title }}</h6>
                                 <small class="text-muted" style="font-size: 0.7rem;">Seller: {{ $auction->user->name ?? 'Unknown' }}</small>
                             </div>
                         </div>

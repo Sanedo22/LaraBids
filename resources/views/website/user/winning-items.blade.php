@@ -4,7 +4,18 @@
 
 @section('content')
 
-<h2 class="h3 text-dark fw-bold mb-4">Won Items</h2>
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 pt-2">
+    <div>
+        <h1 class="h3 text-dark fw-bold mb-0">Won Items</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0 small">
+                <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}" class="text-decoration-none text-primary">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Won Items</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
 <div class="card card-elite p-0 overflow-hidden shadow-sm border-light">
     <div class="table-responsive">
