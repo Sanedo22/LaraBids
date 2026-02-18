@@ -148,7 +148,7 @@
                     <div class="form-group">
                         <label for="admin_notes" class="font-weight-bold">Admin Notes</label>
                         <textarea name="admin_notes" id="admin_notes" rows="4" class="form-control" 
-                            placeholder="Add internal notes...">{{ $contact->admin_notes }}</textarea>
+                            placeholder="Add internal notes...">{{ $contact->admin_notes ?: 'We received your query regarding "' . \Illuminate\Support\Str::limit($contact->subject, 20) . '". Our team has reviewed it and will contact you shortly.' }}</textarea>
                         <small class="form-text text-muted">
                             <i class="fas fa-lightbulb"></i> Adding notes will mark as "Replied"
                         </small>

@@ -11,6 +11,8 @@ class Auction extends Model
 {
     use HasFactory, SoftDeletes;
 
+    const MAX_INCREMENT_ALLOWED = 1000.00;
+
     protected $fillable = [
         'user_id',
         'category_id',
@@ -25,6 +27,7 @@ class Auction extends Model
         'status',
         'specifications',
         'cancellation_reason',
+        'min_increment',
     ];
 
     protected $casts = [
@@ -32,6 +35,7 @@ class Auction extends Model
         'end_time' => 'datetime',
         'starting_price' => 'decimal:2',
         'current_price' => 'decimal:2',
+        'min_increment' => 'decimal:2',
         'specifications' => 'array',
     ];
 

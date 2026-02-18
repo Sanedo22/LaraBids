@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -34,6 +35,14 @@ class NotificationController extends Controller
         auth()->user()->unreadNotifications->markAsRead();
 
         return redirect()->back()->with('success', 'All notifications marked as read.');
+    }
+
+    // Clear all notifications
+    public function clearAll()
+    {
+        auth()->user()->notifications()->delete();
+
+        return redirect()->back()->with('success', 'All notifications cleared.');
     }
 
     // Delete notification

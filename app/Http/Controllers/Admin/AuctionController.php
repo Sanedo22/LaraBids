@@ -248,3 +248,4 @@ class AuctionController extends Controller
             : redirect()->route('admin.auctions.index')->with('success', 'Auction permanently deleted.');
     }
 }
+    

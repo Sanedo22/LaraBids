@@ -100,6 +100,7 @@
                 width: 100%;
             }
         }
+        
         /* Sidebar Alignment Fix */
         #accordionSidebar .nav-item .nav-link {
             padding-left: 1.5rem;

@@ -131,12 +131,14 @@
                     <hr>
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Starting Price:</strong> ${{ number_format($auction->starting_price, 2) }}</p>
-                            <p><strong>Current Price:</strong> ${{ number_format($auction->current_price, 2) }}</p>
+                            <p><strong>Starting Price:</strong> ₹{{ number_format($auction->starting_price, 2) }}</p>
+                            <p><strong>Current Price:</strong> ₹{{ number_format($auction->current_price, 2) }}</p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Start Time:</strong> {{ $auction->start_time->format('M d, Y H:i') }}</p>
                             <p><strong>End Time:</strong> {{ $auction->end_time->format('M d, Y H:i') }}</p>
+                            <p><strong>Min Increment:</strong> ₹{{ number_format($auction->min_increment, 2) }}</p>
+                            <p><strong>Max Increment:</strong> ₹{{ number_format(\App\Models\Auction::MAX_INCREMENT_ALLOWED, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -176,7 +178,7 @@
                                                 </div>
                                             </td>
                                             <td class="align-middle">
-                                                <span class="font-weight-bold text-dark h5 mb-0">${{ number_format($bid->amount, 2) }}</span>
+                                                <span class="font-weight-bold text-dark h5 mb-0">₹{{ number_format($bid->amount, 2) }}</span>
                                                 @if($loop->first)
                                                     <div class="small text-success font-weight-bold">
                                                         <i class="fas fa-trophy mr-1"></i> Highest Bid
@@ -215,6 +217,17 @@
                 <div class="card-body">
                     <p><strong>ID:</strong> #{{ $auction->id }}</p>
                     <p><strong>Seller:</strong> {{ $auction->user->name }} ({{ $auction->user->email }})</p>
+                    <p><strong>Category:</strong> 
+                        @if($auction->category)
+                            @if($auction->category->parent)
+                                <span class="text-muted">{{ $auction->category->parent->name }}</span> 
+                                <i class="fas fa-chevron-right fa-xs mx-1 text-gray-400"></i>
+                            @endif
+                            <span class="font-weight-bold text-primary">{{ $auction->category->name }}</span>
+                        @else
+                            <span class="text-muted font-italic">Uncategorized</span>
+                        @endif
+                    </p>
                     <p><strong>Status:</strong> 
                         @php
                             $displayStatus = $auction->status;

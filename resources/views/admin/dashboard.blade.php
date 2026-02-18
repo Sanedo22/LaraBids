@@ -175,7 +175,7 @@
                             <span class="small text-muted">{{ number_format($stats['bids_today']) }} today</span>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>
+                            <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>

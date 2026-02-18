@@ -32,7 +32,8 @@
                         <div class="form-group">
                             <label class="font-weight-bold">Default Currency</label>
                             <select class="form-control">
-                                <option selected>USD ($)</option>
+                                <option selected>INR (₹)</option>
+                                <option>USD ($)</option>
                                 <option>EUR (€)</option>
                                 <option>GBP (£)</option>
                                 <option>INR (₹)</option>

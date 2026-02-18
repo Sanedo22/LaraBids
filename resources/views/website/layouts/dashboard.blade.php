@@ -64,6 +64,10 @@
                    class="sidebar-link rounded mb-1 {{ request()->routeIs('user.watchlist') ? 'active' : '' }}">
                     <i class="fas fa-fw fa-heart me-2"></i> Watchlist
                 </a>
+                <a href="{{ route('user.notifications.index') }}" 
+                   class="sidebar-link rounded mb-1 {{ request()->routeIs('user.notifications.index') ? 'active' : '' }}">
+                    <i class="fas fa-fw fa-bell me-2"></i> Notifications
+                </a>
                 
                 <hr class="sidebar-divider">
                 <div class="sidebar-heading">Settings</div>
@@ -104,7 +108,8 @@
                         Welcome back, <span class="fw-bold text-primary">{{ auth()->user()->name }}</span>
                     </div>
 
-                    <ul class="navbar-nav ml-auto">
+                    <ul class="navbar-nav ml-auto align-items-center">
+
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
                                 data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

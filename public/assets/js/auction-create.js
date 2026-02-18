@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // 3. Dynamic Category Fields Logic
-    const categorySelect = document.querySelector('select[name="category_id"]');
+    const categorySelect = document.querySelector('[name="category_id"]');
     const dynamicFieldsContainer = document.getElementById('dynamicFieldsContainer');
     const categoryGroups = document.querySelectorAll('.category-fields-group');
 
@@ -56,10 +56,25 @@ document.addEventListener('DOMContentLoaded', function () {
             dynamicFieldsContainer.classList.add('d-none');
 
             // If no category is selected, just stop here
-            if (!categoryId || categoryId === "") return;
+            if (!categoryId || categoryId === "" || !window.categoryTree) return;
+
+            // Find category or its parent's slug
+            let targetSlug = null;
+            window.categoryTree.forEach(parent => {
+                if (parent.id == categoryId) {
+                    targetSlug = parent.slug;
+                } else if (parent.children) {
+                    const child = parent.children.find(c => c.id == categoryId);
+                    if (child) {
+                        targetSlug = parent.slug; // Use parent slug for specs
+                    }
+                }
+            });
+
+            if (!targetSlug) return;
 
             // Show relevant group
-            const targetGroup = document.getElementById(`category_fields_${categoryId}`);
+            const targetGroup = document.getElementById(`category_fields_${targetSlug}`);
             if (targetGroup) {
                 dynamicFieldsContainer.classList.remove('d-none');
                 targetGroup.classList.remove('d-none');
@@ -67,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Smooth fade-in
                 targetGroup.style.opacity = 0;
                 let opacity = 0;
-                const timer = setInterval(function () {
-                    if (opacity >= 1) clearInterval(timer);
+                const animTimer = setInterval(function () {
+                    if (opacity >= 1) clearInterval(animTimer);
                     targetGroup.style.opacity = opacity;
                     opacity += 0.1;
                 }, 20);
@@ -76,9 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         // Trigger change on load if category already selected (e.g. after validation error)
-        // Strictly check if it's a valid ID (numeric or non-empty string that isn't the disabled one)
-        if (categorySelect.value && categorySelect.value !== "" && !categorySelect.options[categorySelect.selectedIndex].disabled) {
-            categorySelect.dispatchEvent(new Event('change'));
+        if (categorySelect.value && categorySelect.value !== "") {
+            categorySelect.onchange();
         }
     }
 });

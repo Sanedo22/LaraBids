@@ -34,10 +34,10 @@
                class="category-pill {{ request('status') == 'past' ? 'active' : '' }}">
                 <i class="fas fa-history me-2"></i>Past Auctions</a>
             
-            {{-- 3. Specific Category: Passes ONLY category. Automatically drops 'q' (search). --}}
+            {{-- 3. Parent Categories: Only top-level items --}}
             @foreach($categories as $category)
             <a href="{{ route('auctions.index', ['category' => $category->slug]) }}" 
-               class="category-pill {{ request('category') == $category->slug ? 'active' : '' }}">
+               class="category-pill {{ request('category') == $category->slug || (isset($parentCategory) && $parentCategory->slug == $category->slug) ? 'active' : '' }}">
                 <i class="{{ $category->icon }} me-2"></i>{{ $category->name }}
             </a>
             @endforeach
@@ -45,23 +45,19 @@
         </div>
 
         <div class="card card-elite p-4 mb-5 border-0 shadow-sm" data-aos="fade-up">
-            <form action="{{ route('auctions.index') }}" method="GET" class="row g-3 align-items-center">
+            <form action="{{ route('auctions.index') }}" method="GET" class="row g-3 align-items-center justify-content-center">
                 {{-- Preserve existing filters when sorting/filtering price --}}
-                @if(request('category'))
-                    <input type="hidden" name="category" value="{{ request('category') }}">
-                @endif
                 @if(request('q'))
                     <input type="hidden" name="q" value="{{ request('q') }}">
                 @endif
                 @if(request('status'))
                     <input type="hidden" name="status" value="{{ request('status') }}">
                 @endif
-
-                <div class="col-lg-5 col-md-12">
+                <div class="col-lg-3 col-md-6">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="text-dark small fw-bold text-nowrap">Price Range:</span>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-light text-primary fw-bold">$</span>
+                        <span class="text-dark small fw-bold text-nowrap">Price:</span>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light border-light text-primary fw-bold">₹</span>
                             <input type="number" name="min_price" class="form-control bg-light border-light" 
                                 placeholder="Min" value="{{ request('min_price') }}">
                             <input type="number" name="max_price" class="form-control bg-light border-light" 
@@ -70,10 +66,26 @@
                     </div>
                 </div>
 
-                <div class="col-lg-5 col-md-12">
+                @if($subCategories->isNotEmpty() || request('category'))
+                <div class="col-lg-3 col-md-6">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-dark small fw-bold text-nowrap">Subcategory:</span>
+                        <select name="category" class="form-select form-select-sm bg-light border-light text-dark shadow-none" onchange="this.form.submit()">
+                            <option value="{{ $parentCategory->slug ?? request('category') }}">All Subcategories</option>
+                            @foreach($subCategories as $sub)
+                                <option value="{{ $sub->slug }}" {{ request('category') == $sub->slug ? 'selected' : '' }}>
+                                    {{ $sub->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                @endif
+
+                <div class="col-lg-3 col-md-12">
                     <div class="d-flex align-items-center gap-3">
                         <span class="text-dark small fw-bold text-nowrap">Sort By:</span>
-                        <select name="sort" class="form-select bg-light border-light text-dark shadow-none" onchange="this.form.submit()">
+                        <select name="sort" class="form-select form-select-sm bg-light border-light text-dark shadow-none" onchange="this.form.submit()">
                             <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Newly Listed</option>
                             <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
                             <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
@@ -82,7 +94,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-2 col-md-12 d-grid gap-2 d-md-flex justify-content-lg-end">
+                <div class="col-lg-auto col-md-12 d-grid gap-2 d-md-flex justify-content-lg-end">
                     <button type="submit" class="btn btn-gold px-4">Filter</button>
                     <a href="{{ route('auctions.index', request()->only(['category', 'q'])) }}" class="btn btn-outline-secondary px-3">
                         <i class="fas fa-undo"></i>
@@ -158,7 +170,7 @@
                         <div class="mt-auto">
                             <div class="d-flex justify-content-between align-items-center mb-3 pt-3 border-top">
                                 <span class="small text-secondary fw-bold text-uppercase">Current Bid</span>
-                                <span class="h5 mb-0 text-primary fw-bold">${{ number_format($auction->current_price, 2) }}</span>
+                                <span class="h5 mb-0 text-primary fw-bold">₹{{ number_format($auction->current_price, 2) }}</span>
                             </div>
                             <a href="{{ route('auctions.show', $auction->id) }}" class="btn btn-primary w-100 py-3 rounded-pill fw-bold stretched-link shadow-sm transition-all">
                                 View Details <i class="fas fa-arrow-right ms-2"></i>
@@ -180,7 +192,7 @@
             @endforelse
         </div>
 
-        <div class="d-flex justify-content-center mt-5">
+        <div class="d-flex justify-content-center mt-5 pagination-elite">
             {{ $auctions->links('pagination::bootstrap-5') }}
         </div>
     </div>

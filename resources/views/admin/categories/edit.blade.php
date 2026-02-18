@@ -29,6 +29,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="parent_id">Parent Category</label>
+                    <select class="form-control @error('parent_id') is-invalid @enderror" id="parent_id" name="parent_id">
+                        <option value="">-- No Parent (Top Level) --</option>
+                        @foreach($parentCategories as $parent)
+                            <option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>
+                        @endforeach
+                    </select>
+                    <small class="form-text text-muted">Select a parent category if this is a sub-category.</small>
+                    @error('parent_id')
+                        <span class="invalid-feedback d-block" role="alert"><strong>{{ $message }}</strong></span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
                     <label for="icon">Icon Class (Font Awesome)</label>
                     <input type="text" class="form-control @error('icon') is-invalid @enderror" id="icon" name="icon" value="{{ old('icon', $category->icon) }}" placeholder="e.g. fas fa-laptop">
                     <div class="invalid-feedback" id="icon-error"></div>

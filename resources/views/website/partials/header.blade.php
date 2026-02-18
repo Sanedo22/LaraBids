@@ -58,21 +58,23 @@
                         <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="alertsDropdown" style="width: 350px; max-height: 400px; overflow-y: auto;">
                             <li><h6 class="dropdown-header text-uppercase text-secondary fw-bold" style="font-size: 0.75rem;">Alerts Center</h6></li>
                             <li><hr class="dropdown-divider"></li>
-                            
-                            @forelse(auth()->user()->notifications()->take(5)->get() as $notification)
+
+                            @forelse(auth()->user()->notifications()->take(3)->get() as $notification)
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-start p-3 {{ $notification->read_at ? 'bg-light bg-opacity-25' : 'bg-primary bg-opacity-10' }}" 
-                                       href="{{ route('user.notifications.index') }}"
+                                    <a class="dropdown-item d-flex align-items-center p-3 border-bottom {{ $notification->read_at ? 'bg-white' : 'bg-light' }}" 
+                                       href="{{ (isset($notification->data['link']) && str_contains($notification->data['link'], 'messages')) ? '#' : ($notification->data['link'] ?? route('user.notifications.index')) }}"
                                        onclick="event.preventDefault(); document.getElementById('mark-read-{{ $notification->id }}').submit();">
                                         <div class="me-3">
-                                            <div class="bg-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'danger' : 'primary' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                                <i class="fas fa-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'gavel' : 'bell' }}"></i>
+                                            <div class="bg-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'danger' : 'primary' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                <i class="fas fa-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'gavel' : 'bell' }} fa-sm"></i>
                                             </div>
                                         </div>
-                                        <div class="flex-grow-1">
-                                            <div class="small text-muted">{{ $notification->created_at->diffForHumans() }}</div>
-                                            <span class="fw-bold d-block">{{ $notification->data['title'] ?? 'Notification' }}</span>
-                                            <span class="small text-truncate d-block" style="max-width: 240px;">{{ $notification->data['message'] ?? '' }}</span>
+                                        <div class="flex-grow-1" style="min-width: 0;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <span class="fw-bold text-dark small text-truncate pe-2">{{ Str::limit($notification->data['title'] ?? 'Notification', 25) }}</span>
+                                                <small class="text-muted" style="font-size: 0.65rem;">{{ $notification->created_at->diffForHumans(null, true, true) }}</small>
+                                            </div>
+                                            <div class="text-secondary text-truncate small" style="font-size: 0.75rem;">{{ $notification->data['message'] ?? '' }}</div>
                                         </div>
                                     </a>
                                     <form id="mark-read-{{ $notification->id }}" action="{{ route('user.notifications.read', $notification->id) }}" method="POST" style="display: none;">
@@ -81,13 +83,16 @@
                                 </li>
                             @empty
                                 <li>
-                                    <div class="dropdown-item text-center text-muted py-4">
-                                        <i class="fas fa-bell-slash fa-2x mb-2"></i>
-                                        <p class="mb-0">No notifications yet</p>
+                                    <div class="dropdown-item text-center text-muted py-5">
+                                        <div class="mb-2">
+                                            <i class="fas fa-bell-slash fa-2x text-gray-300"></i>
+                                        </div>
+                                        <p class="mb-0 small">No notifications</p>
                                     </div>
                                 </li>
+
                             @endforelse
-                            
+
                             @if(auth()->user()->notifications->count() > 0)
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-center small text-secondary py-2" href="{{ route('user.notifications.index') }}">Show All Alerts</a></li>

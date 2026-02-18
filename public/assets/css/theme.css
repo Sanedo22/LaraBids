@@ -799,11 +799,6 @@ footer {
     }
 }
 
-.metrics-overlap {
-    margin-top: -60px;
-    position: relative;
-    z-index: 10;
-}
 
 ::-webkit-scrollbar {
     width: 10px;
@@ -839,4 +834,85 @@ footer {
     color: #4e73df !important;
     transform: scale(1.1);
     opacity: 1 !important;
+}
+
+/* --- Premium UI Utilities --- */
+.hover-up {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-up:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.bg-gold-soft.text-gold {
+    color: #b8962d !important;
+}
+
+.bid-history-scroll {
+    max-height: 400px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bs-primary) #f8f9fc;
+}
+
+.bid-history-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.bid-history-scroll::-webkit-scrollbar-track {
+    background: #f8f9fc;
+}
+
+.bid-history-scroll::-webkit-scrollbar-thumb {
+    background: var(--bs-primary);
+    border-radius: 10px;
+}
+
+/* Base Animations */
+.animate__animated {
+    animation-duration: 0.6s;
+    animation-fill-mode: both;
+}
+
+@keyframes shakeX {
+
+    from,
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translate3d(-5px, 0, 0);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translate3d(5px, 0, 0);
+    }
+}
+
+.animate__shakeX {
+    animation-name: shakeX;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate__fadeIn {
+    animation-name: fadeIn;
 }

@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Website;
 
+use App\Http\Controllers\Controller;
 use App\Models\Auction;
 use App\Models\Category;
 use App\Http\Requests\StoreAuctionRequest;
@@ -24,9 +25,24 @@ class AuctionController extends Controller
             ->paginate(9)
             ->withQueryString();
 
-        $categories = Category::where('is_active', true)->get();
+        $categories = Category::topLevel()->active()->get();
+        $subCategories = collect();
+        $parentCategory = null;
 
-        return view('website.auctions.index', compact('auctions', 'categories'));
+        if ($request->has('category')) {
+            $currentCategory = Category::where('slug', $request->category)->first();
+            if ($currentCategory) {
+                if ($currentCategory->parent_id) {
+                    $parentCategory = $currentCategory->parent;
+                    $subCategories = $parentCategory->children()->active()->get();
+                } else {
+                    $parentCategory = $currentCategory;
+                    $subCategories = $currentCategory->children()->active()->get();
+                }
+            }
+        }
+
+        return view('website.auctions.index', compact('auctions', 'categories', 'subCategories', 'parentCategory'));
     }
 
     // Show auction
@@ -60,8 +76,20 @@ class AuctionController extends Controller
     // Create form
     public function create()
     {
-        $categories = Category::where('is_active', true)->get();
-        return view('website.auctions.create', compact('categories'));
+        $categories = Category::topLevel()->active()->with('children')->get();
+        
+        $categoryTree = $categories->map(function($cat) {
+            return [
+                'id' => $cat->id,
+                'name' => $cat->name,
+                'slug' => $cat->slug,
+                'children' => $cat->children->map(function($child) {
+                    return ['id' => $child->id, 'name' => $child->name, 'slug' => $child->slug];
+                })
+            ];
+        });
+
+        return view('website.auctions.create', compact('categories', 'categoryTree'));
     }
 
     // Store auction
@@ -69,8 +97,12 @@ class AuctionController extends Controller
     {
         $auction = $this->auctionService->createAuction($request->validated(), auth()->user());
 
+        $message = $auction->status === 'active' 
+            ? 'Auction created successfully and is now live!' 
+            : 'Auction created successfully! It will be live after admin approval.';
+
         return redirect()->route('auctions.show', $auction->id)
-            ->with('success', 'Auction created successfully! It will be live after admin approval.');
+            ->with('success', $message);
     }
 
     // Search auctions

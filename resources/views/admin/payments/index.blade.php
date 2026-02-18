@@ -36,8 +36,8 @@
                             <td>#TXN-49021</td>
                             <td>Vintage Rolex Submariner</td>
                             <td>Tiger Nixon</td>
-                            <td>$12,500.00</td>
-                            <td>$1,250.00</td>
+                            <td>₹12,500.00</td>
+                            <td>₹1,250.00</td>
                             <td>Stripe</td>
                             <td><span class="badge badge-success">Completed</span></td>
                             <td>2024/01/20</td>
@@ -46,8 +46,8 @@
                             <td>#TXN-49020</td>
                             <td>MacBook Pro M2</td>
                             <td>Garrett Winters</td>
-                            <td>$3,200.00</td>
-                            <td>$320.00</td>
+                            <td>₹3,200.00</td>
+                            <td>₹320.00</td>
                             <td>PayPal</td>
                             <td><span class="badge badge-success">Completed</span></td>
                             <td>2024/01/19</td>
@@ -56,8 +56,8 @@
                             <td>#TXN-49019</td>
                             <td>1964 Ferrari GTO Model</td>
                             <td>Ashton Cox</td>
-                            <td>$2,400.00</td>
-                            <td>$240.00</td>
+                            <td>₹2,400.00</td>
+                            <td>₹240.00</td>
                             <td>Credit Card</td>
                             <td><span class="badge badge-warning">Pending</span></td>
                             <td>2024/01/18</td>

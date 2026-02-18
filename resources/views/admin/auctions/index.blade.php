@@ -40,7 +40,7 @@
                             <th>Title</th>
                             <th>Category</th>
                             <th>User</th>
-                            <th>Current Price</th>
+                            <th class="text-nowrap">Current Price</th>
                             <th>Status</th>
                             <th>End Time</th>
                             <th width="150">Actions</th>

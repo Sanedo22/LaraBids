@@ -46,6 +46,7 @@
                             <th width="30">#</th>
                             <th>Icon</th>
                             <th>Category Name</th>
+                            <th>Parent</th>
                             <th>Slug</th>
                             <th>Count</th>
                             {{-- <th>Status</th> --}}
@@ -85,6 +86,7 @@
                     {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                     {data: 'icon', name: 'icon', orderable: false, searchable: false},
                     {data: 'name', name: 'name'},
+                    {data: 'parent', name: 'parent', orderable: false},
                     {data: 'slug', name: 'slug'},
                     {data: 'count', name: 'auctions_count', searchable: false},
                     // {data: 'status', name: 'status', orderable: false, searchable: false},

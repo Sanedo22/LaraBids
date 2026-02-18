@@ -376,9 +376,18 @@
 
 #contact-content .form-control:focus {
     background-color: #fff;
-    border-color: #4e73df;
-    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.15);
-    color: #4e73df;
+    border-color: #4e73df; /* Blue border */
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25); /* Blue shadow */
+    color: #6e707e; /* Keep text neutral */
+}
+
+/* Validation Error State Override */
+#contact-content .form-control.is-invalid,
+#contact-content .form-control.is-invalid:focus {
+    border-color: #dc3545; /* Standard Professional Red */
+    box-shadow: none; /* Clean look without colored shadow */
+    color: #495057;
+    background-image: none;
 }
 
 #contact-content .form-label {

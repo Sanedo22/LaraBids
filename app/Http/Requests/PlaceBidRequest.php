@@ -21,14 +21,15 @@ class PlaceBidRequest extends FormRequest
     public function rules(): array
     {
         $auction = $this->route('auction');
-        $minBid = ($auction->current_price > 0) ? $auction->current_price + 0.01 : $auction->starting_price;
+        $minIncrement = $auction->min_increment ?? 0.01;
+        $maxIncrement = \App\Models\Auction::MAX_INCREMENT_ALLOWED;
 
         return [
-            'amount' => [
+            'increment' => [
                 'required',
                 'numeric',
-                'min:' . $minBid,
-                'max:99999999.99',
+                'min:' . $minIncrement,
+                'max:' . $maxIncrement,
             ],
         ];
     }
@@ -39,10 +40,10 @@ class PlaceBidRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'amount.required' => 'Please enter a bid amount.',
-            'amount.numeric' => 'The bid amount must be a number.',
-            'amount.min' => 'Your bid must be higher than the current price.',
-            'amount.max' => 'The bid amount cannot exceed 99,999,999.99.',
+            'increment.required' => 'Please enter the amount you want to increase your bid by.',
+            'increment.numeric' => 'The bid increment must be a valid number.',
+            'increment.min' => 'Your increment is too small. The minimum allowed is $' . number_format($this->route('auction')->min_increment ?? 0.01, 2) . '.',
+            'increment.max' => 'Your increment is too large. The maximum jump allowed in a single bid is $' . number_format(\App\Models\Auction::MAX_INCREMENT_ALLOWED, 2) . '.',
         ];
     }
 }

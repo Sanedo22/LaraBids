@@ -56,7 +56,7 @@
                         <span class="small text-secondary fw-bold">{{ $auction->category->name ?? 'N/A' }}</span>
                     </td>
                     <td class="py-3 fw-bold text-primary">
-                        ${{ number_format($auction->current_price, 2) }}
+                        ₹{{ number_format($auction->current_price, 2) }}
                     </td>
                     <td class="py-3">
                         <span class="small text-muted">{{ $auction->end_time->format('M d, Y H:i') }}</span>

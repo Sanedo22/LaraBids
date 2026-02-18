@@ -7,10 +7,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles, SoftDeletes;
+    use HasFactory, Notifiable, HasRoles, SoftDeletes, HasApiTokens;
 
     protected $fillable = [
         'name',
@@ -85,5 +86,24 @@ class User extends Authenticatable
         }
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=4e73df&color=ffffff&size=150';
+    }
+
+    public function getStatistics(){
+        return [
+            'auctions_created' => $this->auctions()->count(),
+            'active_auctions' => $this->auctions()->where('status', 'active')->count(),
+            'total_bids' => $this->bids()->count(),
+            'items_won' => $this->getWonAuctionsCount(),
+            'watchlist_count' => $this->watchlist()->count(),
+            'member_since' => $this->created_at?->toIso8601String(),
+        ];
+    }
+
+    public function getWonAuctionsCount()
+    {
+        return Auction::whereHas('bids', function ($query) {
+            $query->where('user_id', $this->id)
+                  ->whereRaw('amount = (SELECT MAX(amount) FROM bids WHERE auction_id = auctions.id)');
+        })->count();
     }
 }

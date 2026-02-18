@@ -69,7 +69,7 @@
                         @endif
                     </td>
                     <td class="py-3 fw-bold text-primary">
-                        ${{ number_format($auction->current_price, 2) }}
+                        ₹{{ number_format($auction->current_price, 2) }}
                     </td>
                     <td class="py-3">
                         @php

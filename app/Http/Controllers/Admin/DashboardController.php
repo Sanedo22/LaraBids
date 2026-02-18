@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-// ✅ Import Models
 use App\Models\Auction;
 use App\Models\User;
 use App\Models\Bid;

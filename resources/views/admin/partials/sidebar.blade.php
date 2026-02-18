@@ -92,12 +92,7 @@
             <span>Settings</span></a>
     </li>
 
-    <!-- Nav Item - Notifications -->
-    <li class="nav-item {{ request()->routeIs('admin.notifications') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('admin.notifications') }}">
-            <i class="fas fa-fw fa-bell"></i>
-            <span>Notifications</span></a>
-    </li>
+
     
     <!-- Divider -->
     <hr class="sidebar-divider">

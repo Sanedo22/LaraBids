@@ -27,6 +27,7 @@ class StoreAuctionRequest extends FormRequest
             'primary_image_index' => ['nullable', 'integer', 'min:0'],
             'document' => ['nullable', 'file', 'mimes:pdf,jpg,png,jpeg,doc,docx', 'max:5120'],
             'specifications' => ['nullable', 'array'],
+            'min_increment' => ['nullable', 'numeric', 'min:0.01', 'max:1000.00'],
         ];
     }
 

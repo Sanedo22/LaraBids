@@ -32,4 +32,16 @@ class Bid extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Check if this bid is currently winning the auction.
+     */
+    public function isWinning(): bool
+    {
+        if (!$this->auction) {
+            return false;
+        }
+        
+        return $this->auction->current_price == $this->amount;
+    }
 }

@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Contact;
 
 class UserDashboardController extends Controller
 {
@@ -10,12 +12,12 @@ class UserDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         $stats = [
-            'active_bids' => $user->bids()->count(),
-            'total_wins' => 0, // TODO: Implement win logic
-            'watchlist_count' => $user->watchlist()->count(),
-            'messages_count' => 0,
+            'active_bids'      => $user->bids()->count(),
+            'total_wins'       => 0, // TODO: Implement win logic
+            'watchlist_count'  => $user->watchlist()->count(),
+            'messages_count'   => 0,
         ];
 
         return view('website.user.dashboard', compact('stats'));
@@ -24,7 +26,8 @@ class UserDashboardController extends Controller
     // My bids
     public function myBids()
     {
-        $bids = auth()->user()->bids()
+        $bids = auth()->user()
+            ->bids()
             ->with('auction')
             ->latest()
             ->get()
@@ -36,7 +39,8 @@ class UserDashboardController extends Controller
     // My auctions
     public function myAuctions()
     {
-        $auctions = auth()->user()->auctions()
+        $auctions = auth()->user()
+            ->auctions()
             ->with(['category', 'bids.user'])
             ->latest()
             ->paginate(10);
@@ -54,12 +58,23 @@ class UserDashboardController extends Controller
     // Watchlist
     public function watchlist()
     {
-        $watchlists = auth()->user()->watchlist()
+        $watchlists = auth()->user()
+            ->watchlist()
             ->with(['auction.category', 'auction.bids'])
             ->latest()
             ->paginate(10);
 
         return view('website.user.watchlist', compact('watchlists'));
+    }
+
+    // Show single message (contact)
+    public function showMessage($id)
+    {
+        $contact = Contact::withTrashed()
+            ->where('email', auth()->user()->email)
+            ->findOrFail($id);
+
+        return view('website.user.message_show', compact('contact'));
     }
 
     // Profile

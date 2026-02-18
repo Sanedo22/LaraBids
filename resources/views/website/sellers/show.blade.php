@@ -95,7 +95,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <small class="text-muted d-block small">Current Bid</small>
-                                    <span class="fw-bold text-primary h5 mb-0">${{ number_format($auction->current_price, 2) }}</span>
+                                    <span class="fw-bold text-primary h5 mb-0">₹{{ number_format($auction->current_price, 2) }}</span>
                                 </div>
                                 <a href="{{ route('auctions.show', $auction->id) }}" class="btn btn-primary btn-sm rounded-pill px-3">Bid Now</a>
                             </div>

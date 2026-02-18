@@ -44,10 +44,10 @@
                         </div>
                     </td>
                     <td class="py-3">
-                        <span class="fw-bold text-dark">${{ number_format($bid->amount, 2) }}</span>
+                        <span class="fw-bold text-dark">₹{{ number_format($bid->amount, 2) }}</span>
                     </td>
                     <td class="py-3">
-                        <span class="text-primary fw-bold">${{ number_format($bid->auction->current_price, 2) }}</span>
+                        <span class="text-primary fw-bold">₹{{ number_format($bid->auction->current_price, 2) }}</span>
                     </td>
                     <td class="py-3">
                         <span class="badge bg-{{ $bid->auction->getStatusBadgeClass() }} rounded-pill small">

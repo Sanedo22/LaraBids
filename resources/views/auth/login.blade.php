@@ -4,34 +4,17 @@
 
 @section('content')
 
-<!-- Auth Hero Section -->
-<section class="hero-section text-white d-flex align-items-center" style="min-height: 50vh;">
-    <div class="container" data-aos="fade-up">
-        <div class="row align-items-center">
-            <div class="col-lg-6 text-center text-lg-start mb-4 mb-lg-0">
-                <span class="badge bg-white text-primary fw-bold px-3 py-2 rounded-pill mb-3 shadow-sm">
-                    🔐 SECURE LOGIN
-                </span>
-                <h1 class="display-3 fw-bold mb-3">Welcome <span class="text-white">Back!</span></h1>
-                <p class="lead opacity-75">
-                    Sign in to access your account and continue bidding on exclusive items.
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Login Form Section -->
-<section class="py-5">
+<div class="main-auth-container d-flex align-items-center justify-content-center py-5" style="min-height: 80vh; background-color: #ffffff;">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-7">
-                <div class="card card-elite border-0 shadow-lg p-4 p-md-5" data-aos="fade-up">
-                    
+            <div class="col-md-5">
+                <div class="form-box">
+                    <h2 class="text-center fw-bold mb-4">Login</h2>
+
                     <!-- Session Status -->
                     @if (session('status'))
-                        <div class="alert alert-info border-0 mb-4" role="alert">
-                            <i class="fas fa-info-circle me-2"></i>{{ session('status') }}
+                        <div class="alert alert-success border-0 small mb-4" role="alert">
+                            {{ session('status') }}
                         </div>
                     @endif
 
@@ -39,57 +22,57 @@
                         @csrf
 
                         <!-- Email -->
-                        <div class="mb-4">
-                            <label for="email" class="form-label fw-bold text-dark small text-uppercase">Email Address</label>
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-bold">Email Address</label>
                             <input type="email" 
-                                   class="form-control form-control-lg bg-light border-0 shadow-none @error('email') is-invalid @enderror" 
+                                   class="form-control @error('email') is-invalid @enderror" 
                                    id="email" 
                                    name="email" 
                                    value="{{ old('email') }}" 
-                                   placeholder="Enter your email">
-                            <div class="invalid-feedback" id="email-error"></div>
+                                   placeholder="Enter your email"
+                                   required>
                             @error('email')
-                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <!-- Password -->
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-bold text-dark small text-uppercase">Password</label>
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-bold">Password</label>
                             <input type="password" 
-                                   class="form-control form-control-lg bg-light border-0 shadow-none @error('password') is-invalid @enderror" 
+                                   class="form-control @error('password') is-invalid @enderror" 
                                    id="password" 
                                    name="password" 
-                                   placeholder="Enter your password">
-                            <div class="invalid-feedback" id="password-error"></div>
+                                   placeholder="Enter your password"
+                                   required>
                             @error('password')
-                                <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <!-- Remember Me & Forgot Password -->
-                        <div class="mb-4 d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="remember_me" name="remember">
-                                <label class="form-check-label small text-secondary" for="remember_me">
+                                <label class="form-check-label small" for="remember_me">
                                     Remember Me
                                 </label>
                             </div>
                             @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="small text-primary fw-bold">Forgot Password?</a>
+                                <a href="{{ route('password.request') }}" class="small text-decoration-none">Forgot Password?</a>
                             @endif
                         </div>
 
                         <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary btn-lg w-100 py-3 rounded-pill shadow fw-bold mb-4">
-                            <i class="fas fa-sign-in-alt me-2"></i>Login to Your Account
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mb-4">
+                            Login
                         </button>
 
                         <!-- Register Link -->
-                        <div class="text-center">
-                            <span class="text-secondary small">Don't have an account? </span>
+                        <div class="text-center mt-3">
+                            <span class="text-muted small">Don't have an account? </span>
                             @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="text-primary fw-bold small">Create Account</a>
+                                <a href="{{ route('register') }}" class="fw-bold small text-decoration-none">Register Here</a>
                             @endif
                         </div>
                     </form>
@@ -97,9 +80,24 @@
             </div>
         </div>
     </div>
-</section>
+</div>
 
 @endsection
+
+@push('styles')
+<style>
+    .form-box {
+        background: #ffffff;
+        padding: 40px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #0d6efd;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

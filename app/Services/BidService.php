@@ -26,22 +26,31 @@ class BidService
             throw new Exception('You cannot bid on your own auction.');
         }
 
-        // 4. Ensure bid is higher than current price
-        if ($bidData['amount'] <= $auction->current_price) {
-            throw new Exception('Your bid must be higher than the current price.');
+        $increment = $bidData['increment'];
+        $totalAmount = $auction->current_price + $increment;
+
+        // 4. Ensure increment meets minimum requirement
+        $minIncrement = $auction->min_increment ?? 0.01;
+        if ($increment < $minIncrement) {
+            throw new Exception('The minimum increment required is $' . number_format($minIncrement, 2));
         }
 
-        return DB::transaction(function () use ($auction, $bidData, $user) {
+        // 5. Ensure increment does not exceed max limit
+        if ($increment > Auction::MAX_INCREMENT_ALLOWED) {
+            throw new Exception('The bid increment cannot exceed $' . number_format(Auction::MAX_INCREMENT_ALLOWED, 2));
+        }
+
+        return DB::transaction(function () use ($auction, $totalAmount, $user) {
             // Create the bid
             $bid = Bid::create([
                 'auction_id' => $auction->id,
                 'user_id' => $user->id,
-                'amount' => $bidData['amount'],
+                'amount' => $totalAmount, 
             ]);
 
             // Update auction price
             $auction->update([
-                'current_price' => $bidData['amount']
+                'current_price' => $totalAmount
             ]);
 
             return $bid;

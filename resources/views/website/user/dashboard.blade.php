@@ -15,7 +15,7 @@
         </nav>
     </div>
     <div class="bg-white p-2 px-3 small border rounded shadow-sm text-dark fw-bold">
-        <i class="fas fa-wallet text-primary me-2"></i> Balance: <span class="text-primary">$0.00</span>
+        <i class="fas fa-wallet text-primary me-2"></i> Balance: <span class="text-primary">₹0.00</span>
     </div>
 </div>
 
@@ -89,37 +89,44 @@
 
 
 <!-- Recent Activity -->
-<div class="card card-elite p-0 overflow-hidden shadow-sm">
-    <div class="card-header bg-white py-3 border-light">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="text-primary fw-bold h6 mb-0">Active Bids Monitoring</h5>
-            <a href="{{ route('user.my-bids') }}" class="btn btn-primary btn-sm rounded-pill px-3">View All</a>
+<div class="row g-4">
+    <!-- Active Bids -->
+    <div class="col-lg-12">
+        <div class="card card-elite p-0 overflow-hidden shadow-sm h-100">
+            <div class="card-header bg-white py-3 border-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-primary fw-bold h6 mb-0">Active Bids Monitoring</h5>
+                    <a href="{{ route('user.my-bids') }}" class="btn btn-primary btn-sm rounded-pill px-3">View All</a>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-light py-3 ps-4 text-xs font-weight-bold text-gray-600 text-uppercase small">AUCTION ITEM</th>
+                            <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">STATUS</th>
+                            <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">CURRENT BID</th>
+                            <th class="border-light py-3 pe-4 text-end text-xs font-weight-bold text-gray-600 text-uppercase small">ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle bg-white">
+                        <tr>
+                            <td colspan="4" class="text-center py-5">
+                                <i class="fas fa-inbox fs-1 mb-3 d-block text-gray-300 opacity-25"></i>
+                                <span class="text-secondary small">No active bids yet.</span>
+                                <div class="mt-2">
+                                     <a href="{{ route('auctions.index') }}" class="btn btn-outline-primary btn-sm px-4">Browse Auctions</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+    
 
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="bg-light">
-                <tr>
-                    <th class="border-light py-3 ps-4 text-xs font-weight-bold text-gray-600 text-uppercase small">AUCTION ITEM</th>
-                    <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">STATUS</th>
-                    <th class="border-light py-3 text-xs font-weight-bold text-gray-600 text-uppercase small">CURRENT BID</th>
-                    <th class="border-light py-3 pe-4 text-end text-xs font-weight-bold text-gray-600 text-uppercase small">ACTION</th>
-                </tr>
-            </thead>
-            <tbody class="align-middle bg-white">
-                <tr>
-                    <td colspan="4" class="text-center py-5">
-                        <i class="fas fa-inbox fs-1 mb-3 d-block text-gray-300 opacity-25"></i>
-                        <span class="text-secondary small">No active bids yet.</span>
-                        <div class="mt-2">
-                             <a href="{{ route('auctions.index') }}" class="btn btn-outline-primary btn-sm px-4">Browse Auctions</a>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
 </div>
 
 
