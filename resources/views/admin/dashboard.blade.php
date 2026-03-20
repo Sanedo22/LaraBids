@@ -140,7 +140,7 @@
                                 Platform Fee (5%)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ number_format($stats['platform_fee'], 2) }}</div>
-                            <span class="small text-muted">Estimated Revenue</span>
+                            <span class="small text-muted">Estimated Platform Revenue</span>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>

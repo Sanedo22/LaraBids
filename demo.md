@@ -1,24 +1,35 @@
 <style>
-    /* VS Code Markdown Preview - Elite Styling */
+    /* VS Code Markdown Preview - Elite Database Styling */
     table {
         width: 100% !important;
         display: table !important;
         border-collapse: collapse !important;
-        border: 2px solid #000 !important;
+        border: 2px solid #333 !important;
         margin-bottom: 30px !important;
+        background-color: #fdfdfd !important;
     }
     th {
-        background-color: #d1d1d1 !important; /* Gray Header */
-        border: 1px solid #000 !important;
+        background-color: #d1d1d1 !important; /* Original Gray Header */
+        border: 1px solid #333 !important;
         padding: 12px !important;
         text-align: left !important;
         color: #000 !important;
         font-weight: bold !important;
+        text-transform: uppercase !important;
     }
     td {
-        border: 1px solid #000 !important;
+        border: 1px solid #999 !important;
         padding: 10px !important;
         color: #333 !important;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2 !important;
+    }
+    h3 {
+        color: #333 !important;
+        border-bottom: 2px solid #d1d1d1 !important;
+        padding-bottom: 5px !important;
+        margin-top: 40px !important;
     }
 </style>
 
@@ -31,22 +42,24 @@ This document contains the detailed database structure for the **LaraBids** proj
 ### 1) User
 **Description**: Stores the personal and account details of all users (Bidders, Sellers, and Admins).
 
-| FieldName     | Datatype  | Size | Constraint         | Description                                           |
-| :---          | :---      | :--- | :---               | :---                                                  |
-| **id**        | BigInt    | 20   | Primary Key        | Unique identification number for each user.           |
-| **name**      | Varchar   | 255  | Not Null           | Full name of the user.                                |
-| **username**  | Varchar   | 255  | Unique             | Unique handle/username for the user.                  |
-| **email**     | Varchar   | 255  | Not Null, Unique   | Registered email address for login and notifications. |
-| **phone**     | Varchar   | 20   | Nullable           | Contact mobile number.                                |
-| **location**  | Varchar   | 255  | Nullable           | Physical address or city of the user.                 |
-| **avatar**    | Varchar   | 255  | Nullable           | Path to the profile image file.                       |
-| **bio**       | Text      | -    | Nullable           | Brief user biography or description.                  |
-| **google_id** | Varchar   | 255  | Unique             | Identifier for Google Social Login.                   |
-| **password**  | Varchar   | 255  | Not Null           | Encrypted password for authentication.                |
-| **role**      | Varchar   | 50   | Not Null           | Handled via Spatie Permissions (super admin, admin).  |
-| **deleted_at**| Timestamp | -    | Nullable           | Used for soft-deleting accounts.                      |
-| **created_at**| Timestamp | -    | Not Null           | Date/Time of account creation.                        |
-| **updated_at**| Timestamp | -    | Not Null           | Date/Time of last update.                             |
+| FieldName             | Datatype  | Size | Constraint         | Description                                           |
+| :---                  | :---      | :--- | :---               | :---                                                  |
+| **id**                | BigInt    | 20   | Primary Key        | Unique identification number for each user.           |
+| **name**              | Varchar   | 255  | Not Null           | Full name of the user.                                |
+| **username**          | Varchar   | 255  | Unique             | Unique handle/username for the user.                  |
+| **email**             | Varchar   | 255  | Not Null, Unique   | Registered email address for login.                   |
+| **phone**             | Varchar   | 20   | Nullable           | Contact mobile number.                                |
+| **location**          | Varchar   | 255  | Nullable           | Physical address or city.                             |
+| **avatar**            | Varchar   | 255  | Nullable           | Profile image path.                                   |
+| **bio**               | Text      | -    | Nullable           | Brief biography.                                      |
+| **password**          | Varchar   | 255  | Not Null           | Hashed password.                                      |
+| **created_by**        | BigInt    | 20   | Foreign Key        | ID of the admin who created this user (if any).       |
+| **google_id**         | Varchar   | 255  | Unique/Nullable    | OAuth provider ID for social login.                   |
+| **email_verified_at** | Timestamp | -    | Nullable           | Date/Time of email verification.                      |
+| **remember_token**    | Varchar   | 100  | Nullable           | Token for persistent login sessions.                  |
+| **deleted_at**        | Timestamp | -    | Nullable           | Soft delete timestamp.                                |
+| **created_at**        | Timestamp | -    | Not Null           | Registration Date.                                    |
+| **updated_at**        | Timestamp | -    | Not Null           | Profile update tracking.                               |
 
 ---
 
@@ -69,26 +82,28 @@ This document contains the detailed database structure for the **LaraBids** proj
 ### 3) Auction
 **Description**: The central table containing all auction listing details.
 
-| FieldName       | Datatype | Size | Constraint       | Description                                         |
-| :---            | :---     | :--- | :---             | :---                                                |
-| **id**          | BigInt   | 20   | Primary Key      | Unique identification number for the auction.       |
-| **user_id**     | BigInt   | 20   | Foreign Key      | ID of the seller who posted the auction.            |
-| **category_id** | BigInt   | 20   | Foreign Key      | ID of the linked category.                          |
-| **winner_id**   | BigInt   | 20   | Foreign Key      | ID of the user who won the auction.                 |
-| **title**       | Varchar  | 255  | Not Null         | Short name/title of the item.                       |
-| **description** | Text     | -    | Not Null         | Detailed description of the item.                   |
-| **starting_price**| Decimal| 16,2 | Not Null         | The initial price when bidding starts.              |
-| **current_price** | Decimal| 16,2 | Not Null         | The latest highest bid amount.                      |
-| **min_increment** | Decimal| 16,2 | Default: 1.0     | Minimum amount by which a bid must increase.        |
-| **image**       | Varchar  | 255  | Nullable         | Path to the main item thumbnail.                    |
-| **document**    | Varchar  | 255  | Nullable         | Supporting documents/verifications.                 |
-| **specifications**| JSON   | -    | Nullable         | Detailed technical specifications.                  |
-| **start_time**  | DateTime | -    | Not Null         | Date and time when bidding begins.                  |
-| **end_time**    | DateTime | -    | Not Null         | Date and time when bidding ends.                    |
-| **status**      | Enum     | -    | Not Null         | [draft, active, closed, cancelled].                 |
-| **cancel_reason**| Text    | -    | Nullable         | Reason provided if cancelled.                       |
-| **deleted_at**  | Timestamp| -    | Nullable         | Soft delete support.                                |
-| **timestamps**  | Timestamp| -    | Not Null         | Standard tracking.                                  |
+| FieldName         | Datatype | Size | Constraint       | Description                                         |
+| :---              | :---     | :--- | :---             | :---                                                |
+| **id**            | BigInt   | 20   | Primary Key      | Unique identification number for the auction.       |
+| **user_id**       | BigInt   | 20   | Foreign Key      | ID of the seller who posted the auction.            |
+| **category_id**   | BigInt   | 20   | Foreign Key      | ID of the linked category.                          |
+| **winner_id**     | BigInt   | 20   | Foreign Key      | ID of the user who won the auction.                 |
+| **location**      | Varchar  | 255  | Nullable         | Physical location of the item/auction.              |
+| **title**         | Varchar  | 255  | Not Null         | Short name/title of the item.                       |
+| **description**   | Text     | -    | Not Null         | Detailed description of the item.                   |
+| **starting_price**| Decimal  | 16,2 | Not Null         | The initial price when bidding starts.              |
+| **reserve_price** | Decimal  | 12,2 | Nullable         | Minimum price seller is willing to accept.          |
+| **current_price** | Decimal  | 16,2 | Not Null         | The latest highest bid amount.                      |
+| **min_increment** | Decimal  | 16,2 | Default: 1.0     | Minimum amount by which a bid must increase.        |
+| **image**         | Varchar  | 255  | Nullable         | Path to the main item thumbnail.                    |
+| **document**      | Varchar  | 255  | Nullable         | Supporting documents/verifications.                 |
+| **specifications**| JSON     | -    | Nullable         | Detailed technical specifications.                  |
+| **start_time**    | DateTime | -    | Not Null         | Date and time when bidding begins.                  |
+| **end_time**      | DateTime | -    | Not Null         | Date and time when bidding ends.                    |
+| **status**        | Enum     | -    | Not Null         | [draft, active, closed, cancelled].                 |
+| **cancel_reason** | Text     | -    | Nullable         | Reason provided if cancelled.                       |
+| **deleted_at**    | Timestamp| -    | Nullable         | Soft delete support.                                |
+| **timestamps**    | Timestamp| -    | Not Null         | Standard tracking.                                  |
 
 ---
 
@@ -106,18 +121,20 @@ This document contains the detailed database structure for the **LaraBids** proj
 ---
 
 ### 5) Payment
-**Description**: Stores details of successful auction payouts.
+**Description**: Stores details of successful auction payouts via PayU integration.
 
-| FieldName     | Datatype  | Size | Constraint         | Description                                           |
-| :---          | :---      | :--- | :---               | :---                                                  |
-| **id**        | BigInt    | 20   | Primary Key        | Unique ID for the payment record.                     |
-| **auction_id**| BigInt    | 20   | Foreign Key        | The auction being paid for.                           |
-| **user_id**   | BigInt    | 20   | Foreign Key        | The winner who made the payment.                      |
-| **amount**    | Decimal   | 16,2 | Not Null           | The final closing amount paid.                        |
-| **txn_id**    | Varchar   | 255  | Unique             | Transaction ID from the gateway.                      |
-| **method**    | Varchar   | 50   | Not Null           | Method (Stripe, UPI, PayPal).                         |
-| **status**    | Enum      | -    | Not Null           | [pending, completed, failed].                         |
-| **paid_at**   | Timestamp | -    | Nullable           | Successful payment timestamp.                         |
+| FieldName         | Datatype  | Size | Constraint         | Description                                           |
+| :---              | :---      | :--- | :---               | :---                                                  |
+| **id**            | BigInt    | 20   | Primary Key        | Unique ID for the payment record.                     |
+| **user_id**       | BigInt    | 20   | Foreign Key        | The winner who made the payment.                      |
+| **auction_id**    | BigInt    | 20   | Foreign Key        | The auction being paid for.                           |
+| **txnid**         | Varchar   | 255  | Unique, Not Null   | Unique Transaction ID generated for PayU.             |
+| **amount**        | Decimal   | 15,2 | Not Null           | The final auction amount paid.                        |
+| **status**        | Varchar   | 50   | Default: pending   | [pending, success, failed].                           |
+| **payu_id**       | Varchar   | 255  | Nullable           | PayU's internal `mihpayid` for tracking.              |
+| **productinfo**   | Varchar   | 255  | Not Null           | Description of the item purchased.                    |
+| **additional_data**| JSON     | -    | Nullable           | Stores raw responses from the gateway.                |
+| **timestamps**    | Timestamp | -    | Not Null           | creation and last update tracking.                    |
 
 ---
 
@@ -162,8 +179,8 @@ This document contains the detailed database structure for the **LaraBids** proj
 
 ---
 
-### 9) FAQ / Support
-**Description**: Support form queries.
+### 9) FAQ / Support (Contacts)
+**Description**: Support form queries and contact messages.
 
 | FieldName     | Datatype  | Size | Constraint         | Description                                           |
 | :---          | :---      | :--- | :---               | :---                                                  |
@@ -172,7 +189,10 @@ This document contains the detailed database structure for the **LaraBids** proj
 | **email**     | Varchar   | 255  | Not Null           | Sender email for replies.                             |
 | **subject**   | Varchar   | 255  | Not Null           | Topic of inquiry.                                     |
 | **message**   | Text      | -    | Not Null           | Inquiry message.                                      |
-| **status**    | Varchar   | 50   | Not Null           | [unread, replied, etc].                               |
+| **status**    | Enum      | -    | Default: unread    | [unread, read, replied].                              |
+| **admin_notes**| Text      | -    | Nullable           | Notes by admin regarding this message.                |
+| **replied_by**| BigInt    | 20   | Foreign Key        | Admin ID who replied to this message.                 |
+| **deleted_at**| Timestamp | -    | Nullable           | Soft delete support.                                  |
 | **timestamps**| Timestamp | -    | Not Null           | Time tracking.                                        |
 
 ---
@@ -217,3 +237,56 @@ This document contains the detailed database structure for the **LaraBids** proj
 | **avatar_url**| Varchar   | 255  | Nullable           | Image link.                                           |
 | **is_active** | Boolean   | -    | Default: True      | Frontend visibility.                                  |
 | **timestamps**| Timestamp | -    | Not Null           | Timing tracking.                                      |
+
+---
+
+### 13) KYC (Know Your Customer)
+**Description**: Stores User identity verification details.
+
+| FieldName           | Datatype | Size | Constraint       | Description                                         |
+| :---                | :---     | :--- | :---             | :---                                                |
+| **id**              | BigInt   | 20   | Primary Key      | Unique KYC Record ID.                               |
+| **user_id**         | BigInt   | 20   | Foreign Key      | Linked User account.                                |
+| **full_name**       | Varchar  | 255  | Not Null         | As mentioned on ID document.                        |
+| **date_of_birth**   | Date     | -    | Not Null         | User's birth date.                                  |
+| **gender**          | Varchar  | 255  | Nullable         | User's gender.                                      |
+| **id_type**         | Enum     | -    | Not Null         | [aadhaar, pan, passport, driving_license].          |
+| **id_number**       | Varchar  | 255  | Not Null         | Document number for verification.                   |
+| **id_document**     | Varchar  | 255  | Not Null         | Path to uploaded ID scan.                           |
+| **selfie_image**    | Varchar  | 255  | Not Null         | Path to user's selfie image.                        |
+| **signature_image** | Varchar  | 255  | Nullable         | Electronic or scanned signature.                    |
+| **status**          | Enum     | -    | Default: pending | [pending, approved, rejected].                      |
+| **admin_note**      | Text     | -    | Nullable         | Rejection reason or internal notes.                 |
+| **timestamps**      | Timestamp| -    | Not Null         | creation and last update tracking.                  |
+
+---
+
+### 14) Auction Registrations
+**Description**: Tracks which users have registered for specific auctions.
+
+| FieldName     | Datatype  | Size | Constraint         | Description                                           |
+| :---          | :---      | :--- | :---               | :---                                                  |
+| **id**        | BigInt    | 20   | Primary Key        | Mapping ID.                                           |
+| **user_id**   | BigInt    | 20   | Foreign Key        | Registered User.                                      |
+| **auction_id**| BigInt    | 20   | Foreign Key        | Target Auction Item.                                  |
+| **status**    | Varchar   | 255  | Default: registered| Current registration status.                          |
+| **timestamps**| Timestamp | -    | Not Null           | Time tracking.                                        |
+
+---
+
+### 15) Admin Interface (DataTables)
+**Description**: Technical configuration for Yajra DataTables used in Payments & Auctions.
+
+| Page              | Column            | Type           | Data Source          | Render Logic                                      |
+| :---              | :---              | :---           | :---                 | :---                                              |
+| **Payments**      | **Transaction**   | HTML/Custom    | `txnid`, `payu_id`   | Shows TXN ID with PayU ID as subtitle.            |
+| **Payments**      | **Buyer Info**    | HTML/Custom    | `user.name`, `email` | Aggregates name and email into one cell.          |
+| **Payments**      | **Auction**       | HTML/Custom    | `auction.title`      | Links to auction item.                            |
+| **Payments**      | **Amount**        | Numeric        | `amount`             | Formatted with ₹ Currency.                        |
+| **Payments**      | **Fee (5%)**      | Calculation    | `amount * 0.05`      | Platform commission cut.                          |
+| **Payments**      | **Status**        | Badge/HTML     | `status`             | Color-coded badges (Green, Yellow, Red).          |
+| **Auctions**      | **Image**         | Image/HTML     | `image`              | 50x50 object-fit thumb.                           |
+| **Auctions**      | **Current Bid**   | Numeric        | `current_price`      | Live dynamic bids.                                |
+| **Common**        | **Timestamp**     | Date/Time      | `created_at`         | Human-readable (d M, Y h:i A).                    |
+
+---

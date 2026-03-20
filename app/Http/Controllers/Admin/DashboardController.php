@@ -9,6 +9,7 @@ use App\Models\Bid;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Kyc;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -42,12 +43,12 @@ class DashboardController extends Controller
 
             'unread_contacts' => Contact::where('status', 'unread')->count(),
 
-            // Payment & Revenue Details (PayU Integration Pending)
-            'total_sales' => Auction::where('status', 'closed')->whereNotNull('winner_id')->sum('current_price') ?? 0,
+            // Real payment stats based on PayU integration
+            'total_sales' => Payment::where('status', 'success')->sum('amount') ?? 0,
             
-            'platform_fee' => (Auction::where('status', 'closed')->whereNotNull('winner_id')->sum('current_price') ?? 0) * 0.05, // Assuming 5% platform fee
+            'platform_fee' => (Payment::where('status', 'success')->sum('amount') ?? 0) * 0.05, // 5% fee
             
-            'successful_payments' => Auction::where('status', 'closed')->whereNotNull('winner_id')->count() ?? 0,
+            'successful_payments' => Payment::where('status', 'success')->count() ?? 0,
         ];
 
         // Recent auctions
