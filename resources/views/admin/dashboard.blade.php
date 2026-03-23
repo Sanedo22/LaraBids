@@ -314,15 +314,22 @@
                                             <td>
                                                 @php
                                                     $displayStatus = $auction->status;
-                                                    if ($auction->status === 'active' && $auction->end_time && $auction->end_time->isPast()) {
-                                                        $displayStatus = 'closed';
+                                                    if ($auction->status === 'active') {
+                                                        if ($auction->end_time && $auction->end_time->isPast()) {
+                                                            $displayStatus = 'closed';
+                                                        } elseif ($auction->start_time && $auction->start_time->isFuture()) {
+                                                            $displayStatus = 'upcoming';
+                                                        } else {
+                                                            $displayStatus = 'live';
+                                                        }
                                                     }
                                                     $badgeClass = match($displayStatus) {
-                                                        'active' => 'success',
+                                                        'live' => 'success',
+                                                        'upcoming' => 'warning',
                                                         'pending' => 'info',
                                                         'closed' => 'secondary',
                                                         'cancelled' => 'danger',
-                                                        default => 'warning'
+                                                        default => 'secondary'
                                                     };
                                                 @endphp
                                                 <span class="badge badge-{{ $badgeClass }}">{{ ucfirst($displayStatus) }}</span>
@@ -474,7 +481,8 @@
             datasets: [{
                 data: {!! json_encode($auction_chart_data['data']) !!},
                 backgroundColor: [
-                    '#1cc88a', // Active - Green
+                    '#1cc88a', // Live - Green
+                    '#f6c23e', // Upcoming - Yellow
                     '#36b9cc', // Pending - Blue
                     '#858796', // Closed - Gray
                     '#e74a3b'  // Cancelled - Red

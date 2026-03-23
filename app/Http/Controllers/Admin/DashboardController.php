@@ -19,7 +19,13 @@ class DashboardController extends Controller
         // Get statistics
         $stats = [
 
-            'active_auctions' => Auction::where('status', 'active')
+            'live_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '<=', now())
+                ->where('end_time', '>', now())
+                ->count(),
+
+            'upcoming_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '>', now())
                 ->where('end_time', '>', now())
                 ->count(),
 
@@ -27,9 +33,12 @@ class DashboardController extends Controller
 
             'pending_kycs' => Kyc::where('status', 'pending')->count(),
 
-            'closed_auctions' => Auction::where('status', 'active')
-                ->where('end_time', '<=', now())
-                ->count(),
+            'closed_auctions' => Auction::where(function($q) {
+                $q->where('status', 'closed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'active')->where('end_time', '<=', now());
+                  });
+            })->count(),
 
             'cancelled_auctions' => Auction::where('status', 'cancelled')->count(),
 
@@ -66,9 +75,10 @@ class DashboardController extends Controller
 
         // Chart data - Auctions by status
         $auction_chart_data = [
-            'labels' => ['Active', 'Pending', 'Closed', 'Cancelled'],
+            'labels' => ['Live', 'Upcoming', 'Pending', 'Closed', 'Cancelled'],
             'data' => [
-                $stats['active_auctions'],
+                $stats['live_auctions'],
+                $stats['upcoming_auctions'],
                 $stats['pending_auctions'],
                 $stats['closed_auctions'],
                 $stats['cancelled_auctions'],
