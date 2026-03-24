@@ -1557,6 +1557,36 @@
     }
 });
 </script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: {!! json_encode(session('success')) !!},
+            confirmButtonColor: '#4e73df',
+            confirmButtonText: 'OK',
+            timer: 5000,
+            timerProgressBar: true
+        });
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: {!! json_encode(session('error')) !!},
+            confirmButtonColor: '#e74a3b',
+            confirmButtonText: 'OK'
+        });
+    });
+</script>
+@endif
 @endpush
 
 @endsection

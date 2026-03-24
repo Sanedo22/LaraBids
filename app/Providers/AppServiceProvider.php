@@ -22,6 +22,22 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Auto-finalize ended auctions (fallback so they end seamlessly without Cron)
+        try {
+            $endedAuctions = \App\Models\Auction::where('status', 'active')
+                ->where('end_time', '<=', now())
+                ->get();
+            foreach ($endedAuctions as $auction) {
+                try {
+                    $auction->finalize();
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to auto-finalize auction {$auction->id}: " . $e->getMessage());
+                }
+            }
+        } catch (\Exception $e) {
+            // Ignore exception if DB not migrated or missing tables
+        }
+
         // Implicitly grant "Super Admin" role all permissions
         Gate::before(function ($user, $ability) {
             return $user->hasRole('super admin') ? true : null;

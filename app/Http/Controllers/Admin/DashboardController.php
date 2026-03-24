@@ -52,12 +52,13 @@ class DashboardController extends Controller
 
             'unread_contacts' => Contact::where('status', 'unread')->count(),
 
-            // Real payment stats based on PayU integration
+            // Real payment stats based on PayU online integration
             'total_sales' => Payment::where('status', 'success')->sum('amount') ?? 0,
             
-            'platform_fee' => (Payment::where('status', 'success')->sum('amount') ?? 0) * 0.05, // 5% fee
+            'platform_fee' => Payment::where('status', 'success')->sum('commission_amount') ?? 0,
             
             'successful_payments' => Payment::where('status', 'success')->count() ?? 0,
+            'pending_payments' => Payment::where('status', 'pending')->count() ?? 0,
         ];
 
         // Recent auctions

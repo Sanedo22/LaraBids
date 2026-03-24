@@ -117,10 +117,10 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                Total Sales (PayU)
+                                Total Sales Volume
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ number_format($stats['total_sales'], 2) }}</div>
-                            <span class="small text-muted">All Time Closed</span>
+                            <span class="small text-muted">Online Payments Activity</span>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-wallet fa-2x text-gray-300"></i>
@@ -137,10 +137,10 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                Platform Fee (5%)
+                                Total Commission (5%)
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">₹{{ number_format($stats['platform_fee'], 2) }}</div>
-                            <span class="small text-muted">Estimated Platform Revenue</span>
+                            <span class="small text-muted">Platform cut from online payments</span>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-hand-holding-usd fa-2x text-gray-300"></i>
@@ -439,10 +439,14 @@
                             </a>
                         </div>
                         <div class="col-md-auto col-lg mb-3">
-                            <a href="#" class="btn btn-block quick-action-btn shadow-sm h-100" title="Coming Soon: PayU Integration">
+                            <a href="{{ route('admin.payments.index') }}" class="btn btn-block quick-action-btn shadow-sm h-100">
                                 <i class="fas fa-wallet fa-2x mb-2"></i>
                                 <div class="font-weight-bold">Manage Payments</div>
-                                <span class="badge badge-warning mt-1">PayU Ready</span>
+                                @if($stats['pending_payments'] > 0)
+                                    <span class="badge badge-warning mt-1">{{ $stats['pending_payments'] }} Pending</span>
+                                @else
+                                    <span class="badge badge-success mt-1">Up to date</span>
+                                @endif
                             </a>
                         </div>
                         <div class="col-md-auto col-lg mb-3">

@@ -155,6 +155,7 @@ class UserDashboardController extends Controller
     public function myAuctions()
     {
         $categories = \App\Models\Category::active()->whereNull('parent_id')->with('children')->get();
+        
         return view('website.user.my-auctions', compact('categories'));
     }
 
@@ -263,13 +264,18 @@ class UserDashboardController extends Controller
                     $viewUrl = route('auctions.show', $auction->id);
                     $editUrl = route('auctions.edit', $auction->id);
                     
-                    $html = '<a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm rounded-circle shadow-sm me-1" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
+                    $html = '<div class="d-flex justify-content-center align-items-center mb-1">';
+                    $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm rounded-circle shadow-sm me-1" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
                     if($canEdit) {
                         $html .= '<a href="'.$editUrl.'" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm me-1" title="Edit" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>';
                     }
                     $html .= '<button type="button" onclick="confirmDelete('.$auction->id.')" class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" title="Delete" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>';
+                    $html .= '</div>';
                     
-                    return '<div class="text-nowrap">'.$html.'</div>';
+                    return '<div class="d-flex flex-column" style="min-width: 120px;">'.$html.'</div>';
+
+
+                    return '<div class="d-flex flex-column" style="min-width: 120px;">'.$html.'</div>';
                 })
                 ->rawColumns(['item', 'status', 'price', 'winner', 'bids', 'action'])
                 ->make(true);
@@ -364,12 +370,11 @@ class UserDashboardController extends Controller
                     
                     if (!$payment) {
                         $payUrl = route('payment.payu.checkout', $auction->id);
-                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-2 rounded-pill shadow-sm fw-bold text-white mb-0" 
-                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; padding: 4px 12px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.02em;" 
-                                    onmouseover="this.style.transform=\'scale(1.05)\'" 
-                                    onmouseout="this.style.transform=\'scale(1)\'"
-                                    title="Pay Now">
-                                    <i class="fas fa-credit-card me-1" style="font-size: 0.6rem;"></i> Pay Now
+                        
+                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-3 fw-bold text-white mb-0" 
+                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; padding: 6px 12px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.02em;" 
+                                    title="Online Payment">
+                                    <i class="fas fa-credit-card me-1" style="font-size: 0.6rem;"></i> Online
                                   </a>';
                     }
                     

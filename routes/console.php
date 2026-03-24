@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('notify:auctions-starting')->everyMinute();
 Schedule::command('notify:auctions-ending-soon')->everyMinute();
+Schedule::command('auctions:finalize')->everyMinute();

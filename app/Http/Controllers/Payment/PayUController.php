@@ -41,19 +41,30 @@ class PayUController extends Controller
         $email = auth()->user()->email;
         $phone = auth()->user()->phone ?? '9999999999';
 
+        $commission_percentage = 5.00;
+        $commission_amount = ($amount * $commission_percentage) / 100;
+
+        // Use existing or create pending payment record
+        $payment = Payment::firstOrCreate(
+            ['auction_id' => $auction->id, 'user_id' => auth()->id(), 'status' => 'pending'],
+            [
+                'txnid' => $txnid,
+                'amount' => $amount,
+                'payment_method' => 'online',
+                'commission_amount' => $commission_amount,
+                'commission_percentage' => $commission_percentage,
+                'productinfo' => $productinfo,
+            ]
+        );
+
+        // Update txnid if we are reusing a record to ensure uniqueness for gateway
+        if (!$payment->wasRecentlyCreated) {
+            $payment->update(['txnid' => $txnid]);
+        }
+
         // Hash generation: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||SALT
         $hashString = "{$this->key}|{$txnid}|{$amount}|{$productinfo}|{$firstname}|{$email}|||||||||||{$this->salt}";
         $hash = strtolower(hash('sha512', $hashString));
-
-        // Create pending payment record
-        Payment::create([
-            'user_id' => auth()->id(),
-            'auction_id' => $auction->id,
-            'txnid' => $txnid,
-            'amount' => $amount,
-            'status' => 'pending',
-            'productinfo' => $productinfo,
-        ]);
 
         $data = [
             'key' => $this->key,
