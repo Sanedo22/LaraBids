@@ -142,7 +142,19 @@ class PaymentController extends Controller
             }
             fclose($file);
         };
-
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function markPayoutPaid(Payment $payment)
+    {
+        $additionalData = $payment->additional_data ?? [];
+        $additionalData['payout_status'] = 'paid';
+        $additionalData['payout_at'] = now();
+        
+        $payment->update([
+            'additional_data' => $additionalData
+        ]);
+
+        return redirect()->back()->with('success', 'Payout marked as paid successfully.');
     }
 }
