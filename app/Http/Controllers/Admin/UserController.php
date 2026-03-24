@@ -99,41 +99,41 @@ class UserController extends Controller
                         $canManageUser = $row->hasRole('user');
                     }
                     elseif ($currentUser->isSuperAdmin()) {
-                        // Super Admin can manage themselves or any user they created (including other Super Admins)
                         $canManageUser = ($row->id === $currentUser->id) || 
                                         ($row->created_by === $currentUser->id) || 
                                         (!$row->isSuperAdmin());
                     }
 
-                    $btn = '';
+                    $btn = '<div class="d-flex justify-content-center gap-1">';
 
                     // View
-                    $btn .= '<a href="'.route('admin.users.show', $row->id).'" class="btn btn-info btn-sm mr-1" title="View"><i class="fas fa-eye"></i></a>';
+                    $btn .= '<a href="'.route('admin.users.show', $row->id).'" class="btn btn-outline-info btn-sm btn-action" title="View"><i class="fas fa-eye"></i></a>';
 
                     if ($canManageUser) {
                         if (!$row->trashed()) {
                             // Edit
-                            $btn .= '<a href="'.route('admin.users.edit', $row->id).'" class="btn btn-primary btn-sm mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
+                            $btn .= '<a href="'.route('admin.users.edit', $row->id).'" class="btn btn-outline-primary btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></a>';
 
                             // Delete
                             if(auth()->id() !== $row->id) {
-                                $btn .= '<button type="button" class="btn btn-danger btn-sm delete-user" data-id="'.$row->id.'" data-url="'.route('admin.users.destroy', $row->id).'" title="Delete"><i class="fas fa-trash"></i></button>';
+                                $btn .= '<button type="button" class="btn btn-outline-danger btn-sm delete-user btn-action" data-id="'.$row->id.'" data-url="'.route('admin.users.destroy', $row->id).'" title="Delete"><i class="fas fa-trash"></i></button>';
                             } else {
-                                $btn .= '<button class="btn btn-secondary btn-sm" disabled><i class="fas fa-user-lock"></i></button>';
+                                $btn .= '<button class="btn btn-outline-secondary btn-sm btn-action" disabled><i class="fas fa-user-lock"></i></button>';
                             }
                         } else {
                             // Restore
-                            $btn .= '<button type="button" class="btn btn-success btn-sm restore-user mr-1" data-id="'.$row->id.'" data-url="'.route('admin.users.restore', $row->id).'" title="Restore"><i class="fas fa-trash-restore"></i></button>';
+                            $btn .= '<button type="button" class="btn btn-outline-success btn-sm restore-user btn-action" data-id="'.$row->id.'" data-url="'.route('admin.users.restore', $row->id).'" title="Restore"><i class="fas fa-trash-restore"></i></button>';
 
                             // Force Delete
                             if(auth()->id() !== $row->id) {
-                                $btn .= '<button type="button" class="btn btn-danger btn-sm force-delete-user" data-id="'.$row->id.'" data-url="'.route('admin.users.force_delete', $row->id).'" title="Permanent Delete"><i class="fas fa-times"></i></button>';
+                                $btn .= '<button type="button" class="btn btn-outline-danger btn-sm force-delete-user btn-action" data-id="'.$row->id.'" data-url="'.route('admin.users.force_delete', $row->id).'" title="Permanent Delete"><i class="fas fa-times"></i></button>';
                             }
                         }
                     } else {
-                        $btn .= '<button class="btn btn-secondary btn-sm" disabled title="Protected User"><i class="fas fa-shield-alt"></i></button>';
+                        $btn .= '<button class="btn btn-outline-secondary btn-sm btn-action" disabled title="Protected User"><i class="fas fa-shield-alt"></i></button>';
                     }
 
+                    $btn .= '</div>';
                     return $btn;
                 })
                 ->rawColumns(['role_name', 'status', 'action'])

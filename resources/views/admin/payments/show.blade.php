@@ -25,7 +25,7 @@
                     <div class="d-flex flex-wrap align-items-center justify-content-between">
                         <div class="mr-4 mb-2">
                             <small class="text-uppercase text-muted font-weight-bold d-block mb-1">Status</small>
-                            <span class="badge badge-{{ $payment->status === 'success' ? 'success' : ($payment->status === 'pending' ? 'warning' : 'danger') }} px-3 py-2 text-uppercase font-weight-bold">
+                            <span class="badge badge-{{ $payment->status === 'success' ? 'success' : ($payment->status === 'pending' ? 'warning' : 'danger') }} px-3 py-1 text-uppercase">
                                 {{ $payment->status }}
                             </span>
                         </div>
@@ -60,7 +60,7 @@
                                         <td class="py-3 text-right text-dark">₹{{ number_format($payment->amount, 2) }}</td>
                                     </tr>
                                     <tr class="bg-light-success">
-                                        <td class="py-3 font-weight-bold text-success">Admin Commission ({{ $payment->commission_percentage ?? 5 }}%)</td>
+                                        <td class="py-3 font-weight-bold text-success">Platform Fee</td>
                                         <td class="py-3 text-right font-weight-bold text-success">₹{{ number_format($payment->commission_amount ?? ($payment->amount * 0.05), 2) }}</td>
                                     </tr>
                                     <tr class="h5 font-weight-bold">
@@ -184,7 +184,7 @@
                 <div class="card shadow-sm border-0 bg-light">
                     <div class="card-body p-4">
                         <h6 class="font-weight-bold text-dark small text-uppercase">Financial Note</h6>
-                        <p class="small text-muted mb-0">The commission displayed covers administrative fees and platform service charges for this lot.</p>
+                        <p class="small text-muted mb-0">The platform fee covers administrative costs and service charges for this auction.</p>
                     </div>
                 </div>
             </div>

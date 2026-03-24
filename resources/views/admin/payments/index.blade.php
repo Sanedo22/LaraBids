@@ -6,29 +6,58 @@
     <link href="{{ asset('admin-assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
     <style>
         .dataTables_wrapper .dataTables_filter input {
-            border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            padding: 0.3rem 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            padding: 0.4rem 0.75rem;
             margin-left: 0.5rem;
+            background-color: #f8fafc;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            outline: none;
+            border-color: #a3bffa;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
         }
         .dataTables_wrapper .dataTables_length select {
-            border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            padding: 0.3rem 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            padding: 0.3rem 1.5rem 0.3rem 0.75rem;
+            background-color: #f8fafc;
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin: 0 0.4rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .dataTables_wrapper .dataTables_length select:focus {
+            border-color: #a3bffa;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
         }
         .filter-label {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            font-weight: 800;
-            color: #5a5c69;
-            margin-bottom: 0.2rem;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            color: #4a5568;
+            font-weight: 700;
             display: block;
         }
         .filter-control {
-            border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            font-size: 0.85rem;
-            height: 38px !important;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            color: #4a5568;
+            background-color: #f8fafc;
+            transition: all 0.2s ease-in-out;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.025);
+            height: calc(1.5em + .75rem + 2px) !important;
+        }
+        .filter-control:focus {
+            border-color: #a3bffa;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+            outline: none;
         }
         .table thead th {
             text-transform: uppercase;
@@ -81,11 +110,6 @@
                 </ol>
             </nav>
         </div>
-        <div class="d-none d-sm-inline-block">
-            <span class="badge badge-success shadow-sm px-3 py-2" style="border-radius: 50px;">
-                <i class="fas fa-check-circle mr-1"></i> PayU Gateway Active
-            </span>
-        </div>
     </div>
 
     <!-- Quick Stats Summary -->
@@ -114,7 +138,7 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Commission (5%)</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Platform Fees</div>
                             @php
                                 $totalCommission = \App\Models\Payment::where('status', 'success')->sum('commission_amount');
                                 if($totalCommission == 0) $totalCommission = \App\Models\Payment::where('status', 'success')->sum('amount') * 0.05;
@@ -139,7 +163,7 @@
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Successful Payments</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{ \App\Models\Payment::where('status', 'success')->count() }}</div>
-                            <div class="small text-muted mb-0">Processed through PayU Secure Gateway</div>
+                            <div class="small text-muted mb-0">Processed through Secure Online Gateway</div>
                         </div>
                         <div class="col-auto">
                             <i class="fas fa-receipt fa-2x text-gray-300"></i>
@@ -150,12 +174,12 @@
         </div>
     </div>
 
-    <!-- Premium Filters Section -->
+    <!-- Filters Section -->
     <div class="card shadow-sm border-0 mb-4 rounded-lg" style="border-left: 4px solid #4e73df !important;">
         <div class="card-body p-4">
             <div class="row align-items-end">
-                <div class="col-xl-3 col-lg-3 col-md-6 mb-3">
-                    <label class="filter-label"><i class="fas fa-circle-notch mr-1"></i> Payment Status</label>
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <label for="statusFilter" class="filter-label"><i class="fas fa-circle-notch mr-1"></i> Status</label>
                     <select id="statusFilter" class="custom-select filter-control w-100">
                         <option value="all" selected>All Statuses</option>
                         <option value="success">Success</option>
@@ -164,19 +188,18 @@
                     </select>
                 </div>
 
-                
-                <div class="col-xl-2 col-lg-2 col-md-4 mb-3">
-                    <label class="filter-label"><i class="far fa-calendar-alt mr-1"></i> From Date</label>
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <label for="fromDateFilter" class="filter-label"><i class="far fa-calendar-alt mr-1"></i> From Date</label>
                     <input type="date" id="fromDateFilter" class="form-control filter-control w-100">
                 </div>
                 
-                <div class="col-xl-2 col-lg-2 col-md-4 mb-3">
-                    <label class="filter-label"><i class="far fa-calendar-alt mr-1"></i> To Date</label>
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
+                    <label for="toDateFilter" class="filter-label"><i class="far fa-calendar-alt mr-1"></i> To Date</label>
                     <input type="date" id="toDateFilter" class="form-control filter-control w-100">
                 </div>
 
-                <div class="col-xl-2 col-lg-2 col-md-4 mb-3">
-                    <button type="button" class="btn btn-light border w-100 font-weight-bold shadow-sm" id="resetFilters" style="height: 38px;">
+                <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 mb-3">
+                    <button type="button" class="btn btn-light border w-100 font-weight-bold" id="resetFilters" style="height: calc(1.5em + .75rem + 2px);">
                         <i class="fas fa-sync-alt mr-1 text-primary"></i> <span class="text-primary">Reset</span>
                     </button>
                 </div>
@@ -202,7 +225,7 @@
                             <th class="text-nowrap">Buyer Info</th>
                             <th class="text-nowrap" style="min-width: 200px;">Auction Item</th>
                             <th class="text-right text-nowrap">Sale Amount</th>
-                            <th class="text-right text-nowrap">Commission (5%)</th>
+                            <th class="text-right text-nowrap">Platform Fee</th>
                             <th class="text-center text-nowrap">Status</th>
                             <th class="text-nowrap">Timestamp</th>
                             <th width="80" class="text-center">Actions</th>
@@ -223,7 +246,6 @@
 
     $(document).ready(function () {
             var currentStatus = 'all';
-            var currentMethod = 'all';
             var currentFromDate = '';
             var currentToDate = '';
 
@@ -235,13 +257,12 @@
                     url: "{{ route('admin.payments.index') }}",
                     data: function (d) {
                         d.status = currentStatus;
-                        d.payment_method = currentMethod;
                         d.from_date = currentFromDate;
                         d.to_date = currentToDate;
                     }
                 },
                 language: {
-                    searchPlaceholder: "Search records...",
+                    searchPlaceholder: "Search ID, Buyer, Seller or Item...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ payments"
                 },
@@ -260,9 +281,8 @@
             });
 
             // Filter Change Handlers
-            $('#statusFilter, #methodFilter, #fromDateFilter, #toDateFilter').on('change', function() {
+            $('#statusFilter, #fromDateFilter, #toDateFilter').on('change', function() {
                 currentStatus = $('#statusFilter').val();
-                currentMethod = $('#methodFilter').val();
                 currentFromDate = $('#fromDateFilter').val();
                 currentToDate = $('#toDateFilter').val();
                 table.draw();
@@ -272,7 +292,6 @@
             $('#exportCsv').click(function() {
                 var params = {
                     status: currentStatus,
-                    payment_method: currentMethod,
                     from_date: currentFromDate,
                     to_date: currentToDate
                 };
@@ -283,17 +302,46 @@
             // Reset Filters
             $('#resetFilters').on('click', function() {
                 $('#statusFilter').val('all');
-                $('#methodFilter').val('all');
                 $('#fromDateFilter').val('');
                 $('#toDateFilter').val('');
                 
                 currentStatus = 'all';
-                currentMethod = 'all';
                 currentFromDate = '';
                 currentToDate = '';
                 
                 table.search('').draw();
             });
         });
+
+        function markAsPaid(id) {
+            Swal.fire({
+                title: 'Mark as Paid?',
+                text: "Are you sure you have paid the seller their 95% share?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, Mark as Paid'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ url('admin/payments') }}/" + id + "/mark-payout-paid",
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if(response.success) {
+                                Swal.fire('Settled!', response.message, 'success');
+                                $('#payment-table').DataTable().ajax.reload();
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire('Error!', xhr.responseJSON.message || 'Something went wrong', 'error');
+                        }
+                    });
+                }
+            });
+        }
     </script>
 @endpush

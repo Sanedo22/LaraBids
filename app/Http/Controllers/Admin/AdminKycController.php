@@ -68,9 +68,11 @@ class AdminKycController extends Controller
                 return '<span class="badge badge-' . $color . '">' . ucfirst($kyc->status) . '</span>';
             })
             ->addColumn('action', function ($kyc) {
-                return '<a href="' . route('admin.kyc.show', $kyc->id) . '" class="btn btn-outline-info btn-sm btn-action" title="View Details">
+                return '<div class="d-flex justify-content-center gap-1">'
+                    . '<a href="' . route('admin.kyc.show', $kyc->id) . '" class="btn btn-outline-info btn-sm btn-action" title="View Details">
                             <i class="fas fa-eye"></i>
-                        </a>';
+                        </a>'
+                    . '</div>';
             })
             ->rawColumns(['status', 'action'])
             ->make(true);

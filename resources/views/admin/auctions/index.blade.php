@@ -50,17 +50,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             border: 1px solid #e2e8f0;
         }
-        .btn-action {
-            width: 32px;
-            height: 32px;
-            padding: 0;
-            line-height: 32px;
-            text-align: center;
-            border-radius: 0.35rem;
-            display: inline-block;
-            transition: all 0.2s;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
         .btn-action:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -226,7 +215,7 @@
                     }
                 },
                 language: {
-                    searchPlaceholder: "Search records...",
+                    searchPlaceholder: "Title, Category or Seller Name...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ auctions"
                 },
@@ -243,13 +232,7 @@
                     {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center text-nowrap'},
                 ],
                 drawCallback: function() {
-                    $('.btn-info').removeClass('btn-info').addClass('btn-outline-info').html('<i class="fas fa-eye"></i>');
-                    $('.btn-success:not(.restore-auction)').removeClass('btn-success').addClass('btn-outline-success').html('<i class="fas fa-check"></i>');
-                    $('.btn-danger:not(.force-delete-auction)').removeClass('btn-danger').addClass('btn-outline-danger').html('<i class="fas fa-trash"></i>');
-                    $('.restore-auction').removeClass('btn-success').addClass('btn-outline-success').html('<i class="fas fa-trash-restore"></i>');
-                    $('.force-delete-auction').removeClass('btn-danger').addClass('btn-outline-danger').html('<i class="fas fa-times"></i>');
-                    
-                    $('.btn-sm').addClass('btn-action mx-1');
+                    $('.btn-sm').addClass('btn-action');
                     
                     $('#auctions-table img').addClass('auction-img-thumbnail');
                 }

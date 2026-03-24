@@ -66,32 +66,29 @@ class ContactController extends Controller
                 })
 
                 ->addColumn('action', function ($contact) {
+                    $btn = '<div class="d-flex justify-content-center gap-1">';
 
-                    $viewBtn =
-                        '<a href="'.route('admin.contacts.show', $contact->id).'"
-                            class="btn btn-sm btn-info btn-action mx-1" title="View">
-                            <i class="fas fa-eye"></i>
-                         </a>';
+                    $btn .= '<a href="'.route('admin.contacts.show', $contact->id).'"
+                                class="btn btn-sm btn-outline-info btn-action" title="View">
+                                <i class="fas fa-eye"></i>
+                             </a>';
 
                     if ($contact->trashed()) {
-                        $restoreBtn =
-                            '<button class="btn btn-sm btn-success restore-contact btn-action mx-1"
-                                data-url="'.route('admin.contacts.restore', $contact->id).'"
-                                title="Restore">
-                                <i class="fas fa-trash-restore"></i>
-                             </button>';
-
-                        return $viewBtn.' '.$restoreBtn;
+                        $btn .= '<button class="btn btn-sm btn-outline-success restore-contact btn-action"
+                                    data-url="'.route('admin.contacts.restore', $contact->id).'"
+                                    title="Restore">
+                                    <i class="fas fa-trash-restore"></i>
+                                 </button>';
+                    } else {
+                        $btn .= '<button class="btn btn-sm btn-outline-danger delete-contact btn-action"
+                                    data-url="'.route('admin.contacts.destroy', $contact->id).'"
+                                    title="Move to Trash">
+                                    <i class="fas fa-trash"></i>
+                                 </button>';
                     }
 
-                    $deleteBtn =
-                        '<button class="btn btn-sm btn-danger delete-contact btn-action mx-1"
-                            data-url="'.route('admin.contacts.destroy', $contact->id).'"
-                            title="Move to Trash">
-                            <i class="fas fa-trash"></i>
-                         </button>';
-
-                    return $viewBtn.' '.$deleteBtn;
+                    $btn .= '</div>';
+                    return $btn;
                 })
 
                 ->rawColumns(['status_badge', 'action'])

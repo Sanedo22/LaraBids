@@ -139,7 +139,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
         Route::get('/payments/export', [PaymentController::class, 'export'])->name('payments.export');
         Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
-        Route::post('/payments/{payment}/toggle-commission', [PaymentController::class, 'toggleCommission'])->name('payments.toggle_commission');
+        Route::post('/payments/{payment}/mark-payout-paid', [PaymentController::class, 'markPayoutPaid'])->name('payments.mark_payout_paid');
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');

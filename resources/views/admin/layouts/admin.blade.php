@@ -141,6 +141,27 @@
             padding-left: 1.5rem;
             justify-content: flex-start !important;
         }
+
+        /* Action Buttons Global Styling */
+        .gap-1 {
+            gap: 0.25rem !important;
+        }
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 0.35rem !important;
+            transition: all 0.2s !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+            margin: 0 1px !important;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+        }
     </style>
     
     @stack('styles')

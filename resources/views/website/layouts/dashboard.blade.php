@@ -16,6 +16,128 @@
     <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
 
     @stack('styles')
+    <style>
+        /* Action Buttons Global Styling */
+        .btn-action {
+            width: 34px;
+            height: 34px;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 0.5rem !important;
+            transition: all 0.2s ease-in-out !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+            font-size: 0.85rem !important;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.12) !important;
+        }
+        .gap-1 {
+            gap: 0.25rem !important;
+        }
+        .gap-2 {
+            gap: 0.5rem !important;
+        }
+
+        /* Filter & DataTable Consistent Styling */
+        .filter-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.6rem;
+            color: #64748b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+        .filter-control {
+            border-radius: 0.6rem;
+            border: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            padding: 0.65rem 0.85rem;
+            background-color: #f8fafc;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #1e293b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            height: 42px;
+        }
+        .filter-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background-color: #fff;
+            outline: none;
+        }
+        
+        .table th {
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            font-weight: 700;
+            border-bottom: 2px solid #f1f5f9 !important;
+            background-color: #f8fafc;
+            padding: 1.1rem 0.9rem;
+            vertical-align: middle;
+        }
+        .table td {
+            vertical-align: middle;
+            color: #334155;
+            font-size: 0.88rem;
+            padding: 1.1rem 0.9rem;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .table-hover tbody tr:hover {
+            background-color: rgba(59, 130, 246, 0.02);
+        }
+
+        /* DataTable Specific Labels & Inputs */
+        .dataTables_wrapper label {
+            color: #64748b !important;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 0.6rem;
+            border: 1px solid #e2e8f0;
+            padding: 0.45rem 0.9rem;
+            margin-left: 0.6rem;
+            background-color: #f8fafc;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            height: 38px;
+            width: 220px;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background-color: #fff;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            border-radius: 0.6rem;
+            border: 1px solid #e2e8f0;
+            padding: 0.35rem 1.8rem 0.35rem 0.8rem;
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-size: 0.85rem;
+            margin: 0 0.5rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+            height: 38px;
+        }
+        .dataTables_wrapper .dataTables_length select:focus {
+            border-color: #3b82f6;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+    </style>
 </head>
 
 <body>

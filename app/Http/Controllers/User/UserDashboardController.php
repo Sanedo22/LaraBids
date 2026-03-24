@@ -142,7 +142,9 @@ class UserDashboardController extends Controller
                 })
                 ->addColumn('action', function($bid) {
                     $url = route('auctions.show', $bid->auction->id);
-                    return '<a href="'.$url.'" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
+                    return '<div class="d-flex justify-content-center">
+                                <a href="'.$url.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>
+                            </div>';
                 })
                 ->rawColumns(['item', 'my_bid', 'current_price', 'status', 'time_left', 'action'])
                 ->make(true);
@@ -242,7 +244,22 @@ class UserDashboardController extends Controller
                     return '<span class="badge rounded-pill bg-'.$bg.'">'.$status.'</span>';
                 })
                 ->addColumn('price', function($auction) {
-                    return '<span class="fw-bold">₹'.number_format($auction->current_price, 2).'</span>';
+                    $price = $auction->current_price;
+                    $html = '<div class="d-flex flex-column">';
+                    $html .= '<span class="fw-bold text-dark mb-1">₹'.number_format($price, 2).'</span>';
+                    
+                    if ($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast())) {
+                        $fee = $price * 0.05;
+                        $earning = $price - $fee;
+                        $html .= '<div class="d-flex flex-column bg-light-success p-2 rounded border-start border-success border-4 mt-1">';
+                        $html .= '<span class="text-muted extra-small" style="font-size: 0.65rem;">Fee: ₹'.number_format($fee, 2).'</span>';
+                        $html .= '<span class="text-success small fw-bold mt-1">Net: ₹'.number_format($earning, 2).'</span>';
+                        $html .= '</div>';
+                    } else {
+                        $html .= '<span class="text-muted small" style="font-size: 0.7rem;">Final price - fees apply</span>';
+                    }
+                    $html .= '</div>';
+                    return $html;
                 })
                 ->addColumn('winner', function($auction) {
                     $highestBid = $auction->highestBid();
@@ -264,18 +281,15 @@ class UserDashboardController extends Controller
                     $viewUrl = route('auctions.show', $auction->id);
                     $editUrl = route('auctions.edit', $auction->id);
                     
-                    $html = '<div class="d-flex justify-content-center align-items-center mb-1">';
-                    $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm rounded-circle shadow-sm me-1" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
+                    $html = '<div class="d-flex justify-content-center gap-1">';
+                    $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>';
                     if($canEdit) {
-                        $html .= '<a href="'.$editUrl.'" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm me-1" title="Edit" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-edit"></i></a>';
+                        $html .= '<a href="'.$editUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="Edit"><i class="fas fa-edit"></i></a>';
                     }
-                    $html .= '<button type="button" onclick="confirmDelete('.$auction->id.')" class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" title="Delete" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-trash"></i></button>';
+                    $html .= '<button type="button" onclick="confirmDelete('.$auction->id.')" class="btn btn-outline-danger btn-sm btn-action shadow-sm" title="Delete"><i class="fas fa-trash"></i></button>';
                     $html .= '</div>';
                     
-                    return '<div class="d-flex flex-column" style="min-width: 120px;">'.$html.'</div>';
-
-
-                    return '<div class="d-flex flex-column" style="min-width: 120px;">'.$html.'</div>';
+                    return $html;
                 })
                 ->rawColumns(['item', 'status', 'price', 'winner', 'bids', 'action'])
                 ->make(true);
@@ -350,7 +364,10 @@ class UserDashboardController extends Controller
                         </div>';
                 })
                 ->addColumn('winning_bid', function($auction) {
-                    return '<span class="fw-bold text-success">₹'.number_format($auction->current_price, 2).'</span>';
+                    return '<div class="d-flex flex-column">
+                                <span class="fw-bold text-success">₹'.number_format($auction->current_price, 2).'</span>
+                                <span class="text-muted extra-small" style="font-size: 0.6rem;">Total (Incl. Platform Fees)</span>
+                            </div>';
                 })
                 ->addColumn('won_date', function($auction) {
                     return '<span class="text-muted small">'.$auction->end_time->format('M d, Y').'</span>';
@@ -366,19 +383,21 @@ class UserDashboardController extends Controller
                     $viewUrl = route('auctions.show', $auction->id);
                     $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
                     
-                    $html = '<a href="'.$viewUrl.'" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm me-2" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
+                    $html = '<div class="d-flex align-items-center gap-2">';
+                    $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>';
                     
                     if (!$payment) {
                         $payUrl = route('payment.payu.checkout', $auction->id);
                         
-                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-3 fw-bold text-white mb-0" 
-                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; padding: 6px 12px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.02em;" 
+                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-3 fw-bold text-white mb-0 d-inline-flex align-items-center shadow-sm" 
+                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; height: 34px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 0.5rem;" 
                                     title="Online Payment">
-                                    <i class="fas fa-credit-card me-1" style="font-size: 0.6rem;"></i> Online
+                                    <i class="fas fa-credit-card me-1" style="font-size: 0.7rem;"></i> Online Pay
                                   </a>';
                     }
+                    $html .= '</div>';
                     
-                    return '<div class="d-flex align-items-center">'.$html.'</div>';
+                    return $html;
                 })
                 ->rawColumns(['item', 'winning_bid', 'won_date', 'payment_status', 'action'])
                 ->make(true);
@@ -467,11 +486,11 @@ class UserDashboardController extends Controller
                     $toggleUrl = route('user.watchlist.toggle', $item->auction_id);
                     $csrf = csrf_field();
                     
-                    return '<div class="text-nowrap">
-                                <a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm rounded-circle shadow-sm me-1" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>
+                    return '<div class="d-flex justify-content-center gap-1">
+                                <a href="'.$viewUrl.'" class="btn btn-outline-info btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>
                                 <form action="'.$toggleUrl.'" method="POST" class="d-inline">
                                     '.$csrf.'
-                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" title="Remove" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm btn-action shadow-sm" title="Remove">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>

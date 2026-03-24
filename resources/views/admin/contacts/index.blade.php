@@ -284,7 +284,7 @@
                     }
                 },
                 language: {
-                    searchPlaceholder: "Search name, email, subject...",
+                    searchPlaceholder: "Name, Email or Subject...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ messages"
                 },

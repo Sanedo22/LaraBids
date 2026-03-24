@@ -226,9 +226,10 @@ class Auction extends Model
                 [
                     'txnid' => 'PENDING_' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(10)),
                     'amount' => $amount,
-                    'payment_method' => 'online', // Only online payments supported
                     'commission_amount' => $commission_amount,
                     'commission_percentage' => $commission_percentage,
+                    'payout_amount' => $amount - $commission_amount,
+                    'payout_status' => 'pending',
                     'status' => 'pending',
                     'productinfo' => "Pending payment for Auction #" . $this->id . ": " . $this->title,
                 ]

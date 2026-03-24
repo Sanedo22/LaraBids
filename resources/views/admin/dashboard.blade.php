@@ -334,11 +334,11 @@
                                                 @endphp
                                                 <span class="badge badge-{{ $badgeClass }}">{{ ucfirst($displayStatus) }}</span>
                                             </td>
-                                            <td>
-                                                <a href="{{ route('admin.auctions.show', $auction->id) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
+                                              <td class="text-center">
+                                                  <a href="{{ route('admin.auctions.show', $auction->id) }}" class="btn btn-sm btn-outline-info btn-action" title="View">
+                                                      <i class="fas fa-eye"></i>
+                                                  </a>
+                                              </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -385,11 +385,11 @@
                                             <td>
                                                 <small class="text-muted">{{ $kyc->created_at->diffForHumans() }}</small>
                                             </td>
-                                            <td>
-                                                <a href="{{ url('admin/kyc/' . $kyc->id) }}" class="btn btn-sm btn-info">
-                                                    Review
-                                                </a>
-                                            </td>
+                                              <td class="text-center">
+                                                  <a href="{{ url('admin/kyc/' . $kyc->id) }}" class="btn btn-sm btn-outline-info btn-action" title="Review">
+                                                      <i class="fas fa-eye"></i>
+                                                  </a>
+                                              </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

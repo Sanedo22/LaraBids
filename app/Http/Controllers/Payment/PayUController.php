@@ -50,9 +50,10 @@ class PayUController extends Controller
             [
                 'txnid' => $txnid,
                 'amount' => $amount,
-                'payment_method' => 'online',
                 'commission_amount' => $commission_amount,
                 'commission_percentage' => $commission_percentage,
+                'payout_amount' => $amount - $commission_amount,
+                'payout_status' => 'pending',
                 'productinfo' => $productinfo,
             ]
         );

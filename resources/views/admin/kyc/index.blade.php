@@ -196,7 +196,7 @@
                     }
                 },
                 language: {
-                    searchPlaceholder: "Search records...",
+                    searchPlaceholder: "Name, Status or Type...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ submissions"
                 },

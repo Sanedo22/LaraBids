@@ -12,7 +12,7 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Payment::with(['user', 'auction'])->latest();
+            $query = Payment::with(['user', 'auction.user'])->latest();
 
             // Custom Filters
             if ($request->filled('status') && $request->status != 'all') {
@@ -38,7 +38,7 @@ class PaymentController extends Controller
                     
                     return '<div style="font-size: 0.85rem; line-height: 1.4;">'
                         . '<div class="text-dark font-weight-bold">Buyer: ' . $buyer . '</div>'
-                        . '<div class="text-muted">Seller: ' . $seller . '</div>'
+                        . '<div class="text-muted small">Seller: ' . $seller . '</div>'
                         . '</div>';
                 })
                 ->addColumn('auction', function ($row) {
@@ -46,34 +46,37 @@ class PaymentController extends Controller
                     return '<a href="'.route('admin.auctions.show', $row->auction_id).'" class="text-primary font-weight-bold" style="font-size: 0.85rem;">' . e($row->auction->title) . '</a>';
                 })
                 ->addColumn('method', function ($row) {
-                    return '<span class="text-uppercase small font-weight-bold text-dark">' . e($row->payment_method) . '</span>';
+                    return '<span class="text-uppercase small font-weight-bold text-dark">ONLINE</span>';
                 })
                 ->editColumn('amount', function ($row) {
-                    return '<span class="text-dark font-weight-bold">₹' . number_format($row->amount, 2) . '</span>';
+                    return '<div class="text-right font-weight-bold text-dark">₹' . number_format($row->amount, 2) . '</div>';
                 })
                 ->addColumn('fee', function ($row) {
                     $fee = $row->commission_amount ?? ($row->amount * 0.05);
-                    
-                    return '<div class="text-right">'
-                        . '<div class="font-weight-bold text-dark">₹' . number_format($fee, 2) . '</div>'
-                        . '</div>';
+                    return '<div class="text-right font-weight-bold text-dark">₹' . number_format($fee, 2) . '</div>';
                 })
                 ->editColumn('status', function ($row) {
-                    $color = match ($row->status) {
+                    $status = $row->status;
+                    $bg = match ($status) {
                         'success' => 'success',
                         'pending' => 'warning',
                         'failed'  => 'danger',
                         default   => 'secondary',
                     };
-                    return '<span class="badge badge-' . $color . ' py-1 px-2 text-uppercase" style="font-size: 0.65rem;">' . e($row->status) . '</span>';
+                    return '<span class="badge badge-' . $bg . ' px-2 py-1 text-uppercase" style="font-size: 0.65rem;">' . e($status) . '</span>';
                 })
                 ->editColumn('created_at', function ($row) {
-                    return '<span class="text-muted small">' . $row->created_at->format('M d, Y H:i') . '</span>';
+                    return '<div class="text-muted small">' 
+                        . $row->created_at->format('M d, Y') . '<br>'
+                        . '<span style="font-size: 0.7rem;">' . $row->created_at->format('H:i') . '</span>'
+                        . '</div>';
                 })
                 ->addColumn('action', function ($row) {
-                    return '<a href="'.route('admin.payments.show', $row->id).'" class="btn btn-outline-info btn-sm btn-action">
+                    return '<div class="d-flex justify-content-center gap-1">'
+                        . '<a href="'.route('admin.payments.show', $row->id).'" class="btn btn-outline-info btn-sm btn-action" title="View Details">
                                 <i class="fas fa-eye"></i>
-                            </a>';
+                            </a>'
+                        . '</div>';
                 })
                 ->rawColumns(['txnid', 'user', 'auction', 'method', 'amount', 'fee', 'status', 'created_at', 'action'])
                 ->make(true);
@@ -85,7 +88,7 @@ class PaymentController extends Controller
     public function show(Payment $payment)
     {
         $payment->load(['user', 'auction' => function($q) {
-            $q->withTrashed()->with('bids.user');
+            $q->withTrashed()->with('bids.user', 'user');
         }]);
         $totalBids = $payment->auction ? $payment->auction->bids->count() : 0;
         
@@ -117,22 +120,23 @@ class PaymentController extends Controller
             "Expires" => "0"
         ];
 
-        $columns = ['ID', 'Transaction ID', 'Buyer Name', 'Auction Item', 'Method', 'Total Amount', 'Commission', 'Payment Status', 'Timestamp'];
+        $columns = ['ID', 'Transaction ID', 'Buyer Name', 'Auction Item', 'Method', 'Total Amount', 'Platform Fee', 'Status', 'Timestamp'];
 
         $callback = function() use ($payments, $columns) {
             $file = fopen('php://output', 'w');
             fputcsv($file, $columns);
 
             foreach ($payments as $payment) {
+                $fee = $payment->commission_amount ?? ($payment->amount * 0.05);
                 fputcsv($file, [
                     $payment->id,
                     $payment->txnid,
                     $payment->user->name ?? 'N/A',
                     $payment->auction->title ?? 'N/A',
-                    $payment->payment_method,
+                    'ONLINE',
                     $payment->amount,
-                    $payment->commission_amount ?? ($payment->amount * 0.05),
-                    $payment->status,
+                    $fee,
+                    strtoupper($payment->status),
                     $payment->created_at
                 ]);
             }
