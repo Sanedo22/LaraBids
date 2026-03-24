@@ -1408,45 +1408,6 @@
         });
 
         // Removed frontend SweetAlert validation. Handled completely by Axios and backend now.
-        // Universal Countdown functionality
-        const timerBoxes = document.querySelectorAll('.timer-val');
-        if (timerBoxes.length > 0) {
-            setInterval(() => {
-                timerBoxes.forEach(box => {
-                    let d = parseInt(box.dataset.days);
-                    let h = parseInt(box.dataset.hours);
-                    let m = parseInt(box.dataset.min);
-                    let s = parseInt(box.dataset.sec);
-
-                    if (d === 0 && h === 0 && m === 0 && s === 0) return;
-
-                    s--;
-                    if (s < 0) { s = 59; m--; }
-                    if (m < 0) { m = 59; h--; }
-                    if (h < 0) { h = 23; d--; }
-
-                    box.dataset.days = d;
-                    box.dataset.hours = h;
-                    box.dataset.min = m;
-                    box.dataset.sec = s;
-
-                    const dElem = box.querySelector('[data-days]');
-                    const hElem = box.querySelector('[data-hours]');
-                    const mElem = box.querySelector('[data-min]');
-                    const sElem = box.querySelector('[data-sec]');
-
-                    if(dElem) dElem.innerText = d.toString().padStart(2, '0');
-                    if(hElem) hElem.innerText = h.toString().padStart(2, '0');
-                    if(mElem) mElem.innerText = m.toString().padStart(2, '0');
-                    if(sElem) sElem.innerText = s.toString().padStart(2, '0');
-
-                    if (d === 0 && h === 0) {
-                        box.classList.add('urgent-timer');
-                    }
-                });
-            }, 1000);
-        }
-
     const form = document.getElementById('place-bid-form');
     if (form) {
         form.addEventListener('submit', function(e) {

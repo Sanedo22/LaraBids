@@ -34,14 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initSidebarToggle();
 
     // --- Global Countdown System ---
-    const timers = document.querySelectorAll('.timer-val');
-
     function updateCountdowns() {
+        const timers = document.querySelectorAll('.timer-val');
         timers.forEach(timer => {
             let d = parseInt(timer.getAttribute('data-days')) || 0;
             let h = parseInt(timer.getAttribute('data-hours')) || 0;
             let m = parseInt(timer.getAttribute('data-min')) || 0;
             let s = parseInt(timer.getAttribute('data-sec')) || 0;
+
+            if (d === 0 && h === 0 && m === 0 && s === 0) return;
 
             if (s > 0) {
                 s--;
@@ -64,25 +65,35 @@ document.addEventListener('DOMContentLoaded', () => {
             timer.setAttribute('data-min', m);
             timer.setAttribute('data-sec', s);
 
-            const dayEl = timer.querySelector('[data-days]') || (timer.hasAttribute('data-days') ? timer : null);
-            const hourEl = timer.querySelector('[data-hours]') || (timer.hasAttribute('data-hours') ? timer : null);
-            const minEl = timer.querySelector('[data-min]') || (timer.hasAttribute('data-min') ? timer : null);
-            const secEl = timer.querySelector('[data-sec]') || (timer.hasAttribute('data-sec') ? timer : null);
+            const dayEl = timer.querySelector('[data-days]');
+            const hourEl = timer.querySelector('[data-hours]');
+            const minEl = timer.querySelector('[data-min]');
+            const secEl = timer.querySelector('[data-sec]');
 
-            if (dayEl && dayEl !== timer) dayEl.innerText = d.toString().padStart(2, '0');
-            if (hourEl && hourEl !== timer) hourEl.innerText = h.toString().padStart(2, '0');
-            if (minEl && minEl !== timer) minEl.innerText = m.toString().padStart(2, '0');
-            if (secEl && secEl !== timer) secEl.innerText = s.toString().padStart(2, '0');
+            if (dayEl) dayEl.innerText = d.toString().padStart(2, '0');
+            if (hourEl) hourEl.innerText = h.toString().padStart(2, '0');
+            if (minEl) minEl.innerText = m.toString().padStart(2, '0');
+            if (secEl) secEl.innerText = s.toString().padStart(2, '0');
 
             if (timer.classList.contains('combined-timer')) {
                 timer.innerText = `${d.toString().padStart(2, '0')}:${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
             }
+
+            // Urgency logic: < 1 hour (0 days, 0 hours) -> Red Box
+            if (d === 0 && h === 0 && !isUpcoming(timer)) {
+                timer.classList.add('urgent-timer');
+            } else {
+                timer.classList.remove('urgent-timer');
+            }
         });
     }
 
-    if (timers.length > 0) {
-        setInterval(updateCountdowns, 1000);
+    function isUpcoming(timer) {
+        // Simple check if it's an upcoming timer badge helper
+        return timer.closest('.alert-info') !== null;
     }
+
+    setInterval(updateCountdowns, 1000);
 
     // --- Watchlist Toggle System ---
     const watchlistForms = document.querySelectorAll('.watchlist-toggle-form');
