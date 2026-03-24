@@ -70,26 +70,27 @@ class CategoryController extends Controller
                     return '<span class="badge badge-info badge-pill px-2 py-1">'.$row->auctions_count.' Items</span>';
                 })
                 ->addColumn('action', function($row){
-                    $btn = '';
+                    $btn = '<div class="d-flex justify-content-center gap-1">';
 
                     // View/Edit (only if not deleted)
                     if(!$row->trashed()){
-                        $btn .= '<a href="'.route('admin.categories.edit', $row->id).'" class="btn btn-sm btn-circle btn-primary mr-1" title="Edit"><i class="fas fa-edit"></i></a>';
+                        $btn .= '<a href="'.route('admin.categories.edit', $row->id).'" class="btn btn-outline-primary btn-sm btn-action" title="Edit"><i class="fas fa-edit"></i></a>';
 
                         // Soft Delete
-                        $btn .= '<button type="button" class="btn btn-sm btn-circle btn-danger delete-category" data-id="'.$row->id.'" data-url="'.route('admin.categories.destroy', $row->id).'" title="Move to Trash"><i class="fas fa-trash"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-outline-danger btn-sm delete-category btn-action" data-id="'.$row->id.'" data-url="'.route('admin.categories.destroy', $row->id).'" title="Move to Trash"><i class="fas fa-trash"></i></button>';
                     } else {
                         // Restore
-                        $btn .= '<button type="button" class="btn btn-sm btn-circle btn-success restore-category mr-1" data-id="'.$row->id.'" data-url="'.route('admin.categories.restore', $row->id).'" title="Restore"><i class="fas fa-trash-restore"></i></button>';
+                        $btn .= '<button type="button" class="btn btn-outline-success btn-sm restore-category btn-action" data-id="'.$row->id.'" data-url="'.route('admin.categories.restore', $row->id).'" title="Restore"><i class="fas fa-trash-restore"></i></button>';
 
                         // Force Delete (Only if no auctions)
-                        if ($row->auctions_count == 0) {
-                            $btn .= '<button type="button" class="btn btn-sm btn-circle btn-danger force-delete-category" data-id="'.$row->id.'" data-url="'.route('admin.categories.force_delete', $row->id).'" title="Permanent Delete"><i class="fas fa-times"></i></button>';
+                        if ($row->auctions_count == 0 || $row->auctions()->count() == 0) {
+                            $btn .= '<button type="button" class="btn btn-outline-danger btn-sm force-delete-category btn-action" data-id="'.$row->id.'" data-url="'.route('admin.categories.force_delete', $row->id).'" title="Permanent Delete"><i class="fas fa-times"></i></button>';
                         } else {
-                            $btn .= '<button type="button" class="btn btn-sm btn-circle btn-secondary" disabled title="Cannot delete: Has Auctions"><i class="fas fa-times"></i></button>';
+                            $btn .= '<button type="button" class="btn btn-outline-secondary btn-sm btn-action" disabled title="Cannot delete: Has Auctions"><i class="fas fa-times"></i></button>';
                         }
                     }
 
+                    $btn .= '</div>';
                     return $btn;
                 })
                 ->rawColumns(['icon', 'parent', 'count', 'action'])

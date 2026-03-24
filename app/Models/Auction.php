@@ -215,8 +215,26 @@ class Auction extends Model
             'status' => 'closed'
         ]);
 
-        // 4. Notify winner if exists AND reserve is met
+        // 4. Create pending payment record for admin tracking
         if ($highestBid && $highestBid->user && $reserveMet) {
+            $amount = $this->current_price;
+            $commission_percentage = 5.00;
+            $commission_amount = ($amount * $commission_percentage) / 100;
+            
+            \App\Models\Payment::firstOrCreate(
+                ['auction_id' => $this->id, 'user_id' => $highestBid->user_id],
+                [
+                    'txnid' => 'PENDING_' . \Illuminate\Support\Str::upper(\Illuminate\Support\Str::random(10)),
+                    'amount' => $amount,
+                    'commission_amount' => $commission_amount,
+                    'commission_percentage' => $commission_percentage,
+                    'payout_amount' => $amount - $commission_amount,
+                    'payout_status' => 'pending',
+                    'status' => 'pending',
+                    'productinfo' => "Pending payment for Auction #" . $this->id . ": " . $this->title,
+                ]
+            );
+
             $highestBid->user->notify(new \App\Notifications\WinnerNotification($this));
             
             // Also notify the seller

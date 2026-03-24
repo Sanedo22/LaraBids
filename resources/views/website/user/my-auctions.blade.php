@@ -20,6 +20,7 @@
     </a>
 </div>
 
+
 <!-- Filters Section -->
 <div class="card shadow-sm border-0 mb-4 rounded-lg overflow-hidden">
     <div class="card-body p-4">
@@ -109,51 +110,6 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<style>
-    .filter-label {
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-        color: #64748b;
-        font-weight: 700;
-        display: block;
-    }
-    .filter-control {
-        border-radius: 0.5rem;
-        border: 1px solid #e2e8f0;
-        font-size: 0.85rem;
-        padding: 0.6rem 0.75rem;
-        background-color: #f8fafc;
-        transition: all 0.2s;
-    }
-    .filter-control:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background-color: #fff;
-    }
-    .table th {
-        text-transform: uppercase;
-        font-size: 0.7rem;
-        letter-spacing: 0.05em;
-        color: #64748b;
-        font-weight: 700;
-        border-bottom-width: 2px !important;
-        background-color: #f8fafc;
-        padding: 1rem 0.75rem;
-    }
-    .table td {
-        vertical-align: middle;
-        color: #475569;
-        font-size: 0.85rem;
-        padding: 1rem 0.75rem;
-    }
-    .dataTables_wrapper .dataTables_filter input {
-        border-radius: 0.5rem;
-        padding: 0.5rem 1rem;
-        border: 1px solid #e2e8f0;
-        background: #f8fafc;
-    }
 </style>
 @endpush
 
@@ -195,9 +151,8 @@ $(document).ready(function() {
         ],
         order: [], 
         language: {
-            search: "_INPUT_",
-            searchPlaceholder: "Search listings...",
-            lengthMenu: "Show _MENU_",
+            searchPlaceholder: "Search by title or details...",
+            lengthMenu: "Entries per page: _MENU_",
             paginate: {
                 previous: '<i class="fas fa-chevron-left"></i>',
                 next: '<i class="fas fa-chevron-right"></i>'

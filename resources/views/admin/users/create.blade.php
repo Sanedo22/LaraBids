@@ -144,7 +144,6 @@
                                 <span class="position-absolute toggle-password text-muted" data-target="password_confirmation" style="right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; z-index: 10;">
                                     <i class="far fa-eye-slash"></i>
                                 </span>
-                                </div>
                                 <div class="invalid-feedback" id="password_confirmation-error"></div>
                             </div>
                         </div>

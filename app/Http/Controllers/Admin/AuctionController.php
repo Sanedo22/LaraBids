@@ -112,24 +112,21 @@ class AuctionController extends Controller
                     return $row->end_time
                         ? $row->end_time->format('M d, Y H:i')
                         : 'N/A';
-                })
-
-                ->addColumn('action', function ($row) {
-
-                    $btn = '';
+                })                ->addColumn('action', function ($row) {
+                    $btn = '<div class="d-flex justify-content-center gap-1">';
 
                     // View
                     $btn .= '<a href="'.route('admin.auctions.show', $row->id).'"
-                                class="btn btn-info btn-sm mr-1" title="View">
+                                class="btn btn-outline-info btn-sm" title="View">
                                 <i class="fas fa-eye"></i></a>';
 
                     // Approve
                     if ($row->status === 'pending' && !$row->trashed()) {
                         $btn .= '<form action="'.route('admin.auctions.approve', $row->id).'"
-                                    method="POST" class="d-inline mr-1">'
+                                    method="POST" class="d-inline">'
                                     .csrf_field().
                                     '<button type="submit"
-                                        class="btn btn-success btn-sm" title="Approve">
+                                        class="btn btn-outline-success btn-sm" title="Approve">
                                         <i class="fas fa-check"></i>
                                     </button>
                                 </form>';
@@ -139,7 +136,7 @@ class AuctionController extends Controller
 
                         // Restore
                         $btn .= '<button type="button"
-                                    class="btn btn-success btn-sm mr-1 restore-auction"
+                                    class="btn btn-outline-success btn-sm restore-auction"
                                     data-id="'.$row->id.'"
                                     data-url="'.route('admin.auctions.restore', $row->id).'"
                                     title="Restore">
@@ -148,7 +145,7 @@ class AuctionController extends Controller
 
                         // Force Delete
                         $btn .= '<button type="button"
-                                    class="btn btn-danger btn-sm force-delete-auction"
+                                    class="btn btn-outline-danger btn-sm force-delete-auction"
                                     data-id="'.$row->id.'"
                                     data-url="'.route('admin.auctions.force_delete', $row->id).'"
                                     title="Permanent Delete">
@@ -159,7 +156,7 @@ class AuctionController extends Controller
 
                         // Soft Delete
                         $btn .= '<button type="button"
-                                    class="btn btn-danger btn-sm delete-auction"
+                                    class="btn btn-outline-danger btn-sm delete-auction"
                                     data-id="'.$row->id.'"
                                     data-url="'.route('admin.auctions.destroy', $row->id).'"
                                     title="Delete">
@@ -167,6 +164,7 @@ class AuctionController extends Controller
                                 </button>';
                     }
 
+                    $btn .= '</div>';
                     return $btn;
                 })
 

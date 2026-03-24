@@ -9,6 +9,7 @@ use App\Models\Bid;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Kyc;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -18,7 +19,13 @@ class DashboardController extends Controller
         // Get statistics
         $stats = [
 
-            'active_auctions' => Auction::where('status', 'active')
+            'live_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '<=', now())
+                ->where('end_time', '>', now())
+                ->count(),
+
+            'upcoming_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '>', now())
                 ->where('end_time', '>', now())
                 ->count(),
 
@@ -26,9 +33,12 @@ class DashboardController extends Controller
 
             'pending_kycs' => Kyc::where('status', 'pending')->count(),
 
-            'closed_auctions' => Auction::where('status', 'active')
-                ->where('end_time', '<=', now())
-                ->count(),
+            'closed_auctions' => Auction::where(function($q) {
+                $q->where('status', 'closed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'active')->where('end_time', '<=', now());
+                  });
+            })->count(),
 
             'cancelled_auctions' => Auction::where('status', 'cancelled')->count(),
 
@@ -42,12 +52,13 @@ class DashboardController extends Controller
 
             'unread_contacts' => Contact::where('status', 'unread')->count(),
 
-            // Payment & Revenue Details (PayU Integration Pending)
-            'total_sales' => Auction::where('status', 'closed')->whereNotNull('winner_id')->sum('current_price') ?? 0,
+            // Real payment stats based on PayU online integration
+            'total_sales' => Payment::where('status', 'success')->sum('amount') ?? 0,
             
-            'platform_fee' => (Auction::where('status', 'closed')->whereNotNull('winner_id')->sum('current_price') ?? 0) * 0.05, // Assuming 5% platform fee
+            'platform_fee' => Payment::where('status', 'success')->sum('commission_amount') ?? 0,
             
-            'successful_payments' => Auction::where('status', 'closed')->whereNotNull('winner_id')->count() ?? 0,
+            'successful_payments' => Payment::where('status', 'success')->count() ?? 0,
+            'pending_payments' => Payment::where('status', 'pending')->count() ?? 0,
         ];
 
         // Recent auctions
@@ -65,9 +76,10 @@ class DashboardController extends Controller
 
         // Chart data - Auctions by status
         $auction_chart_data = [
-            'labels' => ['Active', 'Pending', 'Closed', 'Cancelled'],
+            'labels' => ['Live', 'Upcoming', 'Pending', 'Closed', 'Cancelled'],
             'data' => [
-                $stats['active_auctions'],
+                $stats['live_auctions'],
+                $stats['upcoming_auctions'],
                 $stats['pending_auctions'],
                 $stats['closed_auctions'],
                 $stats['cancelled_auctions'],

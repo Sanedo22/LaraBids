@@ -99,6 +99,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment/payu/{auction}/summary', [PayUController::class, 'summary'])->name('payment.payu.summary');
     Route::get('/payment/payu/{auction}', [PayUController::class, 'checkout'])->name('payment.payu.checkout');
     Route::post('/payment/payu/callback', [PayUController::class, 'callback'])->name('payment.payu.callback');
+    // Payment Routes (Outside 'user.' prefix to keep names clean)
+    Route::get('/payment/payu/{auction}', [PayUController::class, 'checkout'])->name('payment.payu.checkout');
+    Route::post('/payment/payu/callback', [PayUController::class, 'callback'])->name('payment.payu.callback');
 });
 
 // Parameterized Routes
@@ -135,6 +138,9 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // Payments
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+        Route::get('/payments/export', [PaymentController::class, 'export'])->name('payments.export');
+        Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
+        Route::post('/payments/{payment}/mark-payout-paid', [PaymentController::class, 'markPayoutPaid'])->name('payments.mark_payout_paid');
 
         // Reports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');

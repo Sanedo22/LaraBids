@@ -128,22 +128,25 @@
             <!-- Auction Grid -->
             <div class="col-md-8 col-lg-9">
                 <!-- Sorting Bar (Sticky under header) -->
-                <div class="sticky-top bg-white py-3 mb-3 shadow-sm rounded-4 px-3" style="top: 85px; z-index: 9; margin-top: -5px;">
+                <div class="sticky-top bg-white mb-4 shadow-sm rounded-4 px-4 py-3" style="top: 85px; z-index: 9; border: 1px solid rgba(0,0,0,0.06);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            <span class="text-secondary small fw-bold text-uppercase me-2">Showing:</span>
-                            <span class="small fw-bold text-dark">{{ $auctions->total() }} Auctions</span>
+                            <span class="text-secondary small fw-bold text-uppercase me-2" style="font-size: 0.72rem; letter-spacing: 0.05em;">Showing:</span>
+                            <span class="small fw-bold text-dark px-3 py-1 bg-light rounded-pill">{{ $auctions->total() }} Results</span>
                         </div>
-                        <div class="d-flex align-items-center">
-                            <label class="small fw-bold text-secondary text-uppercase me-2" for="sortSelect">Sort By:</label>
-                            <select id="sortSelect" class="form-select form-select-sm border-0 bg-transparent fw-bold text-dark cursor-pointer shadow-none p-0 pe-4 w-auto" 
-                                    style="background-position: right center;" 
-                                    onchange="applySort(this.value)">
-                                <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Newly Listed</option>
-                                <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                                <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
-                                <option value="ending_soon" {{ request('sort') == 'ending_soon' ? 'selected' : '' }}>Ending Soon</option>
-                            </select>
+                        
+                        <div class="d-flex align-items-center ms-auto">
+                            <div class="d-flex align-items-center bg-light rounded-3 px-3 py-1 border border-light">
+                                <label class="small fw-bold text-secondary text-uppercase me-2 mb-0 d-none d-md-inline-block" for="sortSelect" style="font-size: 0.65rem; letter-spacing: 0.05em;">Sort By:</label>
+                                <select id="sortSelect" class="form-select form-select-sm border-0 bg-transparent fw-bold text-dark cursor-pointer shadow-none py-2 ps-2 pe-5 w-auto" 
+                                        style="font-size: 0.9rem; min-width: 180px; background-position: right 10px center;" 
+                                        onchange="applySort(this.value)">
+                                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Newly Listed</option>
+                                    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
+                                    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
+                                    <option value="ending_soon" {{ request('sort') == 'ending_soon' ? 'selected' : '' }}>Ending Soon</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
