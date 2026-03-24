@@ -91,8 +91,8 @@ class PayUController extends Controller
             'firstname' => $firstname,
             'email' => $email,
             'phone' => $phone,
-            'surl' => route('payment.payu.callback'),
-            'furl' => route('payment.payu.callback'),
+            'surl' => url('/api/payment/payu/callback'),
+            'furl' => url('/api/payment/payu/callback'),
             'hash' => $hash,
             'action' => $this->baseUrl,
         ];

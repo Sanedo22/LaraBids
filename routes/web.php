@@ -98,8 +98,9 @@ Route::middleware('auth')->group(function () {
     // Payment Routes (Outside 'user.' prefix to keep names clean)
     Route::get('/payment/payu/{auction}/summary', [PayUController::class, 'summary'])->name('payment.payu.summary');
     Route::get('/payment/payu/{auction}', [PayUController::class, 'checkout'])->name('payment.payu.checkout');
-    Route::post('/payment/payu/callback', [PayUController::class, 'callback'])->name('payment.payu.callback');
 });
+
+
 
 // Parameterized Routes
 Route::get('/auctions/{id}', [AuctionController::class, 'show'])->name('auctions.show');
