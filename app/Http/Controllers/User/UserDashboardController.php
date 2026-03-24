@@ -363,7 +363,7 @@ class UserDashboardController extends Controller
                     $html = '<a href="'.$viewUrl.'" class="btn btn-outline-primary btn-sm rounded-circle shadow-sm me-2" title="View" style="width:32px; height:32px; display:inline-flex; align-items:center; justify-content:center;"><i class="fas fa-eye"></i></a>';
                     
                     if (!$payment) {
-                        $payUrl = route('payment.payu.checkout', $auction->id);
+                        $payUrl = route('payment.payu.summary', $auction->id);
                         $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-2 rounded-pill shadow-sm fw-bold text-white mb-0" 
                                     style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; padding: 4px 12px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.02em;" 
                                     onmouseover="this.style.transform=\'scale(1.05)\'" 

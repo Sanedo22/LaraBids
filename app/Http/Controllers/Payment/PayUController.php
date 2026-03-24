@@ -21,6 +21,26 @@ class PayUController extends Controller
         $this->baseUrl = env('PAYU_BASE_URL');
     }
 
+    public function summary(Auction $auction)
+    {
+        // Ensure user is the winner
+        if ($auction->winner_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'You are not the winner of this auction.');
+        }
+
+        // Check if already paid
+        $existingPayment = Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+        if ($existingPayment) {
+            return redirect()->route('user.winning-items')->with('info', 'This auction has already been paid for.');
+        }
+
+        $winningBid = $auction->current_price;
+        $commission = $winningBid * 0.05; // 5% Platform Commission
+        $totalAmount = $winningBid; // Buyer pays the winning bid amount
+
+        return view('website.payments.summary', compact('auction', 'winningBid', 'commission', 'totalAmount'));
+    }
+
     public function checkout(Auction $auction)
     {
         // Ensure user is the winner
@@ -35,7 +55,9 @@ class PayUController extends Controller
         }
 
         $txnid = 'TXN_' . Str::upper(Str::random(10));
-        $amount = $auction->current_price;
+        $winningBid = $auction->current_price;
+        $commission = $winningBid * 0.05;
+        $amount = $winningBid;
         $productinfo = "Payment for Auction #" . $auction->id . ": " . $auction->title;
         $firstname = auth()->user()->name;
         $email = auth()->user()->email;
@@ -53,6 +75,10 @@ class PayUController extends Controller
             'amount' => $amount,
             'status' => 'pending',
             'productinfo' => $productinfo,
+            'additional_data' => [
+                'winning_bid' => $winningBid,
+                'commission' => $commission,
+            ]
         ]);
 
         $data = [
