@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Hero Carousel -->
-<section id="heroCarousel" class="carousel slide hero-section" data-bs-ride="carousel">
+<section id="heroCarousel" class="carousel slide hero-section" data-bs-ride="carousel" data-bs-interval="5000">
     <!-- Indicators -->
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -44,13 +44,13 @@
             <div class="container h-100 d-flex align-items-center">
                 <div class="row align-items-center w-100">
                     <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
-                        <h2 class="display-2 fw-bold mb-4 text-white">Rare Treasures <br><span class="text-glow">Await You</span></h2>
+                        <h2 class="display-2 fw-bold mb-4 text-white">Launch Your <br><span class="text-glow">Auction Today</span></h2>
                         <p class="lead mb-5 opacity-75 pe-lg-5">
-                            Find unique items that aren't available anywhere else. Our verified sellers bring you the best in luxury and rarity.
+                            Transform your collectibles into profit. Connect with high-intent bidders and achieve the ultimate hammer price for your most prized possessions.
                         </p>
                         <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
                             <a href="{{ route('auctions.create') }}" class="btn btn-gold btn-lg px-5 py-3 rounded-pill shadow">Start Selling</a>
-                            <a href="{{ route('register') }}" class="btn btn-outline-gold btn-lg px-5 py-3 rounded-pill">Join Now</a>
+                            <a href="{{ route('register') }}" class="btn btn-outline-gold btn-lg px-5 py-3 rounded-pill">Join Marketplace</a>
                         </div>
                     </div>
                     <div class="col-lg-6 d-none d-lg-block">
@@ -68,13 +68,13 @@
             <div class="container h-100 d-flex align-items-center">
                 <div class="row align-items-center w-100">
                     <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
-                        <h2 class="display-2 fw-bold mb-4 text-white">Bid with <br><span class="text-glow">Confidence</span></h2>
+                        <h2 class="display-2 fw-bold mb-4 text-white">Trusted by <br><span class="text-glow">Thousands</span></h2>
                         <p class="lead mb-5 opacity-75 pe-lg-5">
-                            Every bid is tracked and Every seller is verified. Experience the most transparent auction platform in India.
+                            Join India's most secure auction community. Enjoy verified listings, real-time bid tracking, and seamless, protected payments on every transaction.
                         </p>
                         <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
-                            <a href="{{ route('about') }}" class="btn btn-gold btn-lg px-5 py-3 rounded-pill shadow">How it works</a>
-                            <a href="{{ route('contact') }}" class="btn btn-outline-gold btn-lg px-5 py-3 rounded-pill">Contact Us</a>
+                            <a href="{{ route('auctions.index') }}" class="btn btn-gold btn-lg px-5 py-3 rounded-pill shadow">View Live Bids</a>
+                            <a href="{{ route('about') }}" class="btn btn-outline-gold btn-lg px-5 py-3 rounded-pill">How it works</a>
                         </div>
                     </div>
                     <div class="col-lg-6 d-none d-lg-block">
@@ -699,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (myCarousel) {
         // Initialize the carousel
         var carousel = new bootstrap.Carousel(myCarousel, {
-            interval: 4000,
+            interval: 5000,
             pause: 'hover',
             ride: 'carousel',
             wrap: true
@@ -717,6 +717,10 @@ document.addEventListener('DOMContentLoaded', function() {
             slidesPerView: 1,
             spaceBetween: 25,
             loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
             slidesPerGroup: 1,
             grabCursor: true,
             navigation: {

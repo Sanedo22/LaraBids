@@ -23,7 +23,7 @@ use App\Http\Controllers\Admin\AuctionController as AdminAuctionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PaymentController;
-use App\Http\Controllers\Admin\ReportController;
+
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\AdminKycController;
@@ -140,8 +140,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
         Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{payment}/mark-payout-paid', [PaymentController::class, 'markPayoutPaid'])->name('payments.mark_payout_paid');
 
-        // Reports
-        Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+
 
         // Categories
         Route::post('categories/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle_status');
