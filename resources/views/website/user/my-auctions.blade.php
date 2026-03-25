@@ -180,6 +180,14 @@ $(document).ready(function() {
         table.draw();
     });
 
+    // Initialize tooltips on table draw
+    table.on('draw', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+
     $('#resetFilters').on('click', function() {
         $('#statusFilter').val('all');
         $('#categoryFilter').val('');

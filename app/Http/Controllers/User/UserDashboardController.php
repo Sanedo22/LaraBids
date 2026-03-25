@@ -269,11 +269,43 @@ class UserDashboardController extends Controller
                     return $html;
                 })
                 ->addColumn('winner', function($auction) {
-                    $highestBid = $auction->highestBid();
-                    if ($highestBid && $highestBid->user) {
-                        return e($highestBid->user->name);
+                    $winner = $auction->winner; // Use the relationship
+                    
+                    if ($winner) {
+                        $name = e($winner->name);
+                        $phone = $winner->phone;
+                        $email = $winner->email;
+                        
+                        $html = '<div class="d-flex flex-column">';
+                        $html .= '<span class="fw-bold text-dark mb-1">' . $name . '</span>';
+                        $html .= '<div class="d-flex gap-2">';
+                        
+                        // WhatsApp Link (Pre-filled message)
+                        if ($phone) {
+                            $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+                            if (strlen($cleanPhone) == 10) $cleanPhone = '91' . $cleanPhone;
+                            
+                            $waMsg = urlencode("Hello " . $winner->name . ", I'm the seller of the auction \"" . $auction->title . "\" on LaraBids. Congratulations on winning!");
+                            $html .= '<a href="https://wa.me/' . $cleanPhone . '?text=' . $waMsg . '" target="_blank" class="text-success" title="WhatsApp Winner"><i class="fab fa-whatsapp"></i></a>';
+                            $html .= '<a href="tel:' . $phone . '" class="text-primary" title="Call Winner"><i class="fas fa-phone-alt" style="font-size: 0.75rem;"></i></a>';
+                        }
+                        
+                        // Email Link
+                        $html .= '<a href="mailto:' . $email . '" class="text-info" title="Email Winner"><i class="far fa-envelope" style="font-size: 0.75rem;"></i></a>';
+                        
+                        $html .= '</div></div>';
+                        return $html;
                     }
-                    return '<span class="text-muted italic small">No Bids</span>';
+                    
+                    if ($auction->status === 'active' && $auction->end_time->isFuture()) {
+                        $highestBid = $auction->highestBid();
+                        if ($highestBid) {
+                            return '<span class="text-primary small fw-bold">Current: ' . e($highestBid->user->name) . '</span>';
+                        }
+                        return '<span class="text-muted italic small">No Bids Yet</span>';
+                    }
+
+                    return '<span class="text-muted italic small">No Winner</span>';
                 })
                 ->addColumn('bids', function($auction) {
                     return '<span class="badge bg-light text-dark border">'.$auction->bids->count().'</span>';
