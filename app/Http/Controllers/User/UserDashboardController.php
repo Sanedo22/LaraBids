@@ -22,9 +22,9 @@ class UserDashboardController extends Controller
         ];
 
         // Redirect to KYC if not approved
-        if (!$user->isKycApproved()) {
-            return redirect()->route('user.kyc.form');
-        }
+        // if (!$user->isKycApproved()) {
+        //     return redirect()->route('user.kyc.form');
+        // }
 
         // Recent Active Bids (Unique auctions user bid on)
         $recent_bids = \App\Models\Bid::where('user_id', $user->id)
