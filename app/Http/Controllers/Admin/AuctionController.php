@@ -91,7 +91,7 @@ class AuctionController extends Controller
 
                     $displayStatus = $row->status;
 
-                    if ($row->status === 'active' && $row->end_time && $row->end_time->isPast()) {
+                    if (in_array($row->status, ['active', 'pending']) && $row->end_time && $row->end_time->isPast()) {
                         $displayStatus = 'closed';
                     }
 
@@ -103,9 +103,15 @@ class AuctionController extends Controller
                         default     => 'warning',
                     };
 
-                    return '<span class="badge badge-'.$badgeClass.'">'
+                    $statusHtml = '<span class="badge badge-'.$badgeClass.'">'
                         . ucfirst($displayStatus)
                         . '</span>';
+
+                    if ($row->is_resubmitted && $row->status === 'pending') {
+                        $statusHtml .= '<br><span class="badge badge-warning mt-1" style="font-size: 0.65rem;"><i class="fas fa-edit mr-1"></i>Re-submitted</span>';
+                    }
+
+                    return $statusHtml;
                 })
 
                 ->addColumn('end_time', function ($row) {
@@ -121,7 +127,7 @@ class AuctionController extends Controller
                                 <i class="fas fa-eye"></i></a>';
 
                     // Approve
-                    if ($row->status === 'pending' && !$row->trashed()) {
+                    if ($row->status === 'pending' && !$row->trashed() && (!$row->end_time || !$row->end_time->isPast())) {
                         $btn .= '<form action="'.route('admin.auctions.approve', $row->id).'"
                                     method="POST" class="d-inline">'
                                     .csrf_field().
@@ -238,6 +244,15 @@ class AuctionController extends Controller
     public function approve($id)
     {
         $auction = Auction::findOrFail($id);
+        
+        if ($auction->status !== 'pending') {
+            return redirect()->back()->with('error', 'This auction is already processed.');
+        }
+
+        if ($auction->end_time && $auction->end_time->isPast()) {
+            return redirect()->back()->with('error', 'Expired auctions cannot be approved.');
+        }
+
         $this->auctionService->updateStatus($auction, 'active');
 
         return redirect()->back()->with('success', 'Auction approved successfully.');

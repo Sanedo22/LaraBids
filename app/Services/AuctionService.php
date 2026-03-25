@@ -36,6 +36,8 @@ class AuctionService
                             ->where('end_time', '<=', now());
                     });
             });
+        } elseif ($status === 'resubmitted') {
+            $query->where('status', 'pending')->where('is_resubmitted', true);
         } elseif ($status !== 'all' && !empty($status)) {
             $query->where('status', $status);
         }
@@ -231,6 +233,10 @@ class AuctionService
 
         // Re-approval logic: Reset status to pending IF edited by a non-admin AND actual changes happened
         if ($hasChanges && !auth()->user()->hasAnyRole(['admin', 'super admin'])) {
+            // If it was already active, mark as resubmitted
+            if ($auction->status === 'active') {
+                $auction->is_resubmitted = true;
+            }
             $auction->status = 'pending';
         }
 
@@ -340,6 +346,11 @@ class AuctionService
     {
         $payload = ['status' => $status];
 
+        // Reset resubmitted flag if approving
+        if ($status === 'active') {
+            $payload['is_resubmitted'] = false;
+        }
+
         if ($reason) {
             $payload['cancellation_reason'] = $reason;
         } elseif ($status === 'active') {
@@ -349,15 +360,29 @@ class AuctionService
         $result = $auction->update($payload);
 
         // Notifications
-        if ($status === 'cancelled' && $reason && $auction->user) {
-            $auction->user->notify(
-                new AuctionCanceledNotification($auction, $reason)
-            );
+        if ($status === 'cancelled' && $reason) {
+            
+            // Notify auction owner (seller)
+            if ($auction->user) {
+                $auction->user->notify(
+                    new \App\Notifications\AuctionCanceledNotification($auction, $reason)
+                );
+            }
+
+            // Notify all bidders
+            $bidderIds = $auction->bids()->pluck('user_id')->where('user_id', '!=', $auction->user_id)->unique();
+            $bidders = \App\Models\User::whereIn('id', $bidderIds)->get();
+            
+            foreach ($bidders as $bidder) {
+                $bidder->notify(
+                    new \App\Notifications\BidderAuctionCanceledNotification($auction, $reason)
+                );
+            }
         }
 
         if ($status === 'active' && $auction->user) {
             $auction->user->notify(
-                new AuctionApprovedNotification($auction)
+                new \App\Notifications\AuctionApprovedNotification($auction)
             );
         }
 

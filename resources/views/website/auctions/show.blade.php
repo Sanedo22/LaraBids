@@ -167,6 +167,21 @@
                                 <span class="hibid-timer-label">SEC</span>
                             </div>
                         </div>
+                        @elseif($auction->status === 'cancelled')
+                        <div class="alert alert-danger border-0 shadow-sm mb-4 rounded-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-ban me-3 fs-4 text-danger"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold text-danger">Auction Cancelled</h6>
+                                    <p class="mb-0 small text-muted">This auction has been cancelled by the administrator.</p>
+                                    @if($auction->cancellation_reason)
+                                        <div class="mt-2 p-2 bg-white rounded border border-danger-subtle small font-italic">
+                                            <strong>Reason:</strong> {{ $auction->cancellation_reason }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         @else
                         <div class="hibid-closed-badge mb-4">🔒 Auction Closed</div>
                         @endif
@@ -200,7 +215,7 @@
                                 <span class="hibid-bid-value hibid-bid-value--danger">₹{{ number_format(\App\Models\Auction::MAX_INCREMENT_ALLOWED, 2) }}</span>
                             </div>
                                            <!-- Bid Form / Login / Registration -->
-                        @if(!$isClosed)
+                        @if(!$isClosed && $auction->status !== 'cancelled')
                         @auth
                             @if(auth()->id() === $auction->user_id)
                                 <div class="alert alert-secondary alert-permanent border-0 shadow-sm mb-4 rounded-3 text-center">

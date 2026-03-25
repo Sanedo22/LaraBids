@@ -28,7 +28,7 @@ class FinalizeAuctions extends Command
     {
         $this->info('Starting auction finalization process...');
 
-        $endedAuctions = Auction::where('status', 'active')
+        $endedAuctions = Auction::whereIn('status', ['active', 'pending'])
             ->where('end_time', '<=', now())
             ->get();
 
@@ -39,9 +39,15 @@ class FinalizeAuctions extends Command
 
         $count = 0;
         foreach ($endedAuctions as $auction) {
-            if ($auction->finalize()) {
-                $this->info("Finalized Auction #{$auction->id}: {$auction->title}");
+            if ($auction->status === 'pending') {
+                $auction->update(['status' => 'closed', 'is_resubmitted' => false]);
+                $this->info("Closed expired pending auction #{$auction->id}: {$auction->title}");
                 $count++;
+            } else {
+                if ($auction->finalize()) {
+                    $this->info("Finalized Auction #{$auction->id}: {$auction->title}");
+                    $count++;
+                }
             }
         }
 

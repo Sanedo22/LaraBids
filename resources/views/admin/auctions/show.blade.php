@@ -267,6 +267,11 @@
                         <span class="badge badge-{{ $badgeClass }}">
                             {{ ucfirst($displayStatus) }}
                         </span>
+                        @if($auction->is_resubmitted && $auction->status === 'pending')
+                            <span class="badge badge-warning ml-1">
+                                <i class="fas fa-edit mr-1"></i> Re-submitted
+                            </span>
+                        @endif
                     </p>
                     <p><strong>Created At:</strong> {{ $auction->created_at->format('M d, Y H:i') }}</p>
                     
@@ -275,6 +280,14 @@
                         <div class="alert alert-danger mt-3">
                             <strong>Cancellation Reason:</strong><br>
                             {{ $auction->cancellation_reason }}
+                        </div>
+                    @endif
+
+                    {{-- Display Re-submitted Notice --}}
+                    @if($auction->is_resubmitted && $auction->status === 'pending')
+                        <div class="alert alert-warning mt-3 mb-0">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            <strong>Re-submitted Auction:</strong> This auction was edited by the creator after initial approval and requires re-approval.
                         </div>
                     @endif
 
@@ -292,12 +305,12 @@
                             <button type="button" class="btn btn-danger btn-block mb-2 trigger-force-delete" data-url="{{ route('admin.auctions.force_delete', $auction->id) }}">
                                 <i class="fas fa-times mr-2"></i> Permanently Delete
                             </button>
-                        @elseif($auction->status == 'closed')
+                        @elseif($auction->status == 'closed' || ($auction->end_time && $auction->end_time->isPast()))
                              <div class="alert alert-secondary text-center">
-                                <i class="fas fa-lock mr-1"></i> Auction Closed
+                                Auction Expired
                              </div>
                         @else
-                            {{-- Actions for Pending, Active, or Cancelled --}}
+                            {{-- Actions for Pending, Active, or Cancelled (and not expired) --}}
                             
                             {{-- Approve/Re-Activate Button --}}
                             {{-- Show for Pending or Cancelled --}}
@@ -354,7 +367,7 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
+    $(document).ready(function() { 
         // Image Gallery Variables
         let currentImageIndex = 0;
         const images = [

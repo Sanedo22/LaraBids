@@ -31,6 +31,13 @@
 
     <div class="row">
         <div class="col-lg-4">
+            @if($kyc->is_resubmitted && $kyc->status === 'pending')
+                <div class="alert alert-warning shadow-sm mb-4" style="border-left: 4px solid #f6c23e;">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                    <strong>Re-submitted KYC:</strong> This user updated their KYC details after being previously approved.
+                </div>
+            @endif
+
             <!-- User Information -->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">

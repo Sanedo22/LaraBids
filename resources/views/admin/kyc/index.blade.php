@@ -37,6 +37,7 @@
                             <option value="pending">Pending Review</option>
                             <option value="approved">Approved</option>
                             <option value="rejected">Rejected</option>
+                            <option value="resubmitted">Re-submitted</option>
                         </select>
                     </div>
                     <div class="col-xl-3 col-lg-3 col-md-6 col-sm-6 mb-3">
