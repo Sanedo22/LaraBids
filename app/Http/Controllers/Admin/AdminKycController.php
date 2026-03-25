@@ -22,7 +22,11 @@ class AdminKycController extends Controller
 
         // Apply Status Filter
         if ($request->filled('status') && $request->status !== 'all') {
-            $kycs->where('status', $request->status);
+            if ($request->status === 'resubmitted') {
+                $kycs->where('status', 'pending')->where('is_resubmitted', true);
+            } else {
+                $kycs->where('status', $request->status);
+            }
         }
 
         // Apply ID Type Filter
@@ -65,7 +69,13 @@ class AdminKycController extends Controller
                     'rejected' => 'danger'
                 ];
                 $color = $badges[$kyc->status] ?? 'secondary';
-                return '<span class="badge badge-' . $color . '">' . ucfirst($kyc->status) . '</span>';
+                $statusHtml = '<span class="badge badge-' . $color . '">' . ucfirst($kyc->status) . '</span>';
+                
+                if ($kyc->is_resubmitted && $kyc->status === 'pending') {
+                    $statusHtml .= '<br><span class="badge badge-warning mt-1" style="font-size: 0.65rem;"><i class="fas fa-edit mr-1"></i>Re-submitted</span>';
+                }
+                
+                return $statusHtml;
             })
             ->addColumn('action', function ($kyc) {
                 return '<div class="d-flex justify-content-center gap-1">'
@@ -87,7 +97,7 @@ class AdminKycController extends Controller
     public function approve($id)
     {
         $kyc = Kyc::findOrFail($id);
-        $kyc->update(['status' => 'approved', 'admin_note' => null]);
+        $kyc->update(['status' => 'approved', 'admin_note' => null, 'is_resubmitted' => false]);
 
         $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
 
@@ -104,6 +114,7 @@ class AdminKycController extends Controller
         $kyc->update([
             'status' => 'rejected',
             'admin_note' => $request->admin_note,
+            'is_resubmitted' => false,
         ]);
 
         $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));

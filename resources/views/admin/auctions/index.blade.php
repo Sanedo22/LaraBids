@@ -123,6 +123,7 @@
                         <option value="active">Active/Live</option>
                         <option value="closed">Closed / Past</option>
                         <option value="cancelled">Cancelled</option>
+                        <option value="resubmitted">Re-submitted</option>
                     </select>
                 </div>
 

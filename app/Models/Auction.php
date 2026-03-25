@@ -32,6 +32,7 @@ class Auction extends Model
         'winner_id',
         'reserve_price',
         'location',
+        'is_resubmitted',
     ];
 
     protected $casts = [
@@ -108,7 +109,7 @@ class Auction extends Model
         }
 
         if ($this->end_time && $this->end_time->isPast()) {
-            return 'Ended';
+            return 'Expired';
         }
 
         if ($this->status === 'pending') {

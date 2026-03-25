@@ -237,27 +237,34 @@ class UserDashboardController extends Controller
                 })
                 ->editColumn('status', function($auction) {
                     $status = $auction->status_label;
+                    if ($auction->is_resubmitted && $auction->status === 'pending') {
+                        $status = 'Re-submitted';
+                    }
+                    
+                    // Check if payment is successful
+                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                    if ($payment) {
+                        $status = 'Paid';
+                    }
+
                     $bg = match($status) {
-                        'Live' => 'success', 'Starting Soon' => 'info', 'Ended' => 'danger',
-                        'Pending' => 'warning text-dark', 'Closed' => 'secondary', 'Cancelled' => 'dark', default => 'secondary'
+                        'Live' => 'success', 'Starting Soon' => 'info', 'Expired' => 'danger',
+                        'Pending' => 'warning text-dark', 'Re-submitted' => 'primary', 'Closed' => 'secondary', 'Cancelled' => 'dark', 'Paid' => 'success', default => 'secondary'
                     };
                     return '<span class="badge rounded-pill bg-'.$bg.'">'.$status.'</span>';
                 })
                 ->addColumn('price', function($auction) {
                     $price = $auction->current_price;
                     $html = '<div class="d-flex flex-column">';
-                    $html .= '<span class="fw-bold text-dark mb-1">₹'.number_format($price, 2).'</span>';
+                    $html .= '<span class="fw-bold text-dark">₹'.number_format($price, 2).'</span>';
                     
-                    if ($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast())) {
-                        $fee = $price * 0.05;
-                        $earning = $price - $fee;
-                        $html .= '<div class="d-flex flex-column bg-light-success p-2 rounded border-start border-success border-4 mt-1">';
-                        $html .= '<span class="text-muted extra-small" style="font-size: 0.65rem;">Fee: ₹'.number_format($fee, 2).'</span>';
-                        $html .= '<span class="text-success small fw-bold mt-1">Net: ₹'.number_format($earning, 2).'</span>';
-                        $html .= '</div>';
-                    } else {
-                        $html .= '<span class="text-muted small" style="font-size: 0.7rem;">Final price - fees apply</span>';
+                    // Only show fee deduction if auction is finished and there's a winner
+                    if (($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast())) && $auction->highestBid()) {
+                        $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                        $fee = $payment ? $payment->commission_amount : ($price * 0.05);
+                        $html .= '<span class="text-muted mt-1" style="font-size: 0.75rem;">Platform Fee: -₹'.number_format($fee, 2).'</span>';
                     }
+                    
                     $html .= '</div>';
                     return $html;
                 })
@@ -273,7 +280,8 @@ class UserDashboardController extends Controller
                 })
                 ->addColumn('action', function($auction) {
                     $isWithin24Hours = $auction->created_at && $auction->created_at->diffInHours(now()) <= 24;
-                    $canEdit = $auction->end_time->isFuture() && (
+                    $canEdit = $auction->end_time->isFuture() && 
+                        $auction->bids->count() === 0 && (
                         $auction->status === 'active' || 
                         ($auction->status === 'pending' && $isWithin24Hours)
                     );

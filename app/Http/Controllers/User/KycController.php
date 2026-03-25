@@ -14,8 +14,8 @@ class KycController extends Controller
     {
         $user = Auth::user();
         
-        // Block if KYC is already approved or pending
-        if ($user->kyc && $user->kyc->status !== 'rejected') {
+        // Block if KYC is already pending
+        if ($user->kyc && $user->kyc->status === 'pending') {
             return redirect()->route('user.profile')->with('info', 'Your KYC request is already being processed.');
         }
 
@@ -28,9 +28,9 @@ class KycController extends Controller
         $user = Auth::user();
         $existingKyc = $user->kyc;
         
-        // Block if KYC is already approved or pending
-        if ($existingKyc && $existingKyc->status !== 'rejected') {
-            return redirect()->back()->with('error', 'You have already submitted a KYC request.');
+        // Block if KYC is already pending
+        if ($existingKyc && $existingKyc->status === 'pending') {
+            return redirect()->back()->with('error', 'Your KYC request is already pending verification.');
         }
 
         // Logic for ID number length validation
@@ -90,7 +90,9 @@ class KycController extends Controller
         $selfieImagePath = $request->file('selfie_image')->store('kyc/selfies', 'public');
         $signatureImagePath = $request->file('signature_image')->store('kyc/signatures', 'public');
 
-        if ($existingKyc && $existingKyc->status === 'rejected') {
+        if ($existingKyc) {
+            $isResubmitted = $existingKyc->status === 'approved';
+
             // Delete old files
             if ($existingKyc->id_document) {
                 Storage::disk('public')->delete($existingKyc->id_document);
@@ -113,6 +115,7 @@ class KycController extends Controller
                 'selfie_image' => $selfieImagePath,
                 'signature_image' => $signatureImagePath,
                 'status' => 'pending',
+                'is_resubmitted' => $isResubmitted,
                 'admin_note' => null, // Clear previous rejection reason
             ]);
         } else {

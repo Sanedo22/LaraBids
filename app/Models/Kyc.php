@@ -18,6 +18,7 @@ class Kyc extends Model
         'signature_image',
         'status',
         'admin_note',
+        'is_resubmitted',
     ];
 
     public function user()

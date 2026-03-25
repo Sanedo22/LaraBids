@@ -47,8 +47,8 @@ class AuctionController extends Controller
             }
         }])->findOrFail($id);
 
-        // if auction is not active or closed, only owner or admin can view
-        if ($auction->status !== 'active' && $auction->status !== 'closed') {
+        // if auction is not active, closed, or cancelled, only owner or admin can view
+        if ($auction->status !== 'active' && $auction->status !== 'closed' && $auction->status !== 'cancelled') {
             if (!auth()->check()) {
                 abort(404);
             }
@@ -134,6 +134,12 @@ class AuctionController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
+        // Bid check: Cannot edit if bids exist
+        if ($auction->bids()->exists()) {
+            return redirect()->route('auctions.show', $auction->id)
+                ->with('error', 'You cannot edit this auction because bids have already been placed.');
+        }
+
         $isWithin24Hours = $auction->created_at && $auction->created_at->diffInHours(now()) <= 24;
         if ($auction->status === 'pending' && !$isWithin24Hours) {
             abort(403, 'You can only edit a pending auction within 24 hours of its creation.');
@@ -159,6 +165,12 @@ class AuctionController extends Controller
     {
         $auction = Auction::findOrFail($id);
         
+        // Bid check: Cannot update if bids exist
+        if ($auction->bids()->exists()) {
+            return redirect()->route('auctions.show', $auction->id)
+                ->with('error', 'You cannot update this auction because bids have already been placed.');
+        }
+
         // Ownership check is handled in the Request (authorize method)
         $isWithin24Hours = $auction->created_at && $auction->created_at->diffInHours(now()) <= 24;
         if ($auction->status === 'pending' && !$isWithin24Hours) {
