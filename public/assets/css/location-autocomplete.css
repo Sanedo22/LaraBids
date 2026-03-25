@@ -1,0 +1,79 @@
+/**
+ * Location Autocomplete Styles
+ */
+.location-suggestions-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    background: #fff;
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #eee;
+    margin-top: -1px;
+}
+
+.location-suggestion-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.location-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.location-suggestion-item:hover,
+.location-suggestion-item.active {
+    background-color: #f0f7ff;
+    color: var(--bs-primary);
+}
+
+.location-suggestion-item i {
+    color: #adb5bd;
+}
+
+.location-suggestion-item.active i,
+.location-suggestion-item:hover i {
+    color: var(--bs-primary);
+}
+
+.location-suggestion-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.location-suggestion-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.location-suggestion-address {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+/* Custom scrollbar for suggestions */
+.location-suggestions-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.location-suggestions-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.location-suggestions-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.location-suggestions-container::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
