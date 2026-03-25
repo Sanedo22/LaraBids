@@ -124,18 +124,19 @@
                                     <input type="number" name="reserve_price" step="0.01" min="0.01" class="form-control bg-light border-0 shadow-none @error('reserve_price') is-invalid @enderror" 
                                         placeholder="0.00" value="{{ old('reserve_price') }}">
                                 </div>
-                                <small class="text-muted"><i class="fas fa-eye-slash me-1"></i>The minimum acceptable price. If the final bid is lower, the item remains unsold. (Hidden from buyers)</small>
+                                <small class="text-muted"><i class="fas fa-eye-slash me-1"></i>Min price buyers must reach. (Hidden)</small>
                                 @error('reserve_price')
                                     <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small">Item Location</label>
-                                <div class="input-group input-group-lg">
+                                <div class="input-group input-group-lg position-relative">
                                     <span class="input-group-text bg-light border-0"><i class="fas fa-map-marker-alt text-primary"></i></span>
-                                    <input type="text" name="location" class="form-control bg-light border-0 shadow-none @error('location') is-invalid @enderror" 
-                                        placeholder="e.g. Mumbai, India or Local Pickup Only" value="{{ old('location') }}">
+                                    <input type="text" name="location" id="locationInput" class="form-control bg-light border-0 shadow-none @error('location') is-invalid @enderror" 
+                                        placeholder="e.g. Mumbai, India" value="{{ old('location') }}" autocomplete="off">
+                                    <div id="locationSuggestions" class="location-suggestions-container d-none"></div>
                                 </div>
                                 @error('location')
                                     <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
@@ -341,6 +342,7 @@
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+<link rel="stylesheet" href="{{ asset('assets/css/location-autocomplete.css') }}">
 @endpush
 
 @push('scripts')
@@ -348,6 +350,7 @@
 <script src="{{ asset('assets/js/auction-form-validation.js') }}"></script>
 <script src="{{ asset('assets/js/auction-create.js') }}"></script>
 <script src="{{ asset('assets/js/category-selection.js') }}"></script>
+<script src="{{ asset('assets/js/location-autocomplete.js') }}"></script>
 
 <!-- Flatpickr JS -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

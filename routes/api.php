@@ -102,6 +102,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/kyc', [KycController::class, 'show'])->name('api.user.kyc.show');
     Route::post('/user/kyc', [KycController::class, 'store'])->name('api.user.kyc.store');
 
+    // PayU Payment Integration (API/Mobile SDK)
+    Route::prefix('payments')->group(function () {
+        Route::get('/auctions/{id}/params', [\App\Http\Controllers\Api\Payment\PayUController::class, 'getPaymentParams']);
+        Route::get('/{txnid}/status', [\App\Http\Controllers\Api\Payment\PayUController::class, 'getPaymentStatus']);
+    });
+
 
 
     // Admin API Routes
