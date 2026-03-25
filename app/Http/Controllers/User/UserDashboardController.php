@@ -21,7 +21,39 @@ class UserDashboardController extends Controller
             'messages_count'   => 0,
         ];
 
-        return view('website.user.dashboard', compact('stats'));
+        // Redirect to KYC if not approved
+        if (!$user->isKycApproved()) {
+            return redirect()->route('user.kyc.form');
+        }
+
+        // Recent Active Bids (Unique auctions user bid on)
+        $recent_bids = \App\Models\Bid::where('user_id', $user->id)
+            ->with(['auction' => function($q) {
+                $q->with('category')->withCount('bids');
+            }])
+            ->select('*')
+            ->whereIn('id', function($query) use ($user) {
+                $query->selectRaw('MAX(id)')
+                    ->from('bids')
+                    ->where('user_id', $user->id)
+                    ->groupBy('auction_id');
+            })
+            ->latest()
+            ->take(4)
+            ->get();
+
+        // Recently Won Items
+        $recent_wins = \App\Models\Auction::where('winner_id', $user->id)
+            ->latest('end_time')
+            ->take(3)
+            ->get();
+
+        // Recent Notifications
+        $recent_notifications = $user->notifications()->latest()->take(5)->get();
+
+        $stats['messages_count'] = \App\Models\Contact::where('email', $user->email)->count();
+
+        return view('website.user.dashboard', compact('stats', 'recent_bids', 'recent_wins', 'recent_notifications'));
     }
 
     // My bids

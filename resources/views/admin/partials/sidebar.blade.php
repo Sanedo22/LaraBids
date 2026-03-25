@@ -48,26 +48,11 @@
             <span>KYC Verification</span></a>
     </li>
 
-    <!-- Divider -->
-    <hr class="sidebar-divider">
-
-    <!-- Heading -->
-    <div class="sidebar-heading">
-        Finance & Reports
-    </div>
-
     <!-- Nav Item - Payments -->
     <li class="nav-item {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('admin.payments.index') }}">
             <i class="fas fa-fw fa-wallet"></i>
             <span>Payments</span></a>
-    </li>
-
-    <!-- Nav Item - Reports -->
-    <li class="nav-item {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
-        <a class="nav-link" href="{{ route('admin.reports') }}">
-            <i class="fas fa-fw fa-chart-line"></i>
-            <span>Reports</span></a>
     </li>
 
     <!-- Divider -->
@@ -99,8 +84,6 @@
             <span>Settings</span></a>
     </li>
 
-
-    
     <!-- Divider -->
     <hr class="sidebar-divider">
     
@@ -138,6 +121,3 @@
     }
 </script>
 <!-- End of Sidebar -->
-
-
-

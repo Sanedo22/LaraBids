@@ -30,11 +30,9 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
-        // Redirect to KYC if not submitted/approved, except for admins
-        if (!$user->isAdmin() && !$user->isSuperAdmin()) {
-            if (!$user->kyc || $user->kyc->status === 'rejected') {
-                return redirect()->route('user.kyc.form')->with('warning', 'Please complete your KYC verification to continue.');
-            }
+        // Redirect to KYC if not approved, except for admins
+        if (!$user->isKycApproved()) {
+            return redirect()->route('user.kyc.form');
         }
 
         if ($user->isAdmin() || $user->isSuperAdmin()) {

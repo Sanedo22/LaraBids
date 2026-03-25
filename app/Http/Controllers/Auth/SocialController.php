@@ -90,13 +90,15 @@ class SocialController extends Controller
             $authUser = Auth::user();
 
             if ($isNewUser) {
-                return redirect()->route('user.kyc.form')->with('success', 'Account created! Please complete your KYC verification to continue.');
+                return redirect()->route('user.kyc.form');
             }
 
-            if (!$authUser->isAdmin() && !$authUser->isSuperAdmin()) {
-                if (!$authUser->kyc || $authUser->kyc->status === 'rejected') {
-                    return redirect()->route('user.kyc.form')->with('warning', 'Please complete your KYC verification to continue.');
-                }
+            if (!$authUser->isKycApproved()) {
+                return redirect()->route('user.kyc.form');
+            }
+
+            if ($authUser->isAdmin() || $authUser->isSuperAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
             }
 
             return redirect()->route('home');

@@ -219,62 +219,7 @@
         <main class="flex-grow-1"
             style="background: #f8f9fc; min-height: 100vh; overflow-x: hidden;">
 
-            <!-- Top Navbar -->
-            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow-sm px-4 py-3">
-                <div class="container-fluid d-flex justify-content-between">
-                    <div class="h5 mb-0 text-gray-800 d-none d-md-inline-block">
-                        Welcome back, <span class="fw-bold text-primary">{{ auth()->user()->username }}</span>
-                        @if(!auth()->user()->isAdmin() && !auth()->user()->isSuperAdmin())
-                            @if(auth()->user()->kyc)
-                                @if(auth()->user()->isKycApproved())
-                                    <span class="badge bg-success-subtle text-success border border-success ms-2 small rounded-pill">
-                                        <i class="fas fa-check-circle me-1"></i> Verified
-                                    </span>
-                                @elseif(auth()->user()->kyc->status == 'pending')
-                                    <span class="badge bg-warning-subtle text-warning border border-warning ms-2 small rounded-pill">
-                                        <i class="fas fa-clock me-1"></i> KYC Pending
-                                    </span>
-                                @elseif(auth()->user()->kyc->status == 'rejected')
-                                    <a href="{{ route('user.kyc.form') }}" class="badge bg-danger-subtle text-danger border border-danger ms-2 small rounded-pill text-decoration-none">
-                                        <i class="fas fa-times-circle me-1"></i> KYC Rejected - Re-submit
-                                    </a>
-                                @endif
-                            @else
-                                <a href="{{ route('user.kyc.form') }}" class="badge bg-light text-muted border ms-2 small rounded-pill text-decoration-none">
-                                    <i class="fas fa-id-card me-1"></i> Verify Identity
-                                </a>
-                            @endif
-                        @endif
-                    </div>
-
-                    <ul class="navbar-nav ml-auto align-items-center">
-
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small me-2">{{ auth()->user()->username }}</span>
-                                <img class="img-profile rounded-circle" width="32" height="32" style="object-fit: cover;"
-                                    src="{{ auth()->user()->avatar_url }}">
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end shadow animated--grow-in mt-2"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item text-decoration-none px-3 py-2 d-block text-dark small" href="{{ route('user.profile') }}">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
-                                    Profile
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item border-0 bg-transparent w-100 text-start px-3 py-2 d-block text-dark small">
-                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400 me-2"></i>
-                                        Logout
-                                    </button>
-                                </form>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
+            <!-- Removed Top Navbar -->
 
             <div class="p-4 p-lg-5 pt-lg-2">
                 @yield('content')
