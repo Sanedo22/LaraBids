@@ -145,3 +145,4 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('_contacts/{id}/force-delete', [AdminContactController::class, 'forceDelete']);
         });
 });
+Route::post('/payment/payu/callback', [\App\Http\Controllers\Payment\PayUController::class, 'callback'])->name('payment.payu.callback');

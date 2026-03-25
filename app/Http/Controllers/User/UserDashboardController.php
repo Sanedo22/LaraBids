@@ -395,12 +395,13 @@ class UserDashboardController extends Controller
                     $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>';
                     
                     if (!$payment) {
-                        $payUrl = route('payment.payu.checkout', $auction->id);
-                        
-                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-3 fw-bold text-white mb-0 d-inline-flex align-items-center shadow-sm" 
-                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; height: 34px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.05em; border-radius: 0.5rem;" 
-                                    title="Online Payment">
-                                    <i class="fas fa-credit-card me-1" style="font-size: 0.7rem;"></i> Online Pay
+                        $payUrl = route('payment.payu.summary', $auction->id);
+                        $html .= '<a href="'.$payUrl.'" class="btn btn-sm px-3 rounded-pill shadow-sm fw-bold text-white mb-0 d-inline-flex align-items-center" 
+                                    style="background: linear-gradient(135deg, #a88b77 0%, #7d6355 100%); border: none; font-size: 0.65rem; padding: 8px 16px; transition: transform 0.2s; text-transform: uppercase; letter-spacing: 0.05em;" 
+                                    onmouseover="this.style.transform=\'scale(1.05)\'" 
+                                    onmouseout="this.style.transform=\'scale(1)\'"
+                                    title="Pay Now">
+                                    <i class="fas fa-credit-card me-1" style="font-size: 0.7rem;"></i> Pay Now
                                   </a>';
                     }
                     $html .= '</div>';

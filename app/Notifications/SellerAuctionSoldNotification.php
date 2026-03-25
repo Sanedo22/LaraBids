@@ -40,8 +40,10 @@ class SellerAuctionSoldNotification extends Notification
         return [
             'auction_id' => $this->auction->id,
             'title' => 'Your item was sold!',
-            'message' => 'Your item "' . $this->auction->title . '" was sold for ₹' . number_format($this->auction->current_price, 2) . '.',
+            'message' => 'Your item "' . $this->auction->title . '" was sold for ₹' . number_format($this->auction->current_price, 2) . '. A 5% platform commission (₹' . number_format($this->auction->current_price * 0.05, 2) . ') will be deducted from your final payout.',
             'amount' => $this->auction->current_price,
+            'commission' => $this->auction->current_price * 0.05,
+            'net_amount' => $this->auction->current_price * 0.95,
             'link' => route('user.my-auctions'),
         ];
     }

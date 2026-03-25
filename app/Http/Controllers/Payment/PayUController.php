@@ -21,6 +21,26 @@ class PayUController extends Controller
         $this->baseUrl = env('PAYU_BASE_URL');
     }
 
+    public function summary(Auction $auction)
+    {
+        // Ensure user is the winner
+        if ($auction->winner_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'You are not the winner of this auction.');
+        }
+
+        // Check if already paid
+        $existingPayment = Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+        if ($existingPayment) {
+            return redirect()->route('user.winning-items')->with('info', 'This auction has already been paid for.');
+        }
+
+        $winningBid = $auction->current_price;
+        $commission = $winningBid * 0.05; // 5% Platform Commission
+        $totalAmount = $winningBid; // Buyer pays the winning bid amount
+
+        return view('website.payments.summary', compact('auction', 'winningBid', 'commission', 'totalAmount'));
+    }
+
     public function checkout(Auction $auction)
     {
         // Ensure user is the winner
@@ -35,33 +55,29 @@ class PayUController extends Controller
         }
 
         $txnid = 'TXN_' . Str::upper(Str::random(10));
-        $amount = $auction->current_price;
+        $winningBid = $auction->current_price;
+        $commission = $winningBid * 0.05;
+        $amount = $winningBid;
         $productinfo = "Payment for Auction #" . $auction->id . ": " . $auction->title;
         $firstname = auth()->user()->name;
         $email = auth()->user()->email;
         $phone = auth()->user()->phone ?? '9999999999';
 
-        $commission_percentage = 5.00;
-        $commission_amount = ($amount * $commission_percentage) / 100;
-
-        // Use existing or create pending payment record
-        $payment = Payment::firstOrCreate(
+        // Create or update pending payment record
+        Payment::updateOrCreate(
             ['auction_id' => $auction->id, 'user_id' => auth()->id(), 'status' => 'pending'],
             [
                 'txnid' => $txnid,
                 'amount' => $amount,
-                'commission_amount' => $commission_amount,
-                'commission_percentage' => $commission_percentage,
-                'payout_amount' => $amount - $commission_amount,
-                'payout_status' => 'pending',
                 'productinfo' => $productinfo,
+                'additional_data' => [
+                    'winning_bid' => $winningBid,
+                    'commission' => $commission,
+                    'commission_percentage' => 5.00,
+                    'payout_amount' => $winningBid - $commission,
+                ]
             ]
         );
-
-        // Update txnid if we are reusing a record to ensure uniqueness for gateway
-        if (!$payment->wasRecentlyCreated) {
-            $payment->update(['txnid' => $txnid]);
-        }
 
         // Hash generation: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||SALT
         $hashString = "{$this->key}|{$txnid}|{$amount}|{$productinfo}|{$firstname}|{$email}|||||||||||{$this->salt}";
@@ -75,8 +91,8 @@ class PayUController extends Controller
             'firstname' => $firstname,
             'email' => $email,
             'phone' => $phone,
-            'surl' => route('payment.payu.callback'),
-            'furl' => route('payment.payu.callback'),
+            'surl' => url('/api/payment/payu/callback'),
+            'furl' => url('/api/payment/payu/callback'),
             'hash' => $hash,
             'action' => $this->baseUrl,
         ];
