@@ -142,4 +142,13 @@ class User extends Authenticatable
 
         return $this->kyc && $this->kyc->status === 'approved';
     }
+    public function strikes()
+    {
+        return $this->hasMany(UserStrike::class, 'user_id');
+    }
+
+    public function getUnpaidStrikesCountAttribute(): int
+    {
+        return $this->strikes()->count();
+    }
 }

@@ -53,6 +53,7 @@ class UpdateAuctionRequest extends FormRequest
             'deleted_images.*' => ['exists:auction_images,id'],
             'reserve_price' => 'nullable|numeric|gte:starting_price',
             'location' => ['nullable', 'string', 'max:255'],
+            'max_strikes_allowed' => ['nullable', 'integer', 'min:0'],
         ];
 
         // Custom validation for total image count (existing - deleted + new <= 5)

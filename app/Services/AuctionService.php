@@ -145,6 +145,12 @@ class AuctionService
 
         $auction->save();
 
+        if (array_key_exists('max_strikes_allowed', $data)) {
+            $auction->requirement()->create([
+                'max_strikes_allowed' => $data['max_strikes_allowed']
+            ]);
+        }
+
         // Multiple images
         if (isset($data['images']) && is_array($data['images'])) {
 
@@ -299,6 +305,14 @@ class AuctionService
         }
 
         $auction->save();
+
+        if (array_key_exists('max_strikes_allowed', $data)) {
+            if ($auction->requirement) {
+                $auction->requirement->update(['max_strikes_allowed' => $data['max_strikes_allowed']]);
+            } else {
+                $auction->requirement()->create(['max_strikes_allowed' => $data['max_strikes_allowed']]);
+            }
+        }
 
         // 4. New Images (Enforce 5-image limit)
         if (isset($data['images']) && is_array($data['images'])) {

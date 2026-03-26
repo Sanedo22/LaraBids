@@ -272,6 +272,73 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Unpaid Strikes Card -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-dark">Unpaid Item Strikes</h6>
+                        <span class="badge badge-pill {{ $user->unpaid_strikes_count > 0 ? 'badge-danger' : 'badge-success' }} px-3 py-2 small font-weight-bold">
+                            {{ $user->unpaid_strikes_count }} Strikes
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        @if($user->strikes->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0 align-middle">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="border-top-0 px-4 py-3 text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Auction</th>
+                                            <th class="border-top-0 px-4 py-3 text-muted font-weight-bold text-uppercase" style="font-size: 0.75rem;">Date</th>
+                                            <th class="border-top-0 px-4 py-3 text-muted font-weight-bold text-uppercase text-right" style="font-size: 0.75rem;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($user->strikes as $strike)
+                                        <tr>
+                                            <td class="px-4 py-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <h6 class="mb-0 font-weight-bold text-dark">
+                                                            @if($strike->auction)
+                                                                <a href="{{ route('admin.auctions.show', $strike->auction->id) }}" class="text-dark">{{ Str::limit($strike->auction->title, 40) }}</a>
+                                                            @else
+                                                                Auction Deleted
+                                                            @endif
+                                                        </h6>
+                                                        <small class="text-muted">Reported by: {{ $strike->reporter->name ?? 'System' }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="text-dark font-weight-bold d-block" style="font-size: 0.9rem;">{{ $strike->created_at->format('M d, Y') }}</span>
+                                                <span class="text-muted small">{{ $strike->created_at->format('h:i A') }}</span>
+                                            </td>
+                                            <td class="px-4 py-3 text-right">
+                                                <form action="{{ route('admin.users.remove_strike', ['user' => $user->id, 'strike' => $strike->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this strike? Only remove it if it was issued in error or resolved.');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger font-weight-bold px-3 py-1 rounded-pill" title="Remove Strike">
+                                                        <i class="fas fa-times mr-1"></i> Remove
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="p-5 text-center">
+                                <div class="mb-3">
+                                    <i class="fas fa-shield-check text-success" style="font-size: 3rem; opacity: 0.5;"></i>
+                                </div>
+                                <h6 class="font-weight-bold text-dark mb-1">Clean Record</h6>
+                                <p class="text-muted small mb-0">This user does not have any unpaid item strikes.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

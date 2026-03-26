@@ -73,6 +73,16 @@
         </div>
     </div>
 
+    @if(auth()->user()->unpaid_strikes_count > 0)
+    <div class="alert alert-danger border-0 shadow-sm rounded-4 px-4 py-3 mb-4 d-flex align-items-center">
+        <i class="fas fa-exclamation-triangle fs-3 me-3 opacity-75"></i>
+        <div>
+            <h6 class="fw-bold mb-1">Reputation Warning</h6>
+            <p class="mb-0 small">You currently have <strong>{{ auth()->user()->unpaid_strikes_count }}</strong> Unpaid Item Strike(s) on your account. Sellers may restrict bidding if you have too many unpaid items. If you believe this is an error, please <a href="{{ route('contact') }}" class="fw-bold text-decoration-underline text-danger">Contact Support</a> to appeal.</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Quick Stats Row -->
     <div class="row g-4 mb-5">
         <div class="col-md-3">
