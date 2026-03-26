@@ -268,6 +268,7 @@ class AuctionController extends Controller
             : redirect()->back()->with('success', 'Auction restored successfully.');
     }
 
+    // Force delete
     public function forceDelete($id)
     {
         $this->auctionService->forceDeleteAuction($id);
