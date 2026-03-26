@@ -139,6 +139,19 @@
                                 @enderror
                             </div>
 
+                            <div class="col-12 mt-3">
+                                <label class="form-label fw-bold text-dark small">Max Unpaid Strikes Allowed <span class="text-muted fw-normal">(Optional)</span></label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-light border-0"><i class="fas fa-shield-alt text-danger"></i></span>
+                                    <input type="number" name="max_strikes_allowed" min="0" class="form-control bg-light border-0 shadow-none @error('max_strikes_allowed') is-invalid @enderror" 
+                                        placeholder="Leave blank for no limit" value="{{ old('max_strikes_allowed', $auction->requirement?->max_strikes_allowed) }}">
+                                </div>
+                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Block users who have this many unpaid items from bidding on your auction.</small>
+                                @error('max_strikes_allowed')
+                                    <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="col-12">
                                 <label class="form-label fw-bold text-dark small">Description</label>
                                 <textarea name="description" rows="5" class="form-control bg-light border-0 shadow-none @error('description') is-invalid @enderror" 

@@ -246,4 +246,8 @@ class Auction extends Model
 
         return true;
     }
+    public function requirement()
+    {
+        return $this->hasOne(AuctionRequirement::class);
+    }
 }

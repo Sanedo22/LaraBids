@@ -301,11 +301,47 @@ class UserDashboardController extends Controller
                     return $html;
                 })
                 ->addColumn('winner', function($auction) {
-                    $highestBid = $auction->highestBid();
-                    if ($highestBid && $highestBid->user) {
-                        return e($highestBid->user->name);
+                    $winner = $auction->winner; // Use the relationship
+                    
+                    if ($winner) {
+                        $name = e($winner->name);
+                        $phone = $winner->phone;
+                        $email = $winner->email;
+                        
+                        $html = '<div class="d-flex flex-column">';
+                        $html .= '<span class="fw-bold text-dark mb-1">' . $name;
+                        if ($winner->unpaid_strikes_count > 0) {
+                            $html .= ' <span class="badge bg-danger ms-1" title="Unpaid Item Strikes" style="font-size: 0.6rem;"><i class="fas fa-exclamation-triangle"></i> ' . $winner->unpaid_strikes_count . ' Strikes</span>';
+                        }
+                        $html .= '</span>';
+                        $html .= '<div class="d-flex gap-2">';
+                        
+                        // WhatsApp Link (Pre-filled message)
+                        if ($phone) {
+                            $cleanPhone = preg_replace('/[^0-9]/', '', $phone);
+                            if (strlen($cleanPhone) == 10) $cleanPhone = '91' . $cleanPhone;
+                            
+                            $waMsg = urlencode("Hello " . $winner->name . ", I'm the seller of the auction \"" . $auction->title . "\" on LaraBids. Congratulations on winning!");
+                            $html .= '<a href="https://wa.me/' . $cleanPhone . '?text=' . $waMsg . '" target="_blank" class="text-success" title="WhatsApp Winner"><i class="fab fa-whatsapp"></i></a>';
+                            $html .= '<a href="tel:' . $phone . '" class="text-primary" title="Call Winner"><i class="fas fa-phone-alt" style="font-size: 0.75rem;"></i></a>';
+                        }
+                        
+                        // Email Link
+                        $html .= '<a href="mailto:' . $email . '" class="text-info" title="Email Winner"><i class="far fa-envelope" style="font-size: 0.75rem;"></i></a>';
+                        
+                        $html .= '</div></div>';
+                        return $html;
                     }
-                    return '<span class="text-muted italic small">No Bids</span>';
+                    
+                    if ($auction->status === 'active' && $auction->end_time->isFuture()) {
+                        $highestBid = $auction->highestBid();
+                        if ($highestBid) {
+                            return '<span class="text-primary small fw-bold">Current: ' . e($highestBid->user->name) . '</span>';
+                        }
+                        return '<span class="text-muted italic small">No Bids Yet</span>';
+                    }
+
+                    return '<span class="text-muted italic small">No Winner</span>';
                 })
                 ->addColumn('bids', function($auction) {
                     return '<span class="badge bg-light text-dark border">'.$auction->bids->count().'</span>';
@@ -326,6 +362,20 @@ class UserDashboardController extends Controller
                     if($canEdit) {
                         $html .= '<a href="'.$editUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="Edit"><i class="fas fa-edit"></i></a>';
                     }
+                    
+                    // Mark as Unpaid button
+                    $strikeExists = \App\Models\UserStrike::where('auction_id', $auction->id)->exists();
+                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                    
+                    if ($auction->winner_id && !$payment && !$strikeExists && ($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast()))) {
+                        $markUnpaidUrl = route('user.auctions.mark-unpaid', $auction->id);
+                        $csrf = csrf_field();
+                        $html .= '<form action="'.$markUnpaidUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to mark this buyer as Unpaid? This will penalize their account.\')">
+                                    '.$csrf.'
+                                    <button type="submit" class="btn btn-outline-warning btn-sm btn-action shadow-sm" title="Mark Buyer as Unpaid"><i class="fas fa-user-slash"></i></button>
+                                  </form>';
+                    }
+                    
                     $html .= '<button type="button" onclick="confirmDelete('.$auction->id.')" class="btn btn-outline-danger btn-sm btn-action shadow-sm" title="Delete"><i class="fas fa-trash"></i></button>';
                     $html .= '</div>';
                     
@@ -558,5 +608,45 @@ class UserDashboardController extends Controller
     public function profile()
     {
         return view('website.user.profile');
+    }
+
+    // Mark as Unpaid
+    public function markAsUnpaid(\App\Models\Auction $auction)
+    {
+        // 1. Authorization
+        if ($auction->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // 2. Check if there's a winner
+        if (!$auction->winner_id) {
+            return redirect()->back()->with('error', 'There is no winner for this auction.');
+        }
+
+        // 3. Check if payment is already made
+        $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+        if ($payment) {
+            return redirect()->back()->with('error', 'The winner has already paid.');
+        }
+
+        // 4. Check if already marked
+        if (\App\Models\UserStrike::where('auction_id', $auction->id)->exists()) {
+            return redirect()->back()->with('error', 'You have already marked this auction as unpaid.');
+        }
+
+        // 5. Add strike
+        \App\Models\UserStrike::create([
+            'user_id' => $auction->winner_id,
+            'auction_id' => $auction->id,
+            'reported_by' => auth()->id(),
+            'reason' => 'Failed to pay for auction: ' . $auction->title,
+        ]);
+
+        // 6. Reset the auction so it can be relisted or just leave it as closed/cancelled
+        \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'pending')->update(['status' => 'cancelled']);
+        
+        $auction->update(['status' => 'cancelled', 'cancellation_reason' => 'Winner failed to pay.']);
+
+        return redirect()->back()->with('success', 'The buyer has been penalized with an Unpaid Item Strike. The auction has been cancelled.');
     }
 }

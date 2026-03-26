@@ -252,7 +252,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::withTrashed()
-            ->with('roles')
+            ->with(['roles', 'strikes.auction', 'strikes.reporter'])
             ->findOrFail($id);
 
         return view('admin.users.show', compact('user'));
@@ -472,5 +472,17 @@ class UserController extends Controller
         }
 
         return back()->with('success', 'User permanently deleted');
+    }
+
+    public function removeStrike(Request $request, $userId, $strikeId)
+    {
+        $user = User::withTrashed()->findOrFail($userId);
+        
+        $strike = \App\Models\UserStrike::where('user_id', $user->id)
+            ->findOrFail($strikeId);
+            
+        $strike->delete();
+        
+        return redirect()->back()->with('success', 'User strike removed successfully.');
     }
 }

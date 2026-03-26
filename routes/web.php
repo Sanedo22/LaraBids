@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/watchlist/{auction}/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
 
         Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+        Route::post('/auctions/{auction}/mark-unpaid', [UserDashboardController::class, 'markAsUnpaid'])->name('auctions.mark-unpaid');
 
         // Messages
         Route::get('/messages/{id}', [UserDashboardController::class, 'showMessage'])->name('message.show');
@@ -133,6 +134,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
         Route::resource('users', UserController::class);
         Route::post('users/{user}/restore', [UserController::class, 'restore'])->name('users.restore');
         Route::delete('users/{user}/force-delete', [UserController::class, 'forceDelete'])->name('users.force_delete');
+        Route::delete('users/{user}/strikes/{strike}', [UserController::class, 'removeStrike'])->name('users.remove_strike');
 
         // Payments
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');

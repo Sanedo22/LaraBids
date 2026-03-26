@@ -26,6 +26,12 @@ class AuctionRegistrationController extends Controller
                 return redirect()->back()->with('warning', 'You are already registered for this auction.');
             }
 
+            // Check bidder reputation
+            $maxStrikes = $auction->requirement?->max_strikes_allowed;
+            if ($maxStrikes !== null && $user->unpaid_strikes_count > $maxStrikes) {
+                return redirect()->back()->with('error', 'You cannot register for this auction. The seller has restricted bidding to users with ' . $maxStrikes . ' or fewer unpaid items.');
+            }
+
             // Register the user
             AuctionRegistration::create([
                 'user_id' => $user->id,
