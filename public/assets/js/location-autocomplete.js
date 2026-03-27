@@ -11,10 +11,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let debounceTimer;
     let selectedIndex = -1;
 
-    let isSelected = false;
+    let isSelected = locationInput.value.trim() !== '';
     const form = locationInput.closest('form');
 
-    locationInput.addEventListener('input', function () {
+    locationInput.addEventListener('input', function (e) {
+        if (e.detail && e.detail.fromSelection) return;
+
         isSelected = false; // Reset when user types
         this.classList.remove('is-valid');
         
@@ -210,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
         hideSuggestions();
         
         // Trigger validation
-        const event = new Event('input', { bubbles: true });
+        const event = new CustomEvent('input', { bubbles: true, detail: { fromSelection: true } });
         locationInput.dispatchEvent(event);
     }
 
