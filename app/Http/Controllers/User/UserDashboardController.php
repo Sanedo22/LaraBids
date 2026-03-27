@@ -648,9 +648,13 @@ class UserDashboardController extends Controller
         $auction->update(['status' => 'cancelled', 'cancellation_reason' => 'Winner failed to pay.']);
 
         $buyer = \App\Models\User::find($auction->winner_id);
-        if ($buyer && $buyer->unpaid_strikes_count >= \App\Models\User::MAX_GLOBAL_STRIKES) {
-            $buyer->delete(); // Soft delete triggers suspension
-            return redirect()->back()->with('success', 'The buyer has been penalized with an Unpaid Item Strike. They have reached ' . \App\Models\User::MAX_GLOBAL_STRIKES . ' strikes and their account has been automatically suspended. The auction has been cancelled.');
+        if ($buyer) {
+            $buyer->notify(new \App\Notifications\StrikeReceived($auction));
+
+            if ($buyer->unpaid_strikes_count >= \App\Models\User::MAX_GLOBAL_STRIKES) {
+                $buyer->delete(); // Soft delete triggers suspension
+                return redirect()->back()->with('success', 'The buyer has been penalized with an Unpaid Item Strike. They have reached ' . \App\Models\User::MAX_GLOBAL_STRIKES . ' strikes and their account has been automatically suspended. The auction has been cancelled.');
+            }
         }
 
         return redirect()->back()->with('success', 'The buyer has been penalized with an Unpaid Item Strike. The auction has been cancelled.');
