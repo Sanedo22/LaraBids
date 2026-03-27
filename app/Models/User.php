@@ -13,6 +13,8 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles, SoftDeletes, HasApiTokens;
 
+    public const MAX_GLOBAL_STRIKES = 5;
+
     protected $fillable = [
         'name',
         'username',

@@ -30,7 +30,6 @@ class StoreAuctionRequest extends FormRequest
             'min_increment' => 'nullable|numeric|min:0.01',
             'reserve_price' => 'nullable|numeric|gte:starting_price',
             'location' => 'nullable|string|max:255',
-            'max_strikes_allowed' => 'nullable|integer|min:0',
         ];
     }
 
