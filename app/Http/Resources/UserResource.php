@@ -21,7 +21,19 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
             'roles' => $this->roles->pluck('name'),
-            'statistics' => $this->when($request->route()->getName() === 'api.user.profile.show', function () {
+            'registration_source' => $this->created_by ? 'Admin-Created' : 'Self-Registered',
+            'strikes' => $this->when($this->relationLoaded('strikes'), function() {
+                return $this->strikes->map(function($strike) {
+                    return [
+                        'id' => $strike->id,
+                        'reason' => $strike->reason,
+                        'auction' => $strike->auction ? $strike->auction->title : 'N/A',
+                        'reporter' => $strike->reporter ? $strike->reporter->name : 'System',
+                        'created_at' => $strike->created_at->toIso8601String(),
+                    ];
+                });
+            }),
+            'statistics' => $this->when($request->routeIs('api.user.profile.show'), function () {
                 return $this->getStatistics();
             }),
         ];

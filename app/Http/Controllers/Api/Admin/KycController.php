@@ -12,7 +12,7 @@ class KycController extends Controller
     //display a listing of the KYC requests with filtering, sorting, and pagination
     public function index(Request $request)
     {
-        $status    = $request->get('status', 'all'); // all | pending | approved | rejected
+        $status    = $request->get('status', 'all'); // all | pending | approved | rejected | resubmitted
         $idType    = $request->get('id_type', 'all');
         $sort      = $request->get('sort', 'latest'); // latest | oldest
         $search    = $request->get('search', '');
@@ -21,7 +21,11 @@ class KycController extends Controller
 
         // Status filter
         if ($status !== 'all') {
-            $query->where('status', $status);
+            if ($status === 'resubmitted') {
+                $query->where('status', 'pending')->where('is_resubmitted', true);
+            } else {
+                $query->where('status', $status);
+            }
         }
 
         // ID Type filter
@@ -111,8 +115,9 @@ class KycController extends Controller
         ]);
 
         $kyc->update([
-            'status'     => $validated['status'],
-            'admin_note' => $validated['status'] === 'rejected' ? $validated['admin_note'] : null,
+            'status'         => $validated['status'],
+            'admin_note'     => $validated['status'] === 'rejected' ? $validated['admin_note'] : null,
+            'is_resubmitted' => false,
         ]);
 
         $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
@@ -124,3 +129,4 @@ class KycController extends Controller
         ]);
     }
 }
+

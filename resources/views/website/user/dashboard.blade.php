@@ -116,7 +116,16 @@
             <div class="quick-stat-box shadow-sm d-flex align-items-center">
                 <div class="flex-grow-1">
                     <span class="text-muted small fw-bold text-uppercase d-block mb-1">KYC Status</span>
-                    <h5 class="fw-bold text-success mb-0">Verified <i class="fas fa-check-circle small"></i></h5>
+                    <h5 class="fw-bold text-{{ $stats['kyc_status_class'] }} mb-0">
+                        {{ $stats['kyc_status'] }} 
+                        @if($stats['kyc_status'] === 'Verified')
+                            <i class="fas fa-check-circle small"></i>
+                        @elseif($stats['kyc_status'] === 'Pending')
+                            <i class="fas fa-clock small"></i>
+                        @elseif($stats['kyc_status'] === 'Rejected')
+                            <i class="fas fa-times-circle small"></i>
+                        @endif
+                    </h5>
                 </div>
             </div>
         </div>

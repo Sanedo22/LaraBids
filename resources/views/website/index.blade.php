@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- Hero Carousel -->
-<section id="heroCarousel" class="carousel slide hero-section" data-bs-ride="carousel" data-bs-interval="5000">
+<section id="heroCarousel" class="carousel slide hero-section">
     <!-- Indicators -->
     <div class="carousel-indicators">
         <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -695,6 +695,17 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    var heroCarousel = document.querySelector('#heroCarousel');
+    if (heroCarousel) {
+        var carouselInstance = bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
+            interval: 5000,
+            pause: false,
+            ride: 'carousel',
+            wrap: true
+        });
+        carouselInstance.cycle();
+    }
+
     var myCarousel = document.getElementById('testimonialCarousel');
     if (myCarousel) {
         // Initialize the carousel
