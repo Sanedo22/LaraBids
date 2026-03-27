@@ -42,15 +42,6 @@ class BidController extends Controller
                 return redirect()->back()->with('error', $message);
             }
 
-            $maxStrikes = $auction->requirement?->max_strikes_allowed;
-            if ($maxStrikes !== null && $user->unpaid_strikes_count > $maxStrikes) {
-                $message = 'You cannot bid on this auction. The seller has restricted bidding to users with ' . $maxStrikes . ' or fewer unpaid items.';
-                if ($request->wantsJson() || $request->ajax()) {
-                    return response()->json(['status' => 'error', 'message' => $message], 403);
-                }
-                return redirect()->back()->with('error', $message);
-            }
-
             $result = $this->bidService->placeBid($auction, $request->validated(), $user);
 
                 $auction = $auction->fresh();
