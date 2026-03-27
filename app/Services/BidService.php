@@ -176,10 +176,14 @@ class BidService
 
             // Anti-Sniping
             $now = now();
+            $newEndTime = $auction->end_time->copy();
+
             if ($now->greaterThanOrEqualTo($auction->end_time->copy()->subMinutes(2))) {
-                $auction->end_time = $auction->end_time->addMinutes(5);
+                $newEndTime = $auction->end_time->copy()->addMinutes(5);
                 $isExtended = true;
             }
+            
+            $auction->end_time = $newEndTime;
 
             $previousWinner = $currentTopBid ? $currentTopBid->user : null;
             $priceChanged = abs((float)($currentTopBid ? $currentTopBid->amount : 0) - $newPrice) > 0.001;
@@ -194,7 +198,7 @@ class BidService
 
                 $auction->update([
                     'current_price' => $newPrice,
-                    'end_time' => $auction->end_time
+                    'end_time' => $newEndTime
                 ]);
                 
                 \Illuminate\Support\Facades\Log::debug("Auction updated with new bid", ['bidId' => $bid->id]);
@@ -212,7 +216,9 @@ class BidService
                 }
             } else {
                 $bid = $currentTopBid;
-                $auction->update(['end_time' => $auction->end_time]);
+                if ($isExtended) {
+                    $auction->update(['end_time' => $newEndTime]);
+                }
                 \Illuminate\Support\Facades\Log::debug("No bid created (no change)");
             }
 
