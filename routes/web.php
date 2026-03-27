@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
         Route::post('/auctions/{auction}/mark-unpaid', [UserDashboardController::class, 'markAsUnpaid'])->name('auctions.mark-unpaid');
+        Route::delete('/auctions/{auction}/remove-strike', [UserDashboardController::class, 'removeStrike'])->name('auctions.remove-strike');
 
         // Messages
         Route::get('/messages/{id}', [UserDashboardController::class, 'showMessage'])->name('message.show');

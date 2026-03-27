@@ -363,17 +363,26 @@ class UserDashboardController extends Controller
                         $html .= '<a href="'.$editUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="Edit"><i class="fas fa-edit"></i></a>';
                     }
                     
-                    // Mark as Unpaid button
+                    // Mark as Unpaid or Remove Strike button
                     $strikeExists = \App\Models\UserStrike::where('auction_id', $auction->id)->exists();
                     $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
                     
-                    if ($auction->winner_id && !$payment && !$strikeExists && ($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast()))) {
-                        $markUnpaidUrl = route('user.auctions.mark-unpaid', $auction->id);
+                    if ($auction->winner_id && !$payment && ($auction->status === 'closed' || $auction->status === 'cancelled' || ($auction->end_time && $auction->end_time->isPast()))) {
                         $csrf = csrf_field();
-                        $html .= '<form action="'.$markUnpaidUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to mark this buyer as Unpaid? This will penalize their account.\')">
-                                    '.$csrf.'
-                                    <button type="submit" class="btn btn-outline-warning btn-sm btn-action shadow-sm" title="Mark Buyer as Unpaid"><i class="fas fa-user-slash"></i></button>
-                                  </form>';
+                        if ($strikeExists) {
+                            $removeStrikeUrl = route('user.auctions.remove-strike', $auction->id);
+                            $html .= '<form action="'.$removeStrikeUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to remove the strike from this buyer? This will un-cancel the auction.\')">
+                                        '.$csrf.'
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-outline-success btn-sm btn-action shadow-sm" title="Remove Strike"><i class="fas fa-user-check"></i></button>
+                                      </form>';
+                        } else {
+                            $markUnpaidUrl = route('user.auctions.mark-unpaid', $auction->id);
+                            $html .= '<form action="'.$markUnpaidUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to mark this buyer as Unpaid? This will penalize their account.\')">
+                                        '.$csrf.'
+                                        <button type="submit" class="btn btn-outline-warning btn-sm btn-action shadow-sm" title="Mark Buyer as Unpaid"><i class="fas fa-user-slash"></i></button>
+                                      </form>';
+                        }
                     }
                     
                     $html .= '<button type="button" onclick="confirmDelete('.$auction->id.')" class="btn btn-outline-danger btn-sm btn-action shadow-sm" title="Delete"><i class="fas fa-trash"></i></button>';
@@ -658,5 +667,31 @@ class UserDashboardController extends Controller
         }
 
         return redirect()->back()->with('success', 'The buyer has been penalized with an Unpaid Item Strike. The auction has been cancelled.');
+    }
+
+    // Remove Strike
+    public function removeStrike(\App\Models\Auction $auction)
+    {
+        // 1. Authorization
+        if ($auction->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // 2. Find and delete the strike associated with this auction
+        $strike = \App\Models\UserStrike::where('auction_id', $auction->id)
+                                        ->where('reported_by', auth()->id())
+                                        ->first();
+        
+        if (!$strike) {
+            return redirect()->back()->with('error', 'No strike found for this auction to remove.');
+        }
+
+        $strike->delete();
+
+        // 3. Reset the auction status back to closed/pending payment
+        \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'cancelled')->update(['status' => 'pending']);
+        $auction->update(['status' => 'closed', 'cancellation_reason' => null]);
+
+        return redirect()->back()->with('success', 'The strike has been successfully removed and the auction has been re-opened for payment.');
     }
 }
