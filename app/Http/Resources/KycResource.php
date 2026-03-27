@@ -30,10 +30,14 @@ class KycResource extends JsonResource
             'id_number'     => $this->id_number,
             'id_document'   => $this->id_document ? asset('storage/' . $this->id_document) : null,
             'selfie_image'  => $this->selfie_image ? asset('storage/' . $this->selfie_image) : null,
+            'gender'        => $this->gender,
+            'signature'     => $this->signature ? asset('storage/' . $this->signature) : null,
             'status'        => $this->status,
+            'is_resubmitted'=> (bool)$this->is_resubmitted,
             'admin_note'    => $this->admin_note,
             'created_at'    => $this->created_at->format('M d, Y H:i'),
             'updated_at'    => $this->updated_at->format('M d, Y H:i'),
         ];
     }
 }
+

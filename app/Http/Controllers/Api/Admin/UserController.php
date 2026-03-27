@@ -196,7 +196,7 @@ class UserController extends Controller
     
     public function show($id)
     {
-        $user = User::withTrashed()->with('roles')->find($id);
+        $user = User::withTrashed()->with(['roles', 'strikes.auction', 'strikes.reporter'])->find($id);
 
         if (!$user) {
             return response()->json([
@@ -411,4 +411,34 @@ class UserController extends Controller
             'message' => 'User permanently deleted'
         ]);
     }
+
+    public function removeStrike($userId, $strikeId)
+    {
+        $user = User::withTrashed()->find($userId);
+        
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        $strike = \App\Models\UserStrike::where('user_id', $user->id)
+            ->find($strikeId);
+
+        if (!$strike) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Strike not found'
+            ], 404);
+        }
+            
+        $strike->delete();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'User strike removed successfully'
+        ]);
+    }
 }
+

@@ -19,7 +19,21 @@ class UserDashboardController extends Controller
             'total_wins'       => $user->getWonAuctionsCount(),
             'watchlist_count'  => $user->watchlist()->count(),
             'messages_count'   => 0,
+            'kyc_status'       => 'Not Submitted',
+            'kyc_status_class' => 'secondary'
         ];
+
+        if ($user->isAdmin() || $user->isSuperAdmin() || ($user->kyc && $user->kyc->status === 'approved')) {
+            $stats['kyc_status'] = 'Verified';
+            $stats['kyc_status_class'] = 'success';
+        } elseif ($user->kyc) {
+            $stats['kyc_status'] = ucfirst($user->kyc->status);
+            $stats['kyc_status_class'] = match($user->kyc->status) {
+                'pending'  => 'warning text-dark',
+                'rejected' => 'danger',
+                default    => 'info'
+            };
+        }
 
         // Redirect to KYC if not approved
         // if (!$user->isKycApproved()) {

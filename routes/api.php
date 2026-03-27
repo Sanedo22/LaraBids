@@ -115,40 +115,44 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Dashboard
             Route::get('/dashboard', [AdminDashboardController::class, 'index']);
+            Route::get('/dashboard/chart-data', [AdminDashboardController::class, 'chartData']);
 
             // Category Management
             Route::apiResource('_categories', AdminCategoryController::class);
+            
             // Auction Management
             Route::apiResource('_auctions', AdminAuctionController::class);
+            Route::post('_auctions/{id}/restore', [AdminAuctionController::class, 'restore']);
+            Route::delete('_auctions/{id}/force-delete', [AdminAuctionController::class, 'forceDelete']);
+            Route::post('_auctions/{id}/approve', [AdminAuctionController::class, 'approve']);
+            Route::post('_auctions/{id}/cancel', [AdminAuctionController::class, 'cancel']);
+
             // User Management
             Route::post('_users/send-otp', [AdminUserController::class, 'sendOtp']);
             Route::apiResource('_users', AdminUserController::class);
+            Route::post('_users/{id}/restore', [AdminUserController::class, 'restore']);
+            Route::delete('_users/{id}/force-delete', [AdminUserController::class, 'forceDelete']);
+            Route::delete('_users/{id}/strikes/{strike}', [AdminUserController::class, 'removeStrike']);
+
             // Contact Management
             Route::apiResource('_contacts', AdminContactController::class);
+            Route::post('_contacts/{id}/restore', [AdminContactController::class, 'restore']);
+            Route::delete('_contacts/{id}/force-delete', [AdminContactController::class, 'forceDelete']);
 
             // KYC Management
             Route::get('_kyc', [AdminKycControllerApi::class, 'index']);
             Route::get('_kyc/{id}', [AdminKycControllerApi::class, 'show']);
             Route::post('_kyc/{id}/status', [AdminKycControllerApi::class, 'updateStatus']);
 
+            // Payments Management
+            Route::get('_payments', [\App\Http\Controllers\Api\Admin\PaymentController::class, 'index']);
+            Route::get('_payments/export', [\App\Http\Controllers\Api\Admin\PaymentController::class, 'export']);
+            Route::get('_payments/{id}', [\App\Http\Controllers\Api\Admin\PaymentController::class, 'show']);
+            Route::post('_payments/{id}/payout-paid', [\App\Http\Controllers\Api\Admin\PaymentController::class, 'markPayoutPaid']);
 
-            // Custom Category Actions
-            Route::post('_categories/{id}/restore', [AdminCategoryController::class, 'restore']);
-            Route::delete('_categories/{id}/force-delete', [AdminCategoryController::class, 'forceDelete']);
-
-            // Custom Auction Actions
-            Route::post('_auctions/{id}/restore', [AdminAuctionController::class, 'restore']);
-            Route::delete('_auctions/{id}/force-delete', [AdminAuctionController::class, 'forceDelete']);
-            Route::post('_auctions/{id}/approve', [AdminAuctionController::class, 'approve']);
-            Route::post('_auctions/{id}/cancel', [AdminAuctionController::class, 'cancel']);
-
-            // Custom User Actions
-            Route::post('_users/{id}/restore', [AdminUserController::class, 'restore']);
-            Route::delete('_users/{id}/force-delete', [AdminUserController::class, 'forceDelete']);
-
-            // Custom Contact Actions
-            Route::post('_contacts/{id}/restore', [AdminContactController::class, 'restore']);
-            Route::delete('_contacts/{id}/force-delete', [AdminContactController::class, 'forceDelete']);
+            // Settings
+            Route::get('_settings', [App\Http\Controllers\Api\Admin\SettingController::class, 'index']);
         });
 });
+
 Route::post('/payment/payu/callback', [\App\Http\Controllers\Payment\PayUController::class, 'callback'])->name('payment.payu.callback');

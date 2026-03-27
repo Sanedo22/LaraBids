@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Contact;
 use App\Http\Resources\AuctionResource;
 use App\Http\Resources\UserResource;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -22,57 +23,65 @@ class DashboardController extends Controller
     {
         // Get statistics
         $stats = [
-            'total_auctions' => Auction::count(),
+            'live_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '<=', now())
+                ->where('end_time', '>', now())
+                ->count(),
 
-            'active_auctions' => Auction::where('status', 'active')
+            'upcoming_auctions' => Auction::where('status', 'active')
+                ->where('start_time', '>', now())
                 ->where('end_time', '>', now())
                 ->count(),
 
             'pending_auctions' => Auction::where('status', 'pending')->count(),
 
-            'closed_auctions' => Auction::where('status', 'active')
-                ->where('end_time', '<=', now())
-                ->count(),
+            'pending_kycs' => \App\Models\Kyc::where('status', 'pending')->count(),
 
-            'cancelled_auctions' => Auction::where('status', 'cancelled')->count(),   
+            'closed_auctions' => Auction::where(function($q) {
+                $q->where('status', 'closed')
+                  ->orWhere(function($sq) {
+                      $sq->where('status', 'active')->where('end_time', '<=', now());
+                  });
+            })->count(),
+
+            'cancelled_auctions' => Auction::where('status', 'cancelled')->count(),
 
             'total_users' => User::role('user')->count(),
-
-            'new_users_this_month' => User::role('user')
-                ->whereMonth('created_at', now()->month)
-                ->whereYear('created_at', now()->year)
-                ->count(),
 
             'total_bids' => Bid::count(),
 
             'bids_today' => Bid::whereDate('created_at', today())->count(),
 
-            'total_categories' => Category::count(),
-
             'active_categories' => Category::where('is_active', true)->count(),
 
-            'total_contacts' => Contact::count(),
-
             'unread_contacts' => Contact::where('status', 'unread')->count(),
+
+            // Payment stats
+            'total_sales' => \App\Models\Payment::where('status', 'success')->sum('amount') ?? 0,
+            'platform_fee' => \App\Models\Payment::where('status', 'success')->sum('commission_amount') ?? 0,
+            'successful_payments' => \App\Models\Payment::where('status', 'success')->count() ?? 0,
+            'pending_payments' => \App\Models\Payment::where('status', 'pending')->count() ?? 0,
         ];
 
         // Recent auctions
-        $recent_auctions = Auction::with(['user', 'category', 'images', 'bids.user'])
+        $recent_auctions = Auction::with(['user', 'category'])
             ->latest()
             ->take(5)
             ->get();
 
-        // Recent users
-        $recent_users = User::role('user')
+        // Recent KYCs
+        $recent_kycs = \App\Models\Kyc::with('user')
+            ->where('status', 'pending')
             ->latest()
             ->take(5)
             ->get();
 
         // Chart data - Auctions by status
         $auction_chart_data = [
-            'labels' => ['Active', 'Pending', 'Closed', 'Cancelled'],
+            'labels' => ['Live', 'Upcoming', 'Pending', 'Closed', 'Cancelled'],
             'data' => [
-                $stats['active_auctions'],
+                $stats['live_auctions'],
+                $stats['upcoming_auctions'],
                 $stats['pending_auctions'],
                 $stats['closed_auctions'],
                 $stats['cancelled_auctions'],
@@ -85,9 +94,7 @@ class DashboardController extends Controller
 
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
-
             $monthly_labels[] = $date->format('M Y');
-
             $monthly_auctions[] = Auction::whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->count();
@@ -103,11 +110,35 @@ class DashboardController extends Controller
             'message' => 'Dashboard data retrieved successfully',
             'data' => [
                 'stats' => $stats,
-                'recent_auctions' => AuctionResource::collection($recent_auctions),
-                'recent_users' => UserResource::collection($recent_users),
+                'recent_auctions'   => AuctionResource::collection($recent_auctions),
+                'recent_kycs'       => \App\Http\Resources\KycResource::collection($recent_kycs),
                 'auction_chart_data' => $auction_chart_data,
                 'monthly_chart_data' => $monthly_chart_data,
             ]
         ]);
     }
+
+    public function chartData(Request $request)
+    {
+        $months = max(1, (int) $request->get('months', 6));
+        $monthly_auctions = [];
+        $monthly_labels = [];
+
+        for ($i = $months - 1; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthly_labels[] = $date->format('M Y');
+            $monthly_auctions[] = Auction::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'labels' => $monthly_labels,
+                'data' => $monthly_auctions,
+            ]
+        ]);
+    }
 }
+
