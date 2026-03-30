@@ -212,7 +212,7 @@ class UserDashboardController extends Controller
     {
         try {
             $query = \App\Models\Auction::where('user_id', auth()->id())
-                ->with(['category', 'bids.user']);
+                ->with(['category', 'bids.user', 'winner', 'payment', 'strikes']);
 
             // Filters
             if ($request->filled('category')) {
@@ -288,8 +288,8 @@ class UserDashboardController extends Controller
                     }
                     
                     // Check if payment is successful
-                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
-                    if ($payment) {
+                    $payment = clone $auction->payment;
+                    if ($payment && $payment->status === 'success') {
                         $status = 'Paid';
                     }
 
@@ -306,7 +306,7 @@ class UserDashboardController extends Controller
                     
                     // Only show fee deduction if auction is finished and there's a winner
                     if (($auction->status === 'closed' || ($auction->end_time && $auction->end_time->isPast())) && $auction->highestBid()) {
-                        $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                        $payment = $auction->payment && $auction->payment->status === 'success' ? $auction->payment : null;
                         $fee = $payment ? $payment->commission_amount : ($price * 0.05);
                         $html .= '<span class="text-muted mt-1" style="font-size: 0.75rem;">Platform Fee: -₹'.number_format($fee, 2).'</span>';
                     }
@@ -378,8 +378,8 @@ class UserDashboardController extends Controller
                     }
                     
                     // Mark as Unpaid or Remove Strike button
-                    $strikeExists = \App\Models\UserStrike::where('auction_id', $auction->id)->exists();
-                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                    $strikeExists = $auction->strikes->isNotEmpty();
+                    $payment = $auction->payment && $auction->payment->status === 'success' ? $auction->payment : null;
                     
                     if ($auction->winner_id && !$payment && ($auction->status === 'closed' || $auction->status === 'cancelled' || ($auction->end_time && $auction->end_time->isPast()))) {
                         $csrf = csrf_field();
@@ -425,7 +425,7 @@ class UserDashboardController extends Controller
             $user = auth()->user();
             
             $query = \App\Models\Auction::where('winner_id', $user->id)
-                ->with(['category', 'user']);
+                ->with(['category', 'user', 'payment']);
 
             // Filters
             if ($request->filled('category')) {
@@ -486,7 +486,7 @@ class UserDashboardController extends Controller
                     return '<span class="text-muted small">'.$auction->end_time->format('M d, Y').'</span>';
                 })
                 ->addColumn('payment_status', function($auction) {
-                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                    $payment = $auction->payment && $auction->payment->status === 'success' ? $auction->payment : null;
                     if ($payment) {
                         return '<span class="badge rounded-pill px-3" style="background-color: #e2ede5; color: #3e6d4d; border: 1px solid #c3d9c9; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Paid</span>';
                     }
@@ -494,7 +494,7 @@ class UserDashboardController extends Controller
                 })
                 ->addColumn('action', function($auction) {
                     $viewUrl = route('auctions.show', $auction->id);
-                    $payment = \App\Models\Payment::where('auction_id', $auction->id)->where('status', 'success')->first();
+                    $payment = $auction->payment && $auction->payment->status === 'success' ? $auction->payment : null;
                     
                     $html = '<div class="d-flex align-items-center gap-2">';
                     $html .= '<a href="'.$viewUrl.'" class="btn btn-outline-primary btn-sm btn-action shadow-sm" title="View"><i class="fas fa-eye"></i></a>';

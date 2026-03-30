@@ -250,4 +250,16 @@ class Auction extends Model
     {
         return $this->hasOne(AuctionRequirement::class);
     }
+
+    // Get payment
+    public function payment()
+    {
+        return $this->hasOne(Payment::class);
+    }
+
+    // Get strikes
+    public function strikes()
+    {
+        return $this->hasMany(UserStrike::class);
+    }
 }
