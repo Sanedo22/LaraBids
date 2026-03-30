@@ -183,9 +183,12 @@
                         </div>
                         @endif
 
-                        <h3 class="h6 mb-2 fw-bold text-dark text-truncate title-hover">
+                        <h3 class="h6 mb-1 fw-bold text-dark text-truncate title-hover">
                             {{ $auction->title }}
                         </h3>
+                        <div class="mb-2">
+                            <span class="copy-id text-muted extra-small" style="font-size: 0.65rem;" onclick="event.preventDefault(); event.stopPropagation(); copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
+                        </div>
                         
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div class="d-flex align-items-center">
@@ -276,9 +279,12 @@
                                     <i class="fas fa-clock me-1"></i> Starts {{ $startTime->format('M d, H:i') }}
                                 </div>
 
-                                <h3 class="h6 mb-2 fw-bold text-dark text-truncate title-hover">
+                                <h3 class="h6 mb-1 fw-bold text-dark text-truncate title-hover">
                                     {{ $upcoming->title }}
                                 </h3>
+                                <div class="mb-2">
+                                    <span class="copy-id text-muted extra-small" style="font-size: 0.65rem;" onclick="event.preventDefault(); event.stopPropagation(); copyToClipboard('{{ $upcoming->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($upcoming->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
+                                </div>
                                 
                                 <div class="d-flex align-items-center justify-content-between mb-3">
                                     <div class="d-flex align-items-center">

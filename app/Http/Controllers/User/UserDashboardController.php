@@ -161,7 +161,7 @@ class UserDashboardController extends Controller
                             </div>
                             <div class="d-flex flex-column">
                                 <span class="fw-bold text-dark mb-1 d-inline-block" style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="'.e($auction->title).'">'.$title.'</span>
-                                <span class="text-muted small">ID: #'.str_pad($auction->id, 5, '0', STR_PAD_LEFT).'</span>
+                                <span class="copy-id text-muted small" onclick="copyToClipboard(\''.$auction->id.'\', this)" title="Click to copy ID">ID: #'.str_pad($auction->id, 5, '0', STR_PAD_LEFT).' <i class="far fa-copy ms-1"></i></span>
                             </div>
                         </div>';
                 })
@@ -275,9 +275,12 @@ class UserDashboardController extends Controller
                             <div class="position-relative me-3">
                                 <img src="'.$image.'" class="rounded border" width="50" height="50" style="object-fit: cover;" onerror="this.src=\'https://images.unsplash.com/photo-1523275335684-21481017106d?auto=format&fit=crop&w=120\'">
                             </div>
-                            <div class="d-flex flex-column">
+                                <div class="d-flex flex-column">
                                 <span class="fw-bold text-dark mb-1 d-inline-block" style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="'.e($auction->title).'">'.$title.'</span>
-                                <span class="text-muted small"><i class="far fa-calendar-alt me-1"></i> Listed on '.$date.'</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted small"><i class="far fa-calendar-alt me-1"></i> Listed on '.$date.'</span>
+                                    <span class="copy-id text-muted extra-small" style="font-size: 0.7rem;" onclick="copyToClipboard(\''.$auction->id.'\', this)" title="Click to copy ID">ID: #'.str_pad($auction->id, 5, '0', STR_PAD_LEFT).' <i class="far fa-copy ms-1"></i></span>
+                                </div>
                             </div>
                         </div>';
                 })
@@ -472,7 +475,7 @@ class UserDashboardController extends Controller
                             </div>
                             <div class="d-flex flex-column">
                                 <span class="fw-bold text-dark mb-1 d-inline-block" style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="'.e($auction->title).'">'.$title.'</span>
-                                <span class="text-muted small">ID: #'.str_pad($auction->id, 5, '0', STR_PAD_LEFT).'</span>
+                                <span class="copy-id text-muted small" onclick="copyToClipboard(\''.$auction->id.'\', this)" title="Click to copy ID">ID: #'.str_pad($auction->id, 5, '0', STR_PAD_LEFT).' <i class="far fa-copy ms-1"></i></span>
                             </div>
                         </div>';
                 })

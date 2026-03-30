@@ -162,6 +162,29 @@
             transform: translateY(-2px) !important;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
         }
+
+        /* Copy ID Styling */
+        .copy-id {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: #4e73df;
+        }
+        .copy-id:hover {
+            color: #2e59d9 !important;
+            text-decoration: underline;
+        }
+        .copy-id i {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            transition: transform 0.2s;
+        }
+        .copy-id:hover i {
+            opacity: 1;
+            transform: scale(1.2);
+        }
     </style>
     
     @stack('styles')
@@ -258,6 +281,33 @@
                 text: "{{ session('error') }}",
             });
         @endif
+
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = element.querySelector('i');
+                if (icon) {
+                    const originalClass = icon.className;
+                    icon.className = 'fas fa-check text-success';
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                    }, 1500);
+                }
+                
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Copied ID: ' + text
+                });
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
     </script>
 
     @stack('scripts')

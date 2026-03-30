@@ -235,7 +235,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">Auction Info</h6>
                 </div>
                 <div class="card-body">
-                    <p><strong>ID:</strong> #{{ $auction->id }}</p>
+                    <p><strong>ID:</strong> <span class="copy-id font-weight-bold" onclick="copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">#{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ml-1"></i></span></p>
                     <p><strong>Seller:</strong> @_{{ $auction->user->username }} ({{ $auction->user->email }})</p>
                     <p><strong>Category:</strong> 
                         @if($auction->category)

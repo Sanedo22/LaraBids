@@ -28,7 +28,9 @@ class AuctionController extends Controller
                 ->withTrashed();
 
             return DataTables::of($data)
-                ->addIndexColumn()
+                ->addColumn('id', function ($row) {
+                    return '<span class="copy-id font-weight-bold" onclick="copyToClipboard(\''.$row->id.'\', this)" title="Click to copy ID">#'.str_pad($row->id, 5, '0', STR_PAD_LEFT).' <i class="far fa-copy ml-1"></i></span>';
+                })
 
                 ->editColumn('title', function ($row) {
                     $html = '<div class="d-flex flex-column">';
@@ -174,7 +176,7 @@ class AuctionController extends Controller
                     return $btn;
                 })
 
-                ->rawColumns(['image', 'title', 'category', 'status', 'action'])
+                ->rawColumns(['id', 'image', 'title', 'category', 'status', 'action'])
 
                 ->filter(function ($query) {
                     if (request()->has('search') && isset(request('search')['value'])) {
