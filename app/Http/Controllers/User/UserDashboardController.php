@@ -288,7 +288,7 @@ class UserDashboardController extends Controller
                     }
                     
                     // Check if payment is successful
-                    $payment = clone $auction->payment;
+                    $payment = $auction->payment;
                     if ($payment && $payment->status === 'success') {
                         $status = 'Paid';
                     }
