@@ -430,8 +430,8 @@
                             </button>
                         </h2>
                         <div id="collapseInfo" class="accordion-collapse collapse show" data-bs-parent="#auctionAccordion">
-                            <div class="accordion-body px-4 py-4 text-secondary lh-lg">
-                                {!! nl2br(e($auction->description)) !!}
+                            <div class="accordion-body px-4 py-4 text-secondary lh-lg description-content">
+                                {!! $auction->description !!}
                             </div>
                         </div>
                     </div>
@@ -1213,6 +1213,27 @@
     .urgent-timer { background: rgba(220, 53, 69, 0.08) !important; border-color: rgba(220, 53, 69, 0.3) !important; }
     .title-hover:hover { color: var(--bs-primary) !important; }
     .btn-hover-effect:active { transform: scale(0.98); }
+
+    /* Description Content Styling */
+    .description-content ul, .description-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+    .description-content li {
+        margin-bottom: 0.5rem;
+    }
+    .description-content h2, .description-content h3, .description-content h4 {
+        color: #343a40;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+    .description-content p {
+        margin-bottom: 1rem;
+    }
+    .description-content strong {
+        color: #212529;
+    }
 </style>
 @endpush
 
