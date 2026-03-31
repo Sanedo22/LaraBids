@@ -50,7 +50,7 @@ class SocialController extends Controller
                         $updateData['email_verified_at'] = now();
                     }
                     $user->update($updateData);
-                } else {
+                } else { 
                     $isNewUser = true;
                     // Create a brand new user
                     // Generate a unique username from name
@@ -61,7 +61,7 @@ class SocialController extends Controller
                     while (User::where('username', $username)->exists()) {
                         $username = $baseUsername . $counter;
                         $counter++;
-                    }
+                    } 
 
                     $user = User::create([
                         'name'              => $socialUser->getName(),
