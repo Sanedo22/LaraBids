@@ -40,9 +40,23 @@ class AuctionRegistrationController extends Controller
                 $message .= ' You can now place bids!';
             }
 
+            if (request()->ajax()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => $message,
+                    'is_live' => $auction->start_time->isPast() && $auction->end_time->isFuture()
+                ]);
+            }
+
             return redirect()->back()->with('success', $message);
 
         } catch (Exception $e) {
+            if (request()->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Failed to register for the auction. Please try again later.'
+                ], 500);
+            }
             return redirect()->back()->with('error', 'Failed to register for the auction. Please try again later.');
         }
     }
