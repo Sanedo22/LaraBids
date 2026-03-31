@@ -21,6 +21,29 @@
 
     @stack('meta')
     @stack('styles')
+    
+    <style>
+        .copy-id {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .copy-id:hover {
+            color: #4e73df !important;
+            text-decoration: underline;
+        }
+        .copy-id i {
+            font-size: 0.75rem;
+            opacity: 0.6;
+            transition: transform 0.2s;
+        }
+        .copy-id:hover i {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+    </style>
 </head>
 
 <body>
@@ -37,6 +60,35 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="{{ asset('assets/js/main.js') }}"></script>
+
+    <script>
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                const icon = element.querySelector('i');
+                if (icon) {
+                    const originalClass = icon.className;
+                    icon.className = 'fas fa-check text-success';
+                    setTimeout(() => {
+                        icon.className = originalClass;
+                    }, 1500);
+                }
+                
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Copied: ' + text
+                });
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
 
     @stack('scripts')
 </body>

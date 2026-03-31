@@ -359,6 +359,34 @@
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+<!-- CKEditor 5 CSS Customization -->
+<style>
+    .ck-editor__editable_inline {
+        min-height: 250px;
+        background-color: #f8f9fc !important;
+        border: none !important;
+        border-radius: 0 0 15px 15px !important;
+        padding: 0 20px !important;
+    }
+    .ck-toolbar {
+        background-color: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid #e3e6f0 !important;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 10px !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable:not(.ck-focused) {
+        border-color: transparent !important;
+    }
+    .ck.ck-editor__main>.ck-editor__editable.ck-focused {
+        box-shadow: none !important;
+    }
+    .ck-editor {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+    }
+</style>
 @endpush
 
 @push('scripts')
@@ -367,10 +395,35 @@
 <script src="{{ asset('assets/js/category-selection.js') }}"></script>
 <script src="{{ asset('assets/js/auction-edit.js') }}"></script>
 
-<!-- Flatpickr JS -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<!-- CKEditor 5 JS -->
+<script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize CKEditor
+        ClassicEditor
+            .create(document.querySelector('textarea[name="description"]'), {
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', '|',
+                        'bulletedList', 'numberedList', '|',
+                        'undo', 'redo'
+                    ]
+                },
+                placeholder: 'Describe your item in detail (bold text, lists, etc. are supported)...'
+            })
+            .then(editor => {
+                // Synchronize CKEditor data with textarea for validation
+                editor.model.document.on('change:data', () => {
+                    document.querySelector('textarea[name="description"]').value = editor.getData();
+                    // Manually trigger input event for any validation scripts
+                    document.querySelector('textarea[name="description"]').dispatchEvent(new Event('input'));
+                });
+            })
+            .catch(error => {
+                console.error('CKEditor Error:', error);
+            });
+
         // Initialize dynamic category selection logic
         // (Handled by category-selection.js - ensure categories are passed via categoryTree)
         

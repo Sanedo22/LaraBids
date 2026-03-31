@@ -222,7 +222,7 @@
                 },
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 columns: [
-                    {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-muted text-center'},
+                    {data: 'id', name: 'id', className: 'text-center font-weight-bold'},
                     {data: 'image', name: 'image', orderable: false, searchable: false, className: 'text-center'},
                     {data: 'title', name: 'title'},
                     {data: 'category', name: 'category.name'},

@@ -121,10 +121,11 @@
                     <div class="hibid-bid-card mb-3" data-aos="fade-left">
 
                         <!-- Title & Category -->
-                        <h2 class="hibid-auction-title">{{ $auction->title }}</h2>
-                        <div class="mb-3">
+                        <h2 class="hibid-auction-title mb-1">{{ $auction->title }}</h2>
+                        <div class="mb-3 d-flex align-items-center gap-3">
                             <a href="{{ route('auctions.index', ['category' => $auction->category->slug ?? '']) }}"
                                class="hibid-category-link">{{ $auction->category->name ?? 'Uncategorized' }}</a>
+                            <span class="copy-id text-muted extra-small" style="font-size: 0.75rem;" onclick="copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
                         </div>
 
                         <!-- Timer -->
@@ -430,8 +431,8 @@
                             </button>
                         </h2>
                         <div id="collapseInfo" class="accordion-collapse collapse show" data-bs-parent="#auctionAccordion">
-                            <div class="accordion-body px-4 py-4 text-secondary lh-lg">
-                                {!! nl2br(e($auction->description)) !!}
+                            <div class="accordion-body px-4 py-4 text-secondary lh-lg description-content">
+                                {!! $auction->description !!}
                             </div>
                         </div>
                     </div>
@@ -451,6 +452,12 @@
                                             <tr>
                                                 <th class="bg-light ps-4 py-3" style="width: 200px;">Item Name</th>
                                                 <td class="ps-4 py-3 fw-medium">{{ $auction->title }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th class="bg-light ps-4 py-3">Auction ID</th>
+                                                <td class="ps-4 py-3 fw-medium">
+                                                    <span class="copy-id" onclick="copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">#{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1 text-primary"></i></span>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Auctioneer</th>
@@ -649,9 +656,12 @@
                             </div>
                             @endif
 
-                            <h3 class="h6 mb-2 fw-bold text-dark text-truncate title-hover">
+                            <h3 class="h6 mb-1 fw-bold text-dark text-truncate title-hover">
                                 {{ $related->title }}
                             </h3>
+                            <div class="mb-2">
+                                <span class="copy-id text-muted extra-small" style="font-size: 0.65rem;" onclick="event.preventDefault(); event.stopPropagation(); copyToClipboard('{{ $related->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($related->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
+                            </div>
                             
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div class="d-flex align-items-center">
@@ -1213,6 +1223,27 @@
     .urgent-timer { background: rgba(220, 53, 69, 0.08) !important; border-color: rgba(220, 53, 69, 0.3) !important; }
     .title-hover:hover { color: var(--bs-primary) !important; }
     .btn-hover-effect:active { transform: scale(0.98); }
+
+    /* Description Content Styling */
+    .description-content ul, .description-content ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+    .description-content li {
+        margin-bottom: 0.5rem;
+    }
+    .description-content h2, .description-content h3, .description-content h4 {
+        color: #343a40;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+    .description-content p {
+        margin-bottom: 1rem;
+    }
+    .description-content strong {
+        color: #212529;
+    }
 </style>
 @endpush
 
