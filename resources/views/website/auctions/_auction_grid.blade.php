@@ -138,7 +138,7 @@
                 <i class="fas fa-search fa-2x text-muted opacity-25"></i>
             </div>
             <h6 class="fw-bold text-secondary mb-1">No Auctions Found</h6>
-            <a href="{{ route('auctions.index') }}" class="small text-decoration-none fw-bold" id="reset-filters-btn">Reset Filters</a>
+            <a href="{{ route('auctions.index') }}" class="small text-decoration-none fw-bold ajax-filter-link" id="clear-all-filters-btn">Reset Filters</a>
         </div>
     </div>
     @endforelse

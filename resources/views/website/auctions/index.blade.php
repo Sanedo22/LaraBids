@@ -692,6 +692,44 @@
                 const url = link.getAttribute('href');
                 updateAuctions(url);
 
+                // Handle specifically the "Clear All" link (either in sidebar or bottom of grid)
+                if (link.id && link.id.startsWith('clear-all-filters')) {
+                    // 1. Reset Price Form
+                    filterForm.reset();
+
+                    // 2. Reset Status Visuals (Default to Live)
+                    document.querySelectorAll('.status-filters label').forEach(lbl => {
+                        lbl.classList.remove('bg-primary-subtle', 'text-primary', 'fw-bold');
+                        lbl.classList.add('hover-bg-light', 'text-secondary');
+                        const icon = lbl.querySelector('i.fas');
+                        if(icon) icon.classList.replace('text-primary', 'text-muted');
+                        const check = lbl.querySelector('i.fa-check-circle');
+                        if(check) check.remove();
+                    });
+
+                    // Set first one (Live) as active
+                    const liveLabel = document.querySelector('.status-filters label:first-child');
+                    if (liveLabel) {
+                        liveLabel.classList.add('bg-primary-subtle', 'text-primary', 'fw-bold');
+                        liveLabel.classList.remove('hover-bg-light', 'text-secondary');
+                        const liveIcon = liveLabel.querySelector('i.fas');
+                        if(liveIcon) liveIcon.classList.replace('text-muted', 'text-primary');
+                        liveLabel.insertAdjacentHTML('beforeend', '<i class="fas fa-check-circle small"></i>');
+                        const liveInput = liveLabel.querySelector('input');
+                        if(liveInput) liveInput.checked = true;
+                    }
+
+                    // 3. Reset Category Links
+                    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active', 'fw-bold'));
+                    const allCatLink = document.querySelector('.category-link[href*="auctions"]');
+                    if (allCatLink) allCatLink.classList.add('active');
+
+                    // 4. Close all category dropdowns
+                    document.querySelectorAll('.category-item.open').forEach(item => {
+                        item.classList.remove('open');
+                    });
+                }
+
                 // Update active state for categories
                 if (link.classList.contains('category-link')) {
                     document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active', 'fw-bold'));
