@@ -95,68 +95,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setInterval(updateCountdowns, 1000);
 
-    // --- Watchlist Toggle System ---
-    const watchlistForms = document.querySelectorAll('.watchlist-toggle-form');
+    // --- Watchlist Toggle System (Using Event Delegation for AJAX support) ---
+    document.addEventListener('submit', async (e) => {
+        const form = e.target.closest('.watchlist-toggle-form');
+        if (!form) return;
 
-    watchlistForms.forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        e.preventDefault();
 
-            const button = form.querySelector('button');
-            const icon = button.querySelector('i');
-            const url = form.getAttribute('action');
-            const csrf = form.querySelector('input[name="_token"]').value;
+        const button = form.querySelector('button');
+        const icon = button.querySelector('i');
+        const url = form.getAttribute('action');
+        const csrfInput = form.querySelector('input[name="_token"]');
+        const csrf = csrfInput ? csrfInput.value : document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            // Loading state
-            const originalIconClass = icon.className;
-            icon.className = 'fas fa-spinner fa-spin';
-            button.disabled = true;
+        // Loading state
+        const originalIconClass = icon.className;
+        icon.className = 'fas fa-spinner fa-spin';
+        button.disabled = true;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrf,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                if (response.status === 401 || response.redirected) {
-                    window.location.href = '/login';
-                    return;
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrf,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
                 }
+            });
 
-                const data = await response.json();
-
-                if (data.status === 'added') {
-                    icon.className = 'fas fa-heart text-danger';
-                    showToast('success', 'Added to watchlist');
-                } else if (data.status === 'removed') {
-                    icon.className = 'far fa-heart';
-                    showToast('info', 'Removed from watchlist');
-
-                    if (window.location.pathname.includes('/user/watchlist')) {
-                        const row = form.closest('tr');
-                        if (row) {
-                            row.style.opacity = '0';
-                            setTimeout(() => {
-                                row.remove();
-                                if (document.querySelector('tbody').children.length === 0) {
-                                    window.location.reload();
-                                }
-                            }, 300);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Watchlist toggle failed:', error);
-                icon.className = originalIconClass;
-                showToast('error', 'Something went wrong');
-            } finally {
-                button.disabled = false;
+            if (response.status === 401 || response.redirected) {
+                window.location.href = '/login';
+                return;
             }
-        });
+
+            const data = await response.json();
+
+            if (data.status === 'added') {
+                icon.className = 'fas fa-heart text-danger';
+                showToast('success', 'Added to watchlist');
+            } else if (data.status === 'removed') {
+                icon.className = 'far fa-heart';
+                showToast('info', 'Removed from watchlist');
+
+                if (window.location.pathname.includes('/user/watchlist')) {
+                    const row = form.closest('tr');
+                    if (row) {
+                        row.style.opacity = '0';
+                        setTimeout(() => {
+                            row.remove();
+                            if (document.querySelector('tbody').children.length === 0) {
+                                window.location.reload();
+                            }
+                        }, 300);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Watchlist toggle failed:', error);
+            icon.className = originalIconClass;
+            showToast('error', 'Something went wrong');
+        } finally {
+            button.disabled = false;
+        }
     });
 
     // --- Auction Registration System (AJAX) ---
