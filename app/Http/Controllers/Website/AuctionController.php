@@ -34,7 +34,7 @@ class AuctionController extends Controller
         }
 
         if ($request->ajax()) {
-            return view('website.auctions._auction_grid', compact('auctions'))->render();
+            return view('website.auctions._auction_grid', compact('auctions'));
         }
 
         return view('website.auctions.index', compact('auctions', 'categories', 'currentCategory'));
