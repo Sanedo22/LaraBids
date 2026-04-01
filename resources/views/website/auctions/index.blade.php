@@ -696,6 +696,19 @@
                 if (link.classList.contains('category-link')) {
                     document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active', 'fw-bold'));
                     link.classList.add('active', 'fw-bold');
+
+                    // --- NEW: Auto-open sub-categories on click ---
+                    const parentItem = link.closest('.category-item');
+                    if (parentItem && parentItem.classList.contains('has-sub')) {
+                        // Close other items if they aren't parents of this one
+                        document.querySelectorAll('.category-item.open').forEach(item => {
+                            if (item !== parentItem) {
+                                item.classList.remove('open');
+                            }
+                        });
+                        // Open current item
+                        parentItem.classList.add('open');
+                    }
                 }
             }
         });
