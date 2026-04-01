@@ -70,6 +70,10 @@ class UserController extends Controller
                     }
                 })
                 ->addIndexColumn()
+                ->addColumn('checkbox', function($row){
+                    $isTrashed = $row->trashed() ? 1 : 0;
+                    return '<div class="custom-control custom-checkbox text-center"><input type="checkbox" class="custom-control-input user-checkbox" id="user_'.$row->id.'" value="'.$row->id.'" data-is-trashed="'.$isTrashed.'"><label class="custom-control-label" for="user_'.$row->id.'"></label></div>';
+                })
                 ->addColumn('role_name', function($row){
                     if ($row->roles->isEmpty()) {
                         return 'User';
@@ -136,7 +140,7 @@ class UserController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['role_name', 'status', 'action'])
+                ->rawColumns(['checkbox', 'role_name', 'status', 'action'])
                 ->make(true);
         }
 
@@ -484,5 +488,72 @@ class UserController extends Controller
         $strike->delete();
         
         return redirect()->back()->with('success', 'User strike removed successfully.');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'action' => 'required|string|in:delete,restore,force_delete'
+        ]);
+
+        $ids = $request->ids;
+        $action = $request->action;
+        $currentUser = Auth::user();
+
+        // Prevent self action
+        if (in_array($currentUser->id, $ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot perform bulk actions on your own account.'
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $users = User::withTrashed()->whereIn('id', $ids)->get();
+
+            foreach ($users as $user) {
+                // Check permissions
+                if ($currentUser->isSuperAdmin() && $user->isSuperAdmin() && $user->id !== $currentUser->id) {
+                    if ($user->created_by !== $currentUser->id) {
+                        throw new \Exception("You don't have permission to modify Super Admin {$user->name}");
+                    }
+                }
+                if ($currentUser->isAdmin() && !$currentUser->isSuperAdmin() && ($user->isSuperAdmin() || $user->isAdmin())) {
+                    throw new \Exception("You don't have permission to modify User {$user->name}");
+                }
+
+                if ($action === 'delete') {
+                    $user->update(['deleted_by' => Auth::id()]);
+                    $user->delete();
+                } elseif ($action === 'restore') {
+                    $user->restore();
+                    $user->update(['deleted_by' => null]);
+                } elseif ($action === 'force_delete') {
+                    $user->roles()->detach();
+                    $user->forceDelete();
+                }
+            }
+
+            DB::commit();
+
+            $actionMessage = '';
+            if ($action === 'delete') $actionMessage = 'suspended';
+            if ($action === 'restore') $actionMessage = 'restored';
+            if ($action === 'force_delete') $actionMessage = 'permanently deleted';
+
+            return response()->json([
+                'success' => true,
+                'message' => count($ids) . " user(s) have been successfully {$actionMessage}."
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 403);
+        }
     }
 }

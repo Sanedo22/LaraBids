@@ -105,12 +105,10 @@
                     <select id="categoryFilter" class="custom-select filter-control w-100">
                         <option value="" selected>All Categories</option>
                         @foreach($categories as $cat)
-                            <optgroup label="{{ $cat->name }}">
-                                <option value="{{ $cat->slug }}">{{ $cat->name }} (All)</option>
-                                @foreach($cat->children as $child)
-                                    <option value="{{ $child->slug }}">&nbsp;&nbsp;&mdash; {{ $child->name }}</option>
-                                @endforeach
-                            </optgroup>
+                            <option value="{{ $cat->slug }}" class="font-weight-bold" style="font-weight: bold;">{{ $cat->name }}</option>
+                            @foreach($cat->children as $child)
+                                <option value="{{ $child->slug }}">&nbsp;&nbsp;&bull; {{ $child->name }}</option>
+                            @endforeach
                         @endforeach
                     </select>
                 </div>
@@ -154,25 +152,52 @@
         </div>
     </div>
 
-    <!-- Directory Card -->
-    <div class="card shadow-sm border-0 rounded-lg">
-        <div class="card-header py-3 bg-white border-bottom d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-list-ul mr-2 text-primary"></i>Auction Directory</h6>
+    <!-- DataTales Example -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header py-3 px-4 bg-white d-flex align-items-center justify-content-between" style="min-height: 60px;">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-list-ul mr-2 text-primary"></i>Auction Directory
+            </h6>
+            
+            <!-- Bulk Actions (Injected inside Directory Header) -->
+            <div id="bulkActionsContainer" style="display: none;">
+                <div class="d-flex align-items-center">
+                    
+                    <div class="d-flex align-items-center mr-4">
+                        <span class="text-primary font-weight-bold mr-2 text-nowrap" style="font-size: 0.9rem;">
+                            <i class="fas fa-check-square mr-1"></i><span id="selectedCount">0</span> Selected
+                        </span>
+                        <button type="button" id="clearSelection" class="btn btn-outline-danger btn-action" title="Clear Selection">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <select id="bulkActionSelect" class="custom-select custom-select-sm border-primary text-primary mr-2 shadow-sm" style="width: 200px;">
+                            <!-- Options populated via JS -->
+                        </select>
+                        <button type="button" id="applyBulkAction" class="btn btn-outline-primary btn-action" title="Apply Action">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive px-3 py-4">
                 <table class="table table-hover border-bottom" id="auctions-table" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th width="50" class="text-center text-nowrap">Id</th>
-                            <th width="70" class="text-center text-nowrap">Image</th>
-                            <th class="text-nowrap" style="min-width: 350px;">Title & Details</th>
-                            <th class="text-nowrap">Category</th>
-                            <th class="text-nowrap">Seller</th>
+                            <th width="30" class="text-center pr-1"><div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="selectAll"><label class="custom-control-label" for="selectAll"></label></div></th>
+                            <th width="40" class="text-center text-nowrap px-1">Id</th>
+                            <th width="50" class="text-center text-nowrap px-1">Image</th>
+                            <th class="text-nowrap" style="min-width: 200px; max-width: 250px;">Title & Details</th>
+                            <th class="text-nowrap" style="max-width: 120px;">Category</th>
+                            <th class="text-nowrap" style="max-width: 120px;">Seller</th>
                             <th class="text-right text-nowrap">Current Bid</th>
                             <th class="text-center text-nowrap">Status</th>
                             <th class="text-nowrap">End Time</th>
-                            <th width="120" class="text-center text-nowrap">Action</th>
+                            <th width="100" class="text-center text-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -222,8 +247,9 @@
                 },
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 columns: [
-                    {data: 'id', name: 'id', className: 'text-center font-weight-bold'},
-                    {data: 'image', name: 'image', orderable: false, searchable: false, className: 'text-center'},
+                    {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, className: 'text-center'},
+                    {data: 'id', name: 'id', className: 'text-center font-weight-bold px-1'},
+                    {data: 'image', name: 'image', orderable: false, searchable: false, className: 'text-center px-1'},
                     {data: 'title', name: 'title'},
                     {data: 'category', name: 'category.name'},
                     {data: 'user', name: 'user.name'},
@@ -338,6 +364,123 @@
                     }
                 })
             });
+
+            // Clear selection button
+            $(document).on('click', '#clearSelection', function() {
+                $('.auction-checkbox').prop('checked', false);
+                $('#selectAll').prop('checked', false);
+                toggleBulkActions();
+            });
+
+            // Bulk Actions Logic
+            $(document).on('change', '#selectAll', function() {
+                $('.auction-checkbox').prop('checked', this.checked);
+                toggleBulkActions();
+            });
+
+            $(document).on('change', '.auction-checkbox', function() {
+                if ($('.auction-checkbox:checked').length == $('.auction-checkbox').length && $('.auction-checkbox').length > 0) {
+                    $('#selectAll').prop('checked', true);
+                } else {
+                    $('#selectAll').prop('checked', false);
+                }
+                toggleBulkActions();
+            });
+
+            table.on('draw', function() {
+                $('#selectAll').prop('checked', false);
+                toggleBulkActions();
+            });
+
+            function toggleBulkActions() {
+                var checkedCheckboxes = $('.auction-checkbox:checked');
+                var checkedCount = checkedCheckboxes.length;
+                
+                if (checkedCount > 0) {
+                    var anyTrashed = false;
+                    var anyActive = false;
+                    
+                    checkedCheckboxes.each(function() {
+                        if ($(this).attr('data-is-trashed') == '1') {
+                            anyTrashed = true;
+                        } else {
+                            anyActive = true;
+                        }
+                    });
+                    
+                    var options = '<option value="" selected disabled hidden>Choose Action...</option>';
+                    
+                    if (anyTrashed && !anyActive) {
+                        // All selected are trashed
+                        options += '<option value="restore">Restore Selected</option>';
+                        options += '<option value="force_delete">Delete Permanently</option>';
+                    } else if (!anyTrashed && anyActive) {
+                        // All selected are NOT trashed
+                        options += '<option value="approve">Approve Selected</option>';
+                        options += '<option value="delete">Move to Trash</option>';
+                    } else {
+                        // Mixed selection
+                        options += '<option value="" disabled>Cannot mix Active & Trashed</option>';
+                    }
+                    
+                    $('#bulkActionSelect').html(options);
+                    $('#selectedCount').text(checkedCount);
+                    $('#bulkActionsContainer').fadeIn(200);
+                } else {
+                    $('#bulkActionsContainer').fadeOut(200);
+                }
+            }
+
+            $('#applyBulkAction').on('click', function() {
+                var action = $('#bulkActionSelect').val();
+                if (!action) {
+                    Swal.fire('Warning', 'Please select an action first.', 'warning');
+                    return;
+                }
+
+                var selectedIds = [];
+                $('.auction-checkbox:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+
+                if (selectedIds.length === 0) return;
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'You are about to perform this action on ' + selectedIds.length + ' auction(s).',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#4e73df',
+                    cancelButtonColor: '#858796',
+                    confirmButtonText: 'Yes, proceed!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('admin.auctions.bulk_action') }}",
+                            type: 'POST',
+                            data: {
+                                ids: selectedIds,
+                                action: action
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    Swal.fire('Success!', response.message, 'success');
+                                    table.draw();
+                                    $('#selectAll').prop('checked', false);
+                                    $('#bulkActionsContainer').fadeOut();
+                                    $('#bulkActionSelect').val('');
+                                } else {
+                                    Swal.fire('Error!', response.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
         });
     </script>
 @endpush

@@ -44,6 +44,7 @@ class AdminKycController extends Controller
 
         return DataTables::of($kycs)
             ->addIndexColumn()
+
             ->filterColumn('user', function($query, $keyword) {
                 $query->whereHas('user', function($q) use ($keyword) {
                     $q->where('username', 'like', "%{$keyword}%")
@@ -121,4 +122,6 @@ class AdminKycController extends Controller
 
         return redirect()->back()->with('success', 'KYC rejected with note.');
     }
+
+
 }

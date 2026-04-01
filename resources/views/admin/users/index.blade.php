@@ -155,14 +155,41 @@
 
     <!-- Directory Card -->
     <div class="card shadow-sm border-0 rounded-lg">
-        <div class="card-header py-3 bg-white border-bottom d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-id-badge mr-2 text-primary"></i>User Directory</h6>
+        <div class="card-header py-3 px-4 bg-white d-flex align-items-center justify-content-between" style="min-height: 60px;">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-id-badge mr-2 text-primary"></i>User Directory
+            </h6>
+            
+            <!-- Bulk Actions (Injected inside Directory Header) -->
+            <div id="bulkActionsContainer" style="display: none;">
+                <div class="d-flex align-items-center">
+                    
+                    <div class="d-flex align-items-center mr-4">
+                        <span class="text-primary font-weight-bold mr-2 text-nowrap" style="font-size: 0.9rem;">
+                            <i class="fas fa-check-square mr-1"></i><span id="selectedCount">0</span> Selected
+                        </span>
+                        <button type="button" id="clearSelection" class="btn btn-outline-danger btn-action" title="Clear Selection">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <select id="bulkActionSelect" class="custom-select custom-select-sm border-primary text-primary mr-2 shadow-sm" style="width: 200px;">
+                            <!-- Options populated via JS -->
+                        </select>
+                        <button type="button" id="applyBulkAction" class="btn btn-outline-primary btn-action" title="Apply Action">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive px-3 py-4">
                 <table class="table table-hover border-bottom" id="users-table" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+                            <th width="30" class="text-center pr-1"><div class="custom-control custom-checkbox"><input type="checkbox" class="custom-control-input" id="selectAll"><label class="custom-control-label" for="selectAll"></label></div></th>
                             <th width="30">Id</th>
                             <th>Name</th>
                             <th>Email</th>
@@ -219,6 +246,7 @@
                 info: "Showing _START_ to _END_ of _TOTAL_ users"
             },
             columns: [
+                {data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, className: 'text-center'},
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-muted text-center'},
                 {data: 'name', name: 'name', className: 'font-weight-bold text-dark'},
                 {data: 'email', name: 'email', className: 'text-muted'},
@@ -341,6 +369,118 @@
                     });
                 }
             })
+        });
+
+        // Clear selection button
+        $(document).on('click', '#clearSelection', function() {
+            $('.user-checkbox').prop('checked', false);
+            $('#selectAll').prop('checked', false);
+            toggleBulkActions();
+        });
+
+        // Bulk Actions Logic
+        $(document).on('change', '#selectAll', function() {
+            $('.user-checkbox').prop('checked', this.checked);
+            toggleBulkActions();
+        });
+
+        $(document).on('change', '.user-checkbox', function() {
+            if ($('.user-checkbox:checked').length == $('.user-checkbox').length && $('.user-checkbox').length > 0) {
+                $('#selectAll').prop('checked', true);
+            } else {
+                $('#selectAll').prop('checked', false);
+            }
+            toggleBulkActions();
+        });
+
+        table.on('draw', function() {
+            $('#selectAll').prop('checked', false);
+            toggleBulkActions();
+        });
+
+        function toggleBulkActions() {
+            var checkedCheckboxes = $('.user-checkbox:checked');
+            var checkedCount = checkedCheckboxes.length;
+            
+            if (checkedCount > 0) {
+                var anyTrashed = false;
+                var anyActive = false;
+                
+                checkedCheckboxes.each(function() {
+                    if ($(this).attr('data-is-trashed') == '1') {
+                        anyTrashed = true;
+                    } else {
+                        anyActive = true;
+                    }
+                });
+                
+                var options = '<option value="" selected disabled hidden>Choose Action...</option>';
+                
+                if (anyTrashed && !anyActive) {
+                    options += '<option value="restore">Restore Selected</option>';
+                    options += '<option value="force_delete">Delete Permanently</option>';
+                } else if (!anyTrashed && anyActive) {
+                    options += '<option value="delete">Suspend / Block Selected</option>';
+                } else {
+                    options += '<option value="" disabled>Cannot mix Active & Suspended</option>';
+                }
+                
+                $('#bulkActionSelect').html(options);
+                $('#selectedCount').text(checkedCount);
+                $('#bulkActionsContainer').fadeIn(200);
+            } else {
+                $('#bulkActionsContainer').fadeOut(200);
+            }
+        }
+
+        $('#applyBulkAction').on('click', function() {
+            var action = $('#bulkActionSelect').val();
+            if (!action) {
+                Swal.fire('Warning', 'Please select an action first.', 'warning');
+                return;
+            }
+
+            var selectedIds = [];
+            $('.user-checkbox:checked').each(function() {
+                selectedIds.push($(this).val());
+            });
+
+            if (selectedIds.length === 0) return;
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'You are about to perform this action on ' + selectedIds.length + ' user(s).',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4e73df',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Yes, proceed!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: "{{ route('admin.users.bulk_action') }}",
+                        type: 'POST',
+                        data: {
+                            ids: selectedIds,
+                            action: action
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire('Success!', response.message, 'success');
+                                table.draw();
+                                $('#selectAll').prop('checked', false);
+                                $('#bulkActionsContainer').fadeOut();
+                                $('#bulkActionSelect').val('');
+                            } else {
+                                Swal.fire('Error!', response.message, 'error');
+                            }
+                        },
+                        error: function(xhr) {
+                            Swal.fire('Error!', xhr.responseJSON?.message || 'Something went wrong.', 'error');
+                        }
+                    });
+                }
+            });
         });
     });
 </script>

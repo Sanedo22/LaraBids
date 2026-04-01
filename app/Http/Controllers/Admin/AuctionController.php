@@ -28,6 +28,10 @@ class AuctionController extends Controller
                 ->withTrashed();
 
             return DataTables::of($data)
+                ->addColumn('checkbox', function($row){
+                    $isTrashed = $row->trashed() ? '1' : '0';
+                    return '<div class="custom-control custom-checkbox text-center"><input type="checkbox" class="custom-control-input auction-checkbox" id="chk_'.$row->id.'" value="'.$row->id.'" data-is-trashed="'.$isTrashed.'"><label class="custom-control-label" for="chk_'.$row->id.'"></label></div>';
+                })
                 ->addColumn('id', function ($row) {
                     return '<span class="copy-id font-weight-bold" onclick="copyToClipboard(\''.$row->id.'\', this)" title="Click to copy ID">#'.str_pad($row->id, 5, '0', STR_PAD_LEFT).' <i class="far fa-copy ml-1"></i></span>';
                 })
@@ -176,7 +180,7 @@ class AuctionController extends Controller
                     return $btn;
                 })
 
-                ->rawColumns(['id', 'image', 'title', 'category', 'status', 'action'])
+                ->rawColumns(['checkbox', 'id', 'image', 'title', 'category', 'status', 'action'])
 
                 ->filter(function ($query) {
                     if (request()->has('search') && isset(request('search')['value'])) {
@@ -278,6 +282,63 @@ class AuctionController extends Controller
         return request()->ajax()
             ? response()->json(['success' => 'Auction permanently deleted.'])
             : redirect()->route('admin.auctions.index')->with('success', 'Auction permanently deleted.');
+    }
+
+    // Bulk Actions
+    public function bulkAction(Request $request)
+    {
+        $ids = $request->ids;
+        $action = $request->action;
+
+        if (!$ids || !is_array($ids)) {
+            return response()->json(['success' => false, 'message' => 'No items selected.']);
+        }
+
+        $count = count($ids);
+
+        try {
+            switch ($action) {
+                case 'approve':
+                    $auctions = Auction::whereIn('id', $ids)->where('status', 'pending')->get();
+                    $approvedCount = 0;
+                    foreach ($auctions as $auction) {
+                        if (!$auction->end_time || !$auction->end_time->isPast()) {
+                            $this->auctionService->updateStatus($auction, 'active');
+                            $approvedCount++;
+                        }
+                    }
+                    $message = $approvedCount . ' auction(s) approved.';
+                    break;
+
+                case 'delete':
+                    foreach ($ids as $id) {
+                        $this->auctionService->deleteAuction($id);
+                    }
+                    $message = $count . ' auction(s) deleted.';
+                    break;
+                    
+                case 'force_delete':
+                    foreach ($ids as $id) {
+                        $this->auctionService->forceDeleteAuction($id);
+                    }
+                    $message = $count . ' auction(s) permanently deleted.';
+                    break;
+                    
+                case 'restore':
+                    foreach ($ids as $id) {
+                        $this->auctionService->restoreAuction($id);
+                    }
+                    $message = $count . ' auction(s) restored.';
+                    break;
+
+                default:
+                    return response()->json(['success' => false, 'message' => 'Invalid action.']);
+            }
+
+            return response()->json(['success' => true, 'message' => $message]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred.']);
+        }
     }
 }
     

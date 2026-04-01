@@ -59,6 +59,10 @@ class CategoryController extends Controller
 
             return DataTables::of($data)
                 ->addIndexColumn()
+                ->addColumn('checkbox', function($row){
+                    $isTrashed = $row->trashed() ? 1 : 0;
+                    return '<div class="custom-control custom-checkbox text-center"><input type="checkbox" class="custom-control-input category-checkbox" id="cat_'.$row->id.'" value="'.$row->id.'" data-is-trashed="'.$isTrashed.'"><label class="custom-control-label" for="cat_'.$row->id.'"></label></div>';
+                })
                 ->addColumn('icon', function($row){
                     $icon = $row->icon ?? 'fas fa-tag';
                     return '<i class="'.$icon.' text-primary"></i>';
@@ -93,7 +97,7 @@ class CategoryController extends Controller
                     $btn .= '</div>';
                     return $btn;
                 })
-                ->rawColumns(['icon', 'parent', 'count', 'action'])
+                ->rawColumns(['checkbox', 'icon', 'parent', 'count', 'action'])
                 ->make(true);
         }
 
@@ -207,5 +211,64 @@ class CategoryController extends Controller
         }
 
         return redirect()->back()->with('success', 'Category permanently deleted');
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'action' => 'required|string|in:delete,restore,force_delete'
+        ]);
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            $categories = Category::withTrashed()->whereIn('id', $ids)->get();
+            $processedCount = 0;
+            $skippedCount = 0;
+
+            foreach ($categories as $category) {
+                if ($action === 'delete') {
+                    $category->delete();
+                    $processedCount++;
+                } elseif ($action === 'restore') {
+                    $category->restore();
+                    $processedCount++;
+                } elseif ($action === 'force_delete') {
+                    if ($category->auctions()->exists() || $category->auctions_count > 0) {
+                        $skippedCount++;
+                        continue; // Skip deleting categories with auctions
+                    }
+                    $category->forceDelete();
+                    $processedCount++;
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $actionMessage = '';
+            if ($action === 'delete') $actionMessage = 'moved to trash';
+            if ($action === 'restore') $actionMessage = 'restored';
+            if ($action === 'force_delete') $actionMessage = 'permanently deleted';
+
+            $message = "{$processedCount} categor(ies) have been successfully {$actionMessage}.";
+            if ($skippedCount > 0) {
+                $message .= " {$skippedCount} categor(ies) were skipped because they have assigned auctions.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while performing bulk action.'
+            ], 500);
+        }
     }
 }

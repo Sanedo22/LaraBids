@@ -121,6 +121,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // Auctions
         Route::get('/auctions', [AdminAuctionController::class, 'index'])->name('auctions.index');
+        Route::post('/auctions/bulk-action', [AdminAuctionController::class, 'bulkAction'])->name('auctions.bulk_action');
         Route::get('/auctions/{auction}', [AdminAuctionController::class, 'show'])->name('auctions.show');
         Route::post('/auctions/{auction}/restore', [AdminAuctionController::class, 'restore'])->name('auctions.restore');
         Route::post('/auctions/{auction}/approve', [AdminAuctionController::class, 'approve'])->name('auctions.approve');
@@ -129,6 +130,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
         Route::delete('/auctions/{auction}/force-delete', [AdminAuctionController::class, 'forceDelete'])->name('auctions.force_delete');
 
         // Users
+        Route::post('users/bulk-action', [UserController::class, 'bulkAction'])->name('users.bulk_action');
         Route::post('users/send-otp', [UserController::class, 'sendOtp'])
             ->middleware('throttle:5,1')
             ->name('users.send_otp');
@@ -139,6 +141,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // Payments
         Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
+
         Route::get('/payments/export', [PaymentController::class, 'export'])->name('payments.export');
         Route::get('/payments/{payment}', [PaymentController::class, 'show'])->name('payments.show');
         Route::post('/payments/{payment}/mark-payout-paid', [PaymentController::class, 'markPayoutPaid'])->name('payments.mark_payout_paid');
@@ -146,12 +149,14 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
 
         // Categories
+        Route::post('categories/bulk-action', [CategoryController::class, 'bulkAction'])->name('categories.bulk_action');
         Route::post('categories/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle_status');
         Route::post('categories/{category}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
         Route::delete('categories/{category}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.force_delete');
         Route::resource('categories', CategoryController::class);
 
         // Contacts
+        Route::post('/contacts/bulk-action', [ContactController::class, 'bulkAction'])->name('contacts.bulk_action');
         Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
         Route::get('/contacts/{contact}', [ContactController::class, 'show'])->name('contacts.show');
         Route::put('/contacts/{contact}', [ContactController::class, 'update'])->name('contacts.update');
@@ -166,6 +171,7 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // KYC Management
         Route::get('/kyc', [AdminKycController::class, 'index'])->name('kyc.index');
+
         Route::get('/kyc/data', [AdminKycController::class, 'data'])->name('kyc.data');
         Route::get('/kyc/{id}', [AdminKycController::class, 'show'])->name('kyc.show');
         Route::post('/kyc/{id}/approve', [AdminKycController::class, 'approve'])->name('kyc.approve');

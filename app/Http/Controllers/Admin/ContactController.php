@@ -46,6 +46,11 @@ class ContactController extends Controller
             return DataTables::of($contacts)
                 ->addIndexColumn()
 
+                ->addColumn('checkbox', function($contact){
+                    $isTrashed = $contact->trashed() ? 1 : 0;
+                    return '<div class="custom-control custom-checkbox text-center"><input type="checkbox" class="custom-control-input contact-checkbox" id="contact_'.$contact->id.'" value="'.$contact->id.'" data-is-trashed="'.$isTrashed.'"><label class="custom-control-label" for="contact_'.$contact->id.'"></label></div>';
+                })
+
                 ->addColumn('status_badge', function ($contact) {
 
                     if ($contact->trashed()) {
@@ -91,7 +96,7 @@ class ContactController extends Controller
                     return $btn;
                 })
 
-                ->rawColumns(['status_badge', 'action'])
+                ->rawColumns(['checkbox', 'status_badge', 'action'])
                 ->make(true);
         }
 
@@ -183,5 +188,49 @@ class ContactController extends Controller
             'success' => true,
             'message' => 'Contact restored successfully!',
         ]);
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'action' => 'required|string|in:delete,restore'
+        ]);
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            $contacts = Contact::withTrashed()->whereIn('id', $ids)->get();
+
+            foreach ($contacts as $contact) {
+                if ($action === 'delete') {
+                    $contact->deleted_by = auth()->id();
+                    $contact->save();
+                    $contact->delete();
+                } elseif ($action === 'restore') {
+                    $contact->restore();
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $actionMessage = '';
+            if ($action === 'delete') $actionMessage = 'moved to trash';
+            if ($action === 'restore') $actionMessage = 'restored';
+
+            return response()->json([
+                'success' => true,
+                'message' => count($ids) . " contact(s) have been successfully {$actionMessage}."
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while performing bulk action.'
+            ], 500);
+        }
     }
 }

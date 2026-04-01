@@ -29,6 +29,7 @@ class PaymentController extends Controller
 
             return DataTables::of($query)
                 ->addIndexColumn()
+
                 ->editColumn('txnid', function ($row) {
                     return '<div class="text-dark">' . e($row->txnid) . '</div>';
                 })
@@ -157,4 +158,6 @@ class PaymentController extends Controller
 
         return redirect()->back()->with('success', 'Payout marked as paid successfully.');
     }
+
+
 }

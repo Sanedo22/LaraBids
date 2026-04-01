@@ -209,17 +209,22 @@
 
     <!-- Detailed Directory Card -->
     <div class="card shadow-sm border-0 rounded-lg overflow-hidden">
-        <div class="card-header py-3 bg-white border-bottom d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-list-ul mr-2 text-primary"></i>Detailed Payment Directory</h6>
-            <button id="exportCsv" class="btn btn-outline-success btn-sm font-weight-bold px-3">
-                <i class="fas fa-file-csv mr-1"></i> Export Excel
-            </button>
+        <div class="card-header py-3 px-4 bg-white border-bottom d-flex flex-row align-items-center justify-content-between" style="min-height: 60px;">
+            <div class="d-flex align-items-center">
+                <h6 class="m-0 font-weight-bold text-dark mr-3"><i class="fas fa-list-ul mr-2 text-primary"></i>Detailed Payment Directory</h6>
+                <button id="exportCsv" class="btn btn-outline-success btn-sm font-weight-bold px-3">
+                    <i class="fas fa-file-csv mr-1"></i> Export Excel
+                </button>
+            </div>
+            
+
         </div>
         <div class="card-body p-0">
             <div class="table-responsive px-3 py-4">
                 <table class="table table-hover border-bottom" id="payment-table" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+
                             <th width="40" class="text-center text-nowrap">Id</th>
                             <th class="text-nowrap" style="min-width: 200px;">Transaction Details</th>
                             <th class="text-nowrap">Buyer Info</th>
@@ -268,6 +273,7 @@
                 },
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 columns: [
+
                     {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-muted text-center'},
                     {data: 'txnid', name: 'txnid'},
                     {data: 'user', name: 'user.name'},
@@ -311,6 +317,8 @@
                 
                 table.search('').draw();
             });
+
+
         });
 
         function markAsPaid(id) {

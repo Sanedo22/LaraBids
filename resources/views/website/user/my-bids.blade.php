@@ -26,12 +26,10 @@
                 <select id="categoryFilter" class="form-select filter-control">
                     <option value="" selected>All Categories</option>
                     @foreach($categories as $cat)
-                        <optgroup label="{{ $cat->name }}">
-                            <option value="{{ $cat->slug }}">{{ $cat->name }} (All)</option>
-                            @foreach($cat->children as $child)
-                                <option value="{{ $child->slug }}">&nbsp;&nbsp;&mdash; {{ $child->name }}</option>
-                            @endforeach
-                        </optgroup>
+                        <option value="{{ $cat->slug }}" class="fw-bold">{{ $cat->name }}</option>
+                        @foreach($cat->children as $child)
+                            <option value="{{ $child->slug }}">&nbsp;&nbsp;&bull; {{ $child->name }}</option>
+                        @endforeach
                     @endforeach
                 </select>
             </div>

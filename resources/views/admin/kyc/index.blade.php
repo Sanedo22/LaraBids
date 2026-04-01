@@ -69,14 +69,19 @@
     </div>
 
     <div class="card shadow-sm border-0 rounded-lg mt-4">
-        <div class="card-header py-3 bg-white border-bottom d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-dark"><i class="fas fa-list-ul mr-2 text-primary"></i>KYC Submissions Monitoring</h6>
+        <div class="card-header py-3 px-4 bg-white border-bottom d-flex flex-row align-items-center justify-content-between" style="min-height: 60px;">
+            <h6 class="m-0 font-weight-bold text-dark">
+                <i class="fas fa-list-ul mr-2 text-primary"></i>KYC Submissions Monitoring
+            </h6>
+            
+
         </div>
         <div class="card-body p-0">
             <div class="table-responsive px-3 py-4">
                 <table class="table table-hover border-bottom" id="kyc-table" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+
                             <th width="50" class="text-center text-nowrap">Id</th>
                             <th>User</th>
                             <th>Full Name</th>
@@ -203,6 +208,7 @@
                 },
                 dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
                 columns: [
+
                     {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, className: 'text-muted text-center'},
                     { data: 'user', name: 'user' },
                     { data: 'full_name', name: 'full_name', className: 'font-weight-bold text-dark' },
@@ -230,6 +236,8 @@
                 $('#filter-form')[0].reset();
                 table.draw();
             });
+
+
         });
     </script>
 @endpush
