@@ -107,8 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const url = form.getAttribute('action');
             const csrf = form.querySelector('input[name="_token"]').value;
 
-            // Optional: Add loading state
-            button.style.opacity = '0.5';
+            // Loading state
+            const originalIconClass = icon.className;
+            icon.className = 'fas fa-spinner fa-spin';
             button.disabled = true;
 
             try {
@@ -126,33 +127,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    // Fallback to normal submission if not JSON
-                    form.submit();
-                    return;
-                }
-
                 const data = await response.json();
 
                 if (data.status === 'added') {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas', 'text-danger');
+                    icon.className = 'fas fa-heart text-danger';
+                    showToast('success', 'Added to watchlist');
                 } else if (data.status === 'removed') {
-                    icon.classList.remove('fas', 'text-danger');
-                    icon.classList.add('far');
+                    icon.className = 'far fa-heart';
+                    showToast('info', 'Removed from watchlist');
 
-                    // If we are on the watchlist page, remove the row
                     if (window.location.pathname.includes('/user/watchlist')) {
                         const row = form.closest('tr');
                         if (row) {
                             row.style.opacity = '0';
                             setTimeout(() => {
                                 row.remove();
-                                // Check if table is empty
-                                const tbody = document.querySelector('tbody');
-                                if (tbody && tbody.children.length === 0) {
-                                    window.location.reload(); // Simple way to show empty state
+                                if (document.querySelector('tbody').children.length === 0) {
+                                    window.location.reload();
                                 }
                             }, 300);
                         }
@@ -160,12 +151,82 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Watchlist toggle failed:', error);
+                icon.className = originalIconClass;
+                showToast('error', 'Something went wrong');
             } finally {
-                button.style.opacity = '1';
                 button.disabled = false;
             }
         });
     });
+
+    // --- Auction Registration System (AJAX) ---
+    const registrationForms = document.querySelectorAll('.registration-form');
+    registrationForms.forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const button = form.querySelector('button');
+            const originalHtml = button.innerHTML;
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Registering...';
+            button.disabled = true;
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Registration Successful!',
+                        text: data.message,
+                        confirmButtonText: 'Great!',
+                        confirmButtonColor: '#4e73df',
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        window.location.reload(); // Reload to show bid form
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.message || 'Registration failed.',
+                        confirmButtonColor: '#e74a3b'
+                    });
+                    button.innerHTML = originalHtml;
+                    button.disabled = false;
+                }
+            } catch (error) {
+                console.error('Registration failed:', error);
+                button.innerHTML = originalHtml;
+                button.disabled = false;
+            }
+        });
+    });
+
+    // Helper: Show Toast
+    function showToast(icon, title) {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        Toast.fire({ icon, title });
+    }
 
     // --- Search Reset System ---
     const searchInput = document.querySelector('.nav-search input[name="q"]');
@@ -189,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const path = window.location.pathname;
         const isContactPage = path === '/contact' || path === '/contact/';
         const isAuctionShowPage = /^\/auctions\/\d+$/.test(path);
-        
+
         // Sirf in 2 pages par auto dismiss chalega
         if (!isContactPage && !isAuctionShowPage) {
             return;

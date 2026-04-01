@@ -108,7 +108,7 @@
                                 @endif
                             </div>
                         </div>
-                        <a href="#" class="hibid-contact-btn">Contact</a>
+                        <a href="{{ route('sellers.show', $auction->user->id) }}" class="hibid-contact-btn">Contact</a>
                     </div>
                 </div>
             </div>
@@ -241,7 +241,7 @@
                                         <h5 class="fw-bold mb-1">Join this Auction</h5>
                                         <p class="text-muted small mb-0">Register now to unlock bidding permissions for this item.</p>
                                     </div>
-                                    <form action="{{ route('user.auctions.register', $auction->id) }}" method="POST">
+                                    <form action="{{ route('user.auctions.register', $auction->id) }}" method="POST" class="registration-form">
                                         @csrf
                                         <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm transition-all">
                                             Register for Auction <i class="fas fa-arrow-right ms-2"></i>

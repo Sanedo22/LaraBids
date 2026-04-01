@@ -61,9 +61,9 @@
 
                             @forelse(auth()->user()->notifications()->take(3)->get() as $notification)
                                 <li>
-                                    <a class="dropdown-item d-flex align-items-center p-3 border-bottom {{ $notification->read_at ? 'bg-white' : 'bg-light' }}" 
-                                       href="{{ (isset($notification->data['link']) && str_contains($notification->data['link'], 'messages')) ? '#' : ($notification->data['link'] ?? route('user.notifications.index')) }}"
-                                       onclick="event.preventDefault(); document.getElementById('mark-read-{{ $notification->id }}').submit();">
+                                    <a class="dropdown-item d-flex align-items-center p-3 border-bottom {{ $notification->read_at ? 'bg-white' : 'bg-light' }} notification-link" 
+                                       href="{{ $notification->data['link'] ?? route('user.notifications.index') }}"
+                                       data-id="{{ $notification->id }}">
                                         <div class="me-3">
                                             <div class="bg-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'danger' : 'primary' }} text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
                                                 <i class="fas fa-{{ isset($notification->data['type']) && $notification->data['type'] === 'auction_cancelled' ? 'gavel' : 'bell' }} fa-sm"></i>
@@ -77,9 +77,6 @@
                                             <div class="text-secondary text-truncate small" style="font-size: 0.75rem;">{{ $notification->data['message'] ?? '' }}</div>
                                         </div>
                                     </a>
-                                    <form id="mark-read-{{ $notification->id }}" action="{{ route('user.notifications.read', $notification->id) }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
                                 </li>
                             @empty
                                 <li>
@@ -162,3 +159,50 @@
 
 
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const notificationLinks = document.querySelectorAll('.notification-link');
+    if (notificationLinks.length > 0) {
+        notificationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const notificationId = this.getAttribute('data-id');
+                const targetUrl = this.getAttribute('href');
+                
+                // Function to handle navigation
+                const navigate = () => {
+                    if (targetUrl && targetUrl !== '#' && targetUrl !== 'javascript:void(0)') {
+                        window.location.href = targetUrl;
+                    } else {
+                        // If no link, just reload to update the UI
+                        window.location.reload();
+                    }
+                };
+
+                // If it's already read, just navigate
+                if (this.classList.contains('bg-white')) {
+                    navigate();
+                    return;
+                }
+
+                // AJAX to mark as read
+                fetch(`/user/notifications/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                }).then(response => {
+                    navigate();
+                }).catch(error => {
+                    console.error('Error marking notification as read:', error);
+                    navigate();
+                });
+            });
+        });
+    }
+});
+</script>
+@endpush

@@ -15,7 +15,7 @@
                     <div class="card border-0 shadow-sm rounded-4 mb-3 p-4 filter-sidebar">
                         <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
                             <h5 class="fw-bold mb-0"><i class="fas fa-filter text-primary me-2"></i>Filters</h5>
-                            <a href="{{ route('auctions.index') }}" class="text-primary small fw-semibold text-decoration-none hover-underline">Clear All</a>
+                            <a href="{{ route('auctions.index') }}" class="text-primary small fw-semibold text-decoration-none hover-underline ajax-filter-link" id="clear-all-filters">Clear All</a>
                         </div>
 
                         <form action="{{ route('auctions.index') }}" method="GET" id="filterForm">
@@ -31,7 +31,7 @@
                                             <i class="fas fa-bolt me-2 {{ $status == 'live' ? 'text-primary' : 'text-muted' }}" style="width: 20px;"></i>
                                             <span class="small">Live Auctions</span>
                                         </div>
-                                        <input type="radio" name="status" value="live" class="d-none" {{ $status == 'live' ? 'checked' : '' }} onchange="this.form.submit()">
+                                        <input type="radio" name="status" value="live" class="d-none status-filter-input" {{ $status == 'live' ? 'checked' : '' }}>
                                         @if($status == 'live') <i class="fas fa-check-circle small"></i> @endif
                                     </label>
 
@@ -40,7 +40,7 @@
                                             <i class="fas fa-calendar-alt me-2 {{ $status == 'upcoming' ? 'text-primary' : 'text-muted' }}" style="width: 20px;"></i>
                                             <span class="small">Upcoming</span>
                                         </div>
-                                        <input type="radio" name="status" value="upcoming" class="d-none" {{ $status == 'upcoming' ? 'checked' : '' }} onchange="this.form.submit()">
+                                        <input type="radio" name="status" value="upcoming" class="d-none status-filter-input" {{ $status == 'upcoming' ? 'checked' : '' }}>
                                         @if($status == 'upcoming') <i class="fas fa-check-circle small"></i> @endif
                                     </label>
 
@@ -49,7 +49,7 @@
                                             <i class="fas fa-history me-2 {{ $status == 'past' ? 'text-primary' : 'text-muted' }}" style="width: 20px;"></i>
                                             <span class="small">Closed</span>
                                         </div>
-                                        <input type="radio" name="status" value="past" class="d-none" {{ $status == 'past' ? 'checked' : '' }} onchange="this.form.submit()">
+                                        <input type="radio" name="status" value="past" class="d-none status-filter-input" {{ $status == 'past' ? 'checked' : '' }}>
                                         @if($status == 'past') <i class="fas fa-check-circle small"></i> @endif
                                     </label>
                                 </div>
@@ -61,7 +61,7 @@
                                 <div class="category-sidebar-nav">
                                     <ul class="list-unstyled mb-0 category-tree-list">
                                         <li class="mb-2">
-                                            <a href="{{ route('auctions.index', request()->except('category')) }}" class="category-link {{ !request('category') ? 'active' : '' }}">
+                                            <a href="{{ route('auctions.index', request()->except('category')) }}" class="category-link ajax-filter-link {{ !request('category') ? 'active' : '' }}">
                                                 <i class="fas fa-th-large me-2"></i> All Categories
                                             </a>
                                         </li>
@@ -75,7 +75,7 @@
                                             <li class="category-item mb-1 {{ $hasChildren ? 'has-sub' : '' }} {{ $isActiveParent ? 'open' : '' }}">
                                                 <div class="d-flex align-items-center justify-content-between">
                                                     <a href="{{ route('auctions.index', array_merge(request()->query(), ['category' => $category->slug])) }}" 
-                                                       class="category-link flex-grow-1 {{ $isCurrentCat ? 'active fw-bold' : '' }}">
+                                                       class="category-link ajax-filter-link flex-grow-1 {{ $isCurrentCat ? 'active fw-bold' : '' }}">
                                                         <i class="{{ $category->icon ?? 'fas fa-chevron-right' }} me-2 opacity-75"></i> {{ $category->name }}
                                                     </a>
                                                     @if($hasChildren)
@@ -90,7 +90,7 @@
                                                         @foreach($category->children as $sub)
                                                             <li class="mb-1">
                                                                 <a href="{{ route('auctions.index', array_merge(request()->query(), ['category' => $sub->slug])) }}" 
-                                                                   class="category-link py-1 ps-2 {{ request('category') == $sub->slug ? 'active fw-bold' : '' }}" style="font-size: 0.85rem;">
+                                                                   class="category-link ajax-filter-link py-1 ps-2 {{ request('category') == $sub->slug ? 'active fw-bold' : '' }}" style="font-size: 0.85rem;">
                                                                     <span class="subcategory-dot"></span> {{ $sub->name }}
                                                                 </a>
                                                             </li>
@@ -126,181 +126,19 @@
             </div>
 
             <!-- Auction Grid -->
-            <div class="col-md-8 col-lg-9">
-                <!-- Sorting Bar (Sticky under header) -->
-                <div class="sticky-top bg-white mb-4 shadow-sm rounded-4 px-4 py-3" style="top: 85px; z-index: 9; border: 1px solid rgba(0,0,0,0.06);">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <span class="text-secondary small fw-bold text-uppercase me-2" style="font-size: 0.72rem; letter-spacing: 0.05em;">Showing:</span>
-                            <span class="small fw-bold text-dark px-3 py-1 bg-light rounded-pill">{{ $auctions->total() }} Results</span>
-                        </div>
-                        
-                        <div class="d-flex align-items-center ms-auto">
-                            <div class="d-flex align-items-center bg-light rounded-3 px-3 py-1 border border-light">
-                                <label class="small fw-bold text-secondary text-uppercase me-2 mb-0 d-none d-md-inline-block" for="sortSelect" style="font-size: 0.65rem; letter-spacing: 0.05em;">Sort By:</label>
-                                <select id="sortSelect" class="form-select form-select-sm border-0 bg-transparent fw-bold text-dark cursor-pointer shadow-none py-2 ps-2 pe-5 w-auto" 
-                                        style="font-size: 0.9rem; min-width: 180px; background-position: right 10px center;" 
-                                        onchange="applySort(this.value)">
-                                    <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Newly Listed</option>
-                                    <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Price: Low to High</option>
-                                    <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Price: High to Low</option>
-                                    <option value="ending_soon" {{ request('sort') == 'ending_soon' ? 'selected' : '' }}>Ending Soon</option>
-                                </select>
-                            </div>
-                        </div>
+            <div class="col-md-8 col-lg-9 position-relative">
+                <!-- Loading Overlay -->
+                <div id="loading-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-none flex-column align-items-center justify-content-center" 
+                     style="z-index: 100; background: rgba(255,255,255,0.7); backdrop-filter: blur(2px); border-radius: 1rem;">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
+                    <span class="fw-bold text-primary">Updating Auctions...</span>
                 </div>
 
-                <script>
-                    function applySort(sortValue) {
-                        const url = new URL(window.location.href);
-                        
-                        // Set the sort parameter
-                        url.searchParams.set('sort', sortValue);
-                        
-                        // If sorting by price, remove min/max price filters ("band ho jaye")
-                        if (sortValue === 'price_asc' || sortValue === 'price_desc') {
-                            url.searchParams.delete('min_price');
-                            url.searchParams.delete('max_price');
-                        }
-                        
-                        // If "Newly Listed" (default), remove sort param to clean URL
-                        if (sortValue === 'latest') {
-                            url.searchParams.delete('sort');
-                        }
-
-                        window.location.href = url.toString();
-                    }
-                </script>
-
-                <div class="row g-4">
-                    @forelse($auctions as $auction)
-                    <div class="col-md-6 col-xl-4">
-                        <div class="card card-elite h-100 position-relative shadow-sm border-0 rounded-4 overflow-hidden bg-white hover-shadow-lg transition-all">
-                            <a href="{{ route('auctions.show', $auction->id) }}" class="stretched-link"></a>
-                            <!-- Image Section -->
-                            <div class="position-relative overflow-hidden" style="height: 180px;">
-                                <div class="d-block w-100 h-100">
-                                    @if($auction->image)
-                                        <img src="{{ str_starts_with($auction->image, 'http') ? $auction->image : asset('storage/' . $auction->image) }}" class="card-img-top h-100 object-fit-cover shadow-sm transition-all" alt="{{ $auction->title }}">
-                                    @else
-                                        <img src="https://images.unsplash.com/photo-1523275335684-21481017106d?auto=format&fit=crop&w=1200"
-                                            class="card-img-top h-100 object-fit-cover shadow-sm transition-all" alt="{{ $auction->title }}">
-                                    @endif
-                                </div>
-                                <div class="position-absolute top-0 start-0 m-2" style="z-index: 2;">
-                                    <span class="badge bg-gold text-dark shadow-sm fw-bold" style="font-size: 0.7rem;">{{ $auction->category->name ?? 'Uncategorized' }}</span>
-                                </div>
-                                <div class="position-absolute top-0 end-0 m-2" style="z-index: 2;">
-                                    <form action="{{ route('user.watchlist.toggle', $auction->id) }}" method="POST" class="watchlist-toggle-form">
-                                        @csrf
-                                        <button type="submit" class="btn btn-white rounded-circle shadow-sm d-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px; border: none; background: rgba(255,255,255,0.8); backdrop-filter: blur(4px);">
-                                            <i class="{{ $auction->watchlists->isNotEmpty() ? 'fas' : 'far' }} fa-heart text-danger" style="font-size: 0.8rem;"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <!-- Content Section -->
-                            <div class="card-body p-3 d-flex flex-column flex-grow-1">
-                                @php
-                                    $now = \Carbon\Carbon::now();
-                                    $end = \Carbon\Carbon::parse($auction->end_time);
-                                    $start = \Carbon\Carbon::parse($auction->start_time);
-                                    $diff = $now->diff($end);
-                                    $isClosed = $now->greaterThan($end);
-                                    $isUpcoming = $now->lessThan($start);
-                                @endphp
-                                
-                                @if($isClosed)
-                                    <div class="alert alert-danger alert-permanent border-0 py-1 mb-2 text-center small fw-bold" style="font-size: 0.7rem; background: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                                        <i class="fas fa-times-circle me-1"></i> Auction Closed
-                                    </div>
-                                @elseif($isUpcoming)
-                                    <div class="alert alert-info alert-permanent py-1 mb-2 text-center small border-0 fw-bold" style="font-size: 0.7rem;">
-                                        <i class="fas fa-clock me-1"></i> Starts {{ $start->format('M d, H:i') }}
-                                    </div>
-                                @else
-                                <div class="glass-timer text-center py-1 timer-val mb-2 shadow-none border {{ ($diff->d == 0 && $diff->h == 0) ? 'urgent-timer' : '' }}" 
-                                    data-days="{{ $diff->d }}" 
-                                    data-hours="{{ $diff->h }}" 
-                                    data-min="{{ $diff->i }}" 
-                                    data-sec="{{ $diff->s }}">
-                                    <div class="row g-0 px-2">
-                                        <div class="col border-end border-light">
-                                            <div class="fw-bold fs-7" data-days>{{ sprintf('%02d', $diff->d) }}</div>
-                                            <small class="opacity-50 text-uppercase d-block" style="font-size: 0.5rem;">D</small>
-                                        </div>
-                                        <div class="col border-end border-light">
-                                            <div class="fw-bold fs-7" data-hours>{{ sprintf('%02d', $diff->h) }}</div>
-                                            <small class="opacity-50 text-uppercase d-block" style="font-size: 0.5rem;">H</small>
-                                        </div>
-                                        <div class="col border-end border-light">
-                                            <div class="fw-bold fs-7" data-min>{{ sprintf('%02d', $diff->i) }}</div>
-                                            <small class="opacity-50 text-uppercase d-block" style="font-size: 0.5rem;">M</small>
-                                        </div>
-                                        <div class="col">
-                                            <div class="fw-bold fs-7 text-primary" data-sec>{{ sprintf('%02d', $diff->s) }}</div>
-                                            <small class="opacity-50 text-uppercase d-block" style="font-size: 0.5rem;">S</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
-
-                                <h3 class="h6 mb-1 fw-bold text-dark text-truncate title-hover">
-                                    {{ $auction->title }}
-                                </h3>
-                                <div class="mb-2">
-                                    <span class="copy-id text-muted extra-small" style="font-size: 0.65rem;" onclick="event.preventDefault(); event.stopPropagation(); copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
-                                </div>
-                                
-                                <div class="d-flex align-items-center justify-content-between mb-3">
-                                    <div class="d-flex align-items-center">
-                                        @if($auction->user && $auction->user->avatar)
-                                            <img src="{{ str_starts_with($auction->user->avatar, 'http') ? $auction->user->avatar : asset('storage/' . $auction->user->avatar) }}" class="rounded-circle me-1 border" width="20" height="20" style="object-fit: cover;" alt="{{ $auction->user->name }}">
-                                        @else
-                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-1 border" style="width: 20px; height: 20px;">
-                                                <i class="fas fa-user text-secondary" style="font-size: 10px;"></i>
-                                            </div>
-                                        @endif
-                                        <span class="text-xs text-muted text-truncate" style="max-width: 80px;">{{ $auction->user->name ?? 'Seller' }}</span>
-                                    </div>
-                                    <span class="badge bg-light text-secondary border fw-normal text-xs px-2 py-1">
-                                        {{ $auction->bids->count() }} Bids
-                                    </span>
-                                </div>
-                                
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center mb-2 pt-2 border-top">
-                                        <span class="text-xs text-secondary fw-bold text-uppercase">{{ $isClosed ? 'Final Bid' : 'Current Bid' }}</span>
-                                        <span class="h6 mb-0 text-primary fw-bold">₹{{ number_format($auction->current_price, 2) }}</span>
-                                    </div>
-                                    <div class="btn {{ $isClosed ? 'btn-outline-secondary' : 'btn-primary' }} w-100 py-2 rounded-pill fw-bold shadow-sm transition-all btn-hover-effect" style="font-size: 0.8rem;">
-                                        @if($isClosed) CLOSED @elseif($isUpcoming) VIEW @else BID NOW @endif <i class="fas {{ $isClosed ? 'fa-lock' : 'fa-gavel' }} ms-1"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="col-12 py-5">
-                        <div class="text-center py-5">
-                            <div class="mb-3">
-                                <i class="fas fa-search fa-2x text-muted opacity-25"></i>
-                            </div>
-                            <h6 class="fw-bold text-secondary mb-1">No Auctions Found</h6>
-                            <a href="{{ route('auctions.index') }}" class="small text-decoration-none fw-bold">Reset Filters</a>
-                        </div>
-                    </div>
-                    @endforelse
+                <div id="auction-results-container">
+                    @include('website.auctions._auction_grid')
                 </div>
-
-                <!-- Pagination Footer -->
-                @if($auctions->hasPages())
-                <div class="mt-5 pt-4 border-top">
-                    {{ $auctions->onEachSide(1)->links('pagination::bootstrap-5') }}
-                </div>
-                @endif
             </div>
         </div>
     </div>
@@ -760,6 +598,210 @@
                 }
             });
         });
+
+        // --- AJAX FILTERING LOGIC ---
+        const filterForm = document.getElementById('filterForm');
+        const resultsContainer = document.getElementById('auction-results-container');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const sidebar = document.querySelector('.filter-sidebar');
+
+        function updateAuctions(url, pushState = true) {
+            loadingOverlay.classList.remove('d-none');
+            loadingOverlay.classList.add('d-flex');
+            resultsContainer.style.opacity = '0.5';
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.text())
+            .then(html => {
+                resultsContainer.innerHTML = html;
+                loadingOverlay.classList.add('d-none');
+                loadingOverlay.classList.remove('d-flex');
+                resultsContainer.style.opacity = '1';
+
+                if (pushState) {
+                    window.history.pushState({ path: url }, '', url);
+                }
+
+                // Refresh AOS animations for new elements
+                if (typeof AOS !== 'undefined') {
+                    AOS.refresh();
+                }
+
+                // Re-initialize any necessary UI components
+                if (typeof initializeTimers === 'function') {
+                    initializeTimers();
+                }
+
+                // Smooth scroll to results on mobile
+                if (window.innerWidth < 992) {
+                    const gridTop = resultsContainer.getBoundingClientRect().top + window.pageYOffset - 100;
+                    window.scrollTo({ top: gridTop, behavior: 'smooth' });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching auctions:', error);
+                loadingOverlay.classList.add('d-none');
+                loadingOverlay.classList.remove('d-flex');
+                resultsContainer.style.opacity = '1';
+            });
+        }
+
+        // Handle Status Radio Changes
+        document.querySelectorAll('.status-filter-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const formData = new FormData(filterForm);
+                const params = new URLSearchParams(formData);
+                
+                // Ensure current sorting is preserved if it exists in URL
+                const currentUrl = new URL(window.location.href);
+                if (currentUrl.searchParams.has('sort')) {
+                    params.set('sort', currentUrl.searchParams.get('sort'));
+                }
+
+                const url = `${window.location.pathname}?${params.toString()}`;
+                updateAuctions(url);
+
+                // Update Visuals (active state)
+                document.querySelectorAll('.status-filters label').forEach(lbl => {
+                    lbl.classList.remove('bg-primary-subtle', 'text-primary', 'fw-bold');
+                    lbl.classList.add('hover-bg-light', 'text-secondary');
+                    const icon = lbl.querySelector('i.fas');
+                    if(icon) icon.classList.replace('text-primary', 'text-muted');
+                    const check = lbl.querySelector('i.fa-check-circle');
+                    if(check) check.remove();
+                });
+
+                const parentLabel = this.closest('label');
+                parentLabel.classList.add('bg-primary-subtle', 'text-primary', 'fw-bold');
+                parentLabel.classList.remove('hover-bg-light', 'text-secondary');
+                const icon = parentLabel.querySelector('i.fas');
+                if(icon) icon.classList.replace('text-muted', 'text-primary');
+                parentLabel.insertAdjacentHTML('beforeend', '<i class="fas fa-check-circle small"></i>');
+            });
+        });
+
+        // Handle Category & Clear All Links
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('.ajax-filter-link');
+            if (link) {
+                e.preventDefault();
+                const url = link.getAttribute('href');
+                updateAuctions(url);
+
+                // Handle specifically the "Clear All" link (either in sidebar or bottom of grid)
+                if (link.id && link.id.startsWith('clear-all-filters')) {
+                    // 1. Reset Price Form
+                    filterForm.reset();
+
+                    // 2. Reset Status Visuals (Default to Live)
+                    document.querySelectorAll('.status-filters label').forEach(lbl => {
+                        lbl.classList.remove('bg-primary-subtle', 'text-primary', 'fw-bold');
+                        lbl.classList.add('hover-bg-light', 'text-secondary');
+                        const icon = lbl.querySelector('i.fas');
+                        if(icon) icon.classList.replace('text-primary', 'text-muted');
+                        const check = lbl.querySelector('i.fa-check-circle');
+                        if(check) check.remove();
+                    });
+
+                    // Set first one (Live) as active
+                    const liveLabel = document.querySelector('.status-filters label:first-child');
+                    if (liveLabel) {
+                        liveLabel.classList.add('bg-primary-subtle', 'text-primary', 'fw-bold');
+                        liveLabel.classList.remove('hover-bg-light', 'text-secondary');
+                        const liveIcon = liveLabel.querySelector('i.fas');
+                        if(liveIcon) liveIcon.classList.replace('text-muted', 'text-primary');
+                        liveLabel.insertAdjacentHTML('beforeend', '<i class="fas fa-check-circle small"></i>');
+                        const liveInput = liveLabel.querySelector('input');
+                        if(liveInput) liveInput.checked = true;
+                    }
+
+                    // 3. Reset Category Links
+                    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active', 'fw-bold'));
+                    const allCatLink = document.querySelector('.category-link[href*="auctions"]');
+                    if (allCatLink) allCatLink.classList.add('active');
+
+                    // 4. Close all category dropdowns
+                    document.querySelectorAll('.category-item.open').forEach(item => {
+                        item.classList.remove('open');
+                    });
+                }
+
+                // Update active state for categories
+                if (link.classList.contains('category-link')) {
+                    document.querySelectorAll('.category-link').forEach(l => l.classList.remove('active', 'fw-bold'));
+                    link.classList.add('active', 'fw-bold');
+
+                    // --- NEW: Auto-open sub-categories on click ---
+                    const parentItem = link.closest('.category-item');
+                    if (parentItem && parentItem.classList.contains('has-sub')) {
+                        // Close other items if they aren't parents of this one
+                        document.querySelectorAll('.category-item.open').forEach(item => {
+                            if (item !== parentItem) {
+                                item.classList.remove('open');
+                            }
+                        });
+                        // Open current item
+                        parentItem.classList.add('open');
+                    }
+                }
+            }
+        });
+
+        // Handle Form Submit (Price Range)
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const params = new URLSearchParams(formData);
+            
+            // Preserve category from URL if not in form (though it is usually a hidden input or part of URL)
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.has('category')) {
+                params.set('category', currentUrl.searchParams.get('category'));
+            }
+            if (currentUrl.searchParams.has('sort')) {
+                params.set('sort', currentUrl.searchParams.get('sort'));
+            }
+
+            const url = `${window.location.pathname}?${params.toString()}`;
+            updateAuctions(url);
+        });
+
+        // Handle Pagination Clicks
+        document.addEventListener('click', function(e) {
+            const paginationLink = e.target.closest('#pagination-container .page-link');
+            if (paginationLink) {
+                e.preventDefault();
+                const url = paginationLink.getAttribute('href');
+                if (url && url !== '#') {
+                    updateAuctions(url);
+                }
+            }
+        });
+
+        // Handle Popstate (Back/Forward browser buttons)
+        window.addEventListener('popstate', function(e) {
+            updateAuctions(window.location.href, false);
+        });
+
+        // Global Sort Function (Replaced from the one in _auction_grid)
+        window.applySort = function(sortValue) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortValue);
+            
+            if (sortValue === 'price_asc' || sortValue === 'price_desc') {
+                url.searchParams.delete('min_price');
+                url.searchParams.delete('max_price');
+            }
+            if (sortValue === 'latest') {
+                url.searchParams.delete('sort');
+            }
+
+            updateAuctions(url.toString());
+        };
     });
 </script>
 @endpush

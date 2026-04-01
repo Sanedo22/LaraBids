@@ -30,6 +30,12 @@ class NotificationController extends Controller
             return response()->json(['success' => true]);
         }
 
+        // Redirect to the notification's target link if it exists and is not a placeholder
+        $link = $notification->data['link'] ?? null;
+        if ($link && $link !== '#' && !str_contains($link, 'messages')) {
+            return redirect($link);
+        }
+
         return redirect()->back()->with('success', 'Notification marked as read.');
     }
 
