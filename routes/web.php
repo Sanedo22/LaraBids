@@ -93,6 +93,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/kyc', [KycController::class, 'showForm'])->name('kyc.form');
         Route::post('/kyc/submit', [KycController::class, 'submitKyc'])->name('kyc.submit');
 
+        // Disputes & Appeals
+        Route::post('/strikes/{id}/appeal', [\App\Http\Controllers\User\DisputeController::class, 'submitAppeal'])->name('strikes.appeal');
+        Route::post('/auctions/{id}/report-seller', [\App\Http\Controllers\User\DisputeController::class, 'reportSeller'])->name('auctions.report_seller');
+
         // Auction Registration Routes
         Route::post('/auctions/{auction}/register', [\App\Http\Controllers\User\AuctionRegistrationController::class, 'register'])->name('auctions.register');
     });
@@ -171,11 +175,15 @@ Route::middleware(['auth', 'role:admin|super admin'])
 
         // KYC Management
         Route::get('/kyc', [AdminKycController::class, 'index'])->name('kyc.index');
-
         Route::get('/kyc/data', [AdminKycController::class, 'data'])->name('kyc.data');
         Route::get('/kyc/{id}', [AdminKycController::class, 'show'])->name('kyc.show');
         Route::post('/kyc/{id}/approve', [AdminKycController::class, 'approve'])->name('kyc.approve');
         Route::post('/kyc/{id}/reject', [AdminKycController::class, 'reject'])->name('kyc.reject');
+
+        // Dispute & Appeal Management
+        Route::get('/disputes', [\App\Http\Controllers\Admin\DisputeController::class, 'index'])->name('disputes.index');
+        Route::get('/disputes/data', [\App\Http\Controllers\Admin\DisputeController::class, 'data'])->name('disputes.data');
+        Route::post('/disputes/{id}/resolve', [\App\Http\Controllers\Admin\DisputeController::class, 'resolve'])->name('disputes.resolve');
     });
 
 //  Google Social Login Routes

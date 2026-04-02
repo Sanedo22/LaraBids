@@ -245,6 +245,81 @@
                 @endif
             </div>
         </div>
+        <!-- Reputation & Strikes Card -->
+        <div class="card-profile">
+            <div class="card-profile-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-exclamation-circle text-danger me-2"></i> Reputation & Strikes</span>
+                <span class="badge bg-danger rounded-pill px-2">{{ auth()->user()->unpaid_strikes_count }} Active</span>
+            </div>
+            <div class="card-profile-body p-0">
+                @if(auth()->user()->strikes->count() > 0)
+                    <div class="list-group list-group-flush rounded-bottom-4">
+                        @foreach(auth()->user()->strikes as $strike)
+                            <div class="list-group-item p-3 border-0 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge {{ $strike->status === 'active' ? 'bg-danger' : ($strike->status === 'appealed' ? 'bg-warning text-dark' : 'bg-success') }} extra-small text-uppercase">
+                                        {{ $strike->status }}
+                                    </span>
+                                    <small class="text-muted extra-small">{{ $strike->created_at->format('M d, Y') }}</small>
+                                </div>
+                                <h6 class="fw-bold text-dark small mb-1">
+                                    <i class="fas fa-gavel me-1 opacity-50"></i> {{ $strike->auction->title ?? 'Deleted Auction' }}
+                                </h6>
+                                <p class="mb-2 text-muted extra-small italic">"{{ $strike->reason }}"</p>
+                                
+                                @if($strike->status === 'active')
+                                    <button type="button" class="btn btn-outline-warning btn-sm extra-small py-1 w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#appealModal{{ $strike->id }}">
+                                        <i class="fas fa-balance-scale me-1"></i> Appeal Strike
+                                    </button>
+
+                                    <!-- Appeal Modal -->
+                                    <div class="modal fade" id="appealModal{{ $strike->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow-lg rounded-4">
+                                                <div class="modal-header border-bottom-0 pt-4 px-4">
+                                                    <h5 class="modal-title fw-bold"><i class="fas fa-balance-scale text-warning me-2"></i> Appeal Strike</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ route('user.strikes.appeal', $strike->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-body px-4 pb-4">
+                                                        <div class="mb-3">
+                                                            <label class="form-label fw-bold small text-uppercase">Reason for Appeal</label>
+                                                            <textarea class="form-control" name="appeal_reason" rows="4" placeholder="Explain why this strike is unfair (min 20 characters)..." required minlength="20"></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-top-0 px-4 pb-4">
+                                                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">Submit Appeal</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($strike->status === 'appealed')
+                                    <div class="bg-warning-subtle p-2 rounded small text-dark extra-small">
+                                        <i class="fas fa-clock me-1"></i> Under Review: "{{ Str::limit($strike->appeal_reason, 100) }}"
+                                    </div>
+                                @elseif($strike->status === 'dismissed')
+                                    <div class="bg-success-subtle p-2 rounded small text-success extra-small">
+                                        <i class="fas fa-check-circle me-1"></i> Strike Dismissed by Admin.
+                                        @if($strike->admin_note)
+                                            <div class="mt-1 fw-bold italic">Note: {{ $strike->admin_note }}</div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="p-4 text-center">
+                        <div class="mb-2 text-success fs-3"><i class="fas fa-shield-virus"></i></div>
+                        <h6 class="fw-bold small text-dark mb-1">Clean Record</h6>
+                        <p class="text-muted extra-small mb-0">You have no strikes on your account. Good job!</p>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 
     <!-- Right Column: Settings Forms -->

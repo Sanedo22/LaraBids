@@ -11,7 +11,26 @@ class UserStrike extends Model
         'auction_id',
         'reported_by',
         'reason',
+        'status',
+        'type',
+        'appeal_reason',
+        'appeal_at',
+        'admin_note',
     ];
+
+    protected $casts = [
+        'appeal_at' => 'datetime',
+    ];
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function scopeAppealed($query)
+    {
+        return $query->where('status', 'appealed');
+    }
 
     public function user()
     {
