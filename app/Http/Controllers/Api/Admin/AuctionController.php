@@ -266,4 +266,75 @@ class AuctionController extends Controller
             'message' => 'Auction permanently deleted'
         ]);
     }
+
+    // Bulk Actions
+    public function bulkAction(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:auctions,id',
+            'action' => 'required|in:approve,delete,force_delete,restore'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $ids = $request->ids;
+        $action = $request->action;
+        $count = count($ids);
+
+        try {
+            switch ($action) {
+                case 'approve':
+                    $auctions = Auction::whereIn('id', $ids)->where('status', 'pending')->get();
+                    $approvedCount = 0;
+                    foreach ($auctions as $auction) {
+                        if (!$auction->end_time || !$auction->end_time->isPast()) {
+                            $this->auctionService->updateStatus($auction, 'active');
+                            $approvedCount++;
+                        }
+                    }
+                    $message = $approvedCount . ' auction(s) approved successfully.';
+                    break;
+
+                case 'delete':
+                    foreach ($ids as $id) {
+                        $this->auctionService->deleteAuction($id);
+                    }
+                    $message = $count . ' auction(s) moved to trash.';
+                    break;
+                    
+                case 'force_delete':
+                    foreach ($ids as $id) {
+                        $this->auctionService->forceDeleteAuction($id);
+                    }
+                    $message = $count . ' auction(s) permanently deleted.';
+                    break;
+                    
+                case 'restore':
+                    foreach ($ids as $id) {
+                        $this->auctionService->restoreAuction($id);
+                    }
+                    $message = $count . ' auction(s) restored successfully.';
+                    break;
+
+                default:
+                    return response()->json(['status' => false, 'message' => 'Invalid action.'], 400);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred during bulk action.'
+            ], 500);
+        }
+    }
 }
