@@ -206,4 +206,62 @@ class ContactController extends Controller
             'message' => 'Contact permanently deleted'
         ]);
     }
+
+    // Bulk Actions
+    public function bulkAction(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:contacts,id',
+            'action' => 'required|string|in:delete,restore'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            $contacts = Contact::withTrashed()->whereIn('id', $ids)->get();
+            $processedCount = 0;
+
+            foreach ($contacts as $contact) {
+                if ($action === 'delete') {
+                    $contact->deleted_by = auth()->id();
+                    $contact->save();
+                    $contact->delete();
+                    $processedCount++;
+                } elseif ($action === 'restore') {
+                    $contact->restore();
+                    $processedCount++;
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $actionMessage = match($action) {
+                'delete' => 'moved to trash',
+                'restore' => 'restored',
+                default => 'processed'
+            };
+
+            return response()->json([
+                'status' => true,
+                'message' => "{$processedCount} contact(s) have been successfully {$actionMessage}."
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while performing bulk action.'
+            ], 500);
+        }
+    }
 }

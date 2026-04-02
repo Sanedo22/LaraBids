@@ -224,4 +224,74 @@ class CategoryController extends Controller
             'message' => 'Category permanently deleted'
         ]);
     }
+
+    // Bulk Action
+    public function bulkAction(Request $request)
+    {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:categories,id',
+            'action' => 'required|string|in:delete,restore,force_delete'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $ids = $request->ids;
+        $action = $request->action;
+
+        \Illuminate\Support\Facades\DB::beginTransaction();
+
+        try {
+            $categories = Category::withTrashed()->whereIn('id', $ids)->get();
+            $processedCount = 0;
+            $skippedCount = 0;
+
+            foreach ($categories as $category) {
+                if ($action === 'delete') {
+                    $category->delete();
+                    $processedCount++;
+                } elseif ($action === 'restore') {
+                    $category->restore();
+                    $processedCount++;
+                } elseif ($action === 'force_delete') {
+                    if ($category->auctions()->exists()) {
+                        $skippedCount++;
+                        continue;
+                    }
+                    $category->forceDelete();
+                    $processedCount++;
+                }
+            }
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $actionMessage = match($action) {
+                'delete' => 'moved to trash',
+                'restore' => 'restored',
+                'force_delete' => 'permanently deleted',
+                default => 'processed'
+            };
+
+            $message = "{$processedCount} categor(ies) have been successfully {$actionMessage}.";
+            if ($skippedCount > 0) {
+                $message .= " {$skippedCount} categor(ies) were skipped because they have assigned auctions.";
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'An error occurred while performing bulk action.'
+            ], 500);
+        }
+    }
 }

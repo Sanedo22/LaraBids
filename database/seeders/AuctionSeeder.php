@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Auction;
 use App\Models\User;
 use App\Models\Category;
+use App\Models\Bid;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -23,122 +24,149 @@ class AuctionSeeder extends Seeder
         DB::table('watchlists')->truncate();
         DB::table('auction_images')->truncate();
         DB::table('auction_registrations')->truncate();
+        DB::table('payments')->truncate();
         Auction::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // 2. Fetch required relationships
         $users = User::all();
         if ($users->isEmpty()) {
+            $this->command->error('No users found. Please seed users first.');
+            return;
+        }
+
+        $allCategories = Category::whereNotNull('parent_id')->get();
+        if ($allCategories->isEmpty()) {
+            $allCategories = Category::all();
+        }
+        
+        if ($allCategories->isEmpty()) {
+            $this->command->error('No categories found. Please seed categories first.');
             return;
         }
 
         // 🟢 Category Wise Realistic Data
         $dataMapping = [
             'Laptops' => [
-                'titles' => ['Apple MacBook Pro M3 Max 16"', 'Razer Blade 18 Performance Laptop', 'Dell XPS 17 InfinityEdge', 'ASUS ROG Zephyrus G16'],
+                'titles' => ['Apple MacBook Pro M4 Max 16"', 'Razer Blade 18 Gaming Beast', 'Dell XPS 17 OLED Display', 'ASUS ROG Zephyrus G16 (2024)', 'Lenovo Legion 9i Gen 8'],
                 'images' => [
                     'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?q=80&w=1200',
                     'https://images.unsplash.com/photo-1603302576837-37561b2e2302?q=80&w=1200',
                     'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1525547718571-03943bc3ba91?q=80&w=1200'
                 ],
-                'price_range' => [45000, 250000]
+                'price_range' => [45000, 350000]
             ],
             'Smartphones' => [
-                'titles' => ['iPhone 15 Pro Max 1TB Titanium', 'Samsung Galaxy S24 Ultra', 'Google Pixel 8 Pro', 'OnePlus 12 Special Edition'],
+                'titles' => ['iPhone 15 Pro Max 1TB Titanium', 'Samsung Galaxy S24 Ultra 5G', 'Google Pixel 8 Pro Obsidian', 'OnePlus 12 Flowy Emerald', 'Nothing Phone (2) Special Edition'],
                 'images' => [
                     'https://images.unsplash.com/photo-1510557880182-3d4d3cba3f9e?q=80&w=1200',
                     'https://images.unsplash.com/photo-1678911820864-e2c567c655d7?q=80&w=1200',
                     'https://images.unsplash.com/photo-1696446701796-da61225697cc?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1616348436168-de43ad0db179?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1580910051074-3eb694886505?q=80&w=1200'
                 ],
-                'price_range' => [35000, 150000]
+                'price_range' => [35000, 180000]
             ],
             'Luxury Watches' => [
-                'titles' => ['Rolex Submariner Date Black Dial', 'Audemars Piguet Royal Oak', 'Omega Speedmaster Professional', 'Hublot Big Bang Unico'],
+                'titles' => ['Rolex Submariner Date Black Dial', 'Audemars Piguet Royal Oak Blue', 'Patek Philippe Nautilus 5711', 'Omega Speedmaster Moonwatch', 'Hublot Big Bang Unico'],
                 'images' => [
                     'https://images.unsplash.com/photo-1523275335684-21481017106d?q=80&w=1200',
                     'https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?q=80&w=1200',
                     'https://images.unsplash.com/photo-1508685096489-7aac2914b2b8?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1526045431048-f857369aba09?q=80&w=1200'
                 ],
-                'price_range' => [150000, 850000]
+                'price_range' => [150000, 950000]
             ],
             'Classic Cars' => [
-                'titles' => ['Ford Mustang Shelby GT500 1967', 'Porsche 911 Turbo S', 'Mercedes-Benz 300SL Gullwing', 'Chevrolet Corvette C2'],
+                'titles' => ['Ford Mustang Shelby GT500 1967', 'Porsche 911 Turbo S (992)', 'Lamborghini Miura S SV', 'Chevrolet Corvette C1 1958', 'Aston Martin DB5 Silver Birch'],
                 'images' => [
                     'https://images.unsplash.com/photo-1549392848-6a3ea6542d90?q=80&w=1200',
                     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200',
                     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1502877338535-766e1452684a?q=80&w=1200'
                 ],
-                'price_range' => [500000, 2500000]
+                'price_range' => [800000, 5000000]
             ],
-            'Rings' => [
-                'titles' => ['2-Carat Diamond Platinum Ring', 'Sapphire & Gold Eternity Band', 'Vintage Ruby Engagement Ring', 'Emerald Cut Diamond Ring'],
+            'Jewelry' => [
+                'titles' => ['2-Carat Diamond Platinum Ring', 'Blue Sapphire & Gold Necklace', 'Vintage Ruby Art Deco Bracelet', 'Emerald Cut Diamond Earrings', 'Rare Pink Pearl Set'],
                 'images' => [
                     'https://images.unsplash.com/photo-1515562141521-7a1dd0dbba18?q=80&w=1200',
                     'https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=1200',
                     'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1544256718-3bcf237f3974?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1535633302723-997f858509ec?q=80&w=1200'
                 ],
-                'price_range' => [45000, 450000]
+                'price_range' => [50000, 550000]
             ],
-            'Paintings' => [
-                'titles' => ['Abstract Oil on Canvas - Genesis', 'Modern Landscape Painting', 'Signed Post-Impressionist Sketch', 'Contemporary Pop Art Piece'],
+            'Art' => [
+                'titles' => ['Abstract Oil on Canvas - Eternal Sun', 'Post-Modernism Sculpture (Bronze)', 'Signed Picasso-Style Sketch', 'Renaissance Restoration Piece', 'Digital NFT Physical Counterpart'],
                 'images' => [
                     'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1200',
                     'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=1200',
                     'https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=1200',
-                    'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200'
+                    'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?q=80&w=1200',
+                    'https://images.unsplash.com/photo-1574333084133-22bd186e3100?q=80&w=1200'
                 ],
-                'price_range' => [25000, 150000]
+                'price_range' => [30000, 250000]
             ],
         ];
 
-        $allCategories = Category::whereNotNull('parent_id')->get();
-        if ($allCategories->isEmpty()) {
-            $allCategories = Category::all();
-        }
-
-        $totalAuctions = 50;
+        $totalAuctions = 80;
+        $faker = \Faker\Factory::create();
         
         for ($i = 1; $i <= $totalAuctions; $i++) {
             
-            // Status distribution: 15 Active, 10 Upcoming, 15 Expired (Closed), 10 Pending
-            if ($i <= 15) {
-                // ACTIVE (LIVE)
+            // Status distribution: 
+            // 1-25: LIVE (Active + StartTime <= Now)
+            // 26-45: UPCOMING (Active + StartTime > Now)
+            // 46-65: CLOSED (Closed / Expired)
+            // 66-80: PENDING (Admin approval needed)
+
+            if ($i <= 25) {
+                // LIVE
                 $status = 'active';
                 $start = Carbon::now()->subHours(rand(1, 48));
-                $end = Carbon::now()->addHours(rand(24, 72));
-            } elseif ($i <= 25) {
+                $end = Carbon::now()->addHours(rand(12, 120));
+            } elseif ($i <= 45) {
                 // UPCOMING
                 $status = 'active';
-                $start = Carbon::now()->addHours(rand(12, 48));
-                $end = Carbon::now()->addHours(rand(100, 200));
-            } elseif ($i <= 40) {
-                // EXPIRED (CLOSED)
+                $start = Carbon::now()->addHours(rand(6, 48));
+                $end = Carbon::now()->addHours(rand(130, 300));
+            } elseif ($i <= 65) {
+                // CLOSED
                 $status = 'closed';
-                $start = Carbon::now()->subDays(rand(10, 20));
-                $end = Carbon::now()->subDays(rand(1, 4));
+                $start = Carbon::now()->subDays(rand(10, 30));
+                $end = Carbon::now()->subDays(rand(1, 5));
             } else {
-                // PENDING (Wait for Admin)
+                // PENDING
                 $status = 'pending';
-                $start = Carbon::now()->addDays(rand(2, 5));
-                $end = Carbon::now()->addDays(rand(10, 15));
+                $start = Carbon::now()->addDays(rand(1, 4));
+                $end = Carbon::now()->addDays(rand(10, 20));
             }
 
-            // Pick a random specific category with data
+            // Pick a random category mapping or default
             $cat = $allCategories->random();
             $catName = $cat->name;
-            $mapping = $dataMapping[$catName] ?? $dataMapping['Laptops'];
+            // Map common names to our dataMapping keys
+            $mappedKey = 'Art';
+            if (str_contains($catName, 'Laptop') || str_contains($catName, 'Computer')) $mappedKey = 'Laptops';
+            elseif (str_contains($catName, 'Phone') || str_contains($catName, 'Mobile')) $mappedKey = 'Smartphones';
+            elseif (str_contains($catName, 'Watch')) $mappedKey = 'Luxury Watches';
+            elseif (str_contains($catName, 'Car') || str_contains($catName, 'Vehicle')) $mappedKey = 'Classic Cars';
+            elseif (str_contains($catName, 'Jewel') || str_contains($catName, 'Ring')) $mappedKey = 'Jewelry';
+            
+            $mapping = $dataMapping[$mappedKey] ?? $dataMapping['Art'];
             
             $titleIndex = array_rand($mapping['titles']);
-            $title = $mapping['titles'][$titleIndex] . " (Lot #" . rand(1001, 9999) . ")";
+            $title = $mapping['titles'][$titleIndex] . " (ID: " . strtoupper(Str::random(4)) . ")";
             $image = $mapping['images'][$titleIndex];
             $price = rand($mapping['price_range'][0], $mapping['price_range'][1]);
 
-            $description = "Exquisite " . $title . " available for auction in the " . $catName . " category. This premium item is part of a private collection and is maintained in pristine condition. Includes full certification, original packaging, and express worldwide delivery. Guaranteed high-value investment opportunity for collectors.";
+            $description = $faker->paragraphs(2, true) . "\n\n**Specifications:**\n- Authentication: Guaranteed Original\n- Condition: Grade A+\n- Shipping: Express Insured\n- Origin: " . $faker->country;
 
             $auction = Auction::create([
                 'user_id'       => $users->random()->id,
@@ -151,19 +179,59 @@ class AuctionSeeder extends Seeder
                 'start_time'    => $start,
                 'end_time'      => $end,
                 'status'        => $status,
-                'min_increment' => ($price > 100000) ? 1000 : 500,
+                'min_increment' => ($price > 100000) ? 5000 : 1000,
+                'location'      => $faker->city . ", " . $faker->state,
                 'is_resubmitted'=> false,
-                'winner_id'     => null, // NO BIDS = NO WINNER
+                'winner_id'     => null,
             ]);
 
             // Add gallery images (2 more random from same mapping)
-            $galleryCount = rand(2, 3);
+            $galleryCount = rand(2, 4);
+            $randomImages = $mapping['images'];
+            shuffle($randomImages);
             for ($g = 0; $g < $galleryCount; $g++) {
                 $auction->images()->create([
-                    'image_path' => $mapping['images'][array_rand($mapping['images'])],
+                    'image_path' => $randomImages[$g % count($randomImages)],
                     'sort_order' => $g,
                 ]);
             }
+
+            // Seed Bids for LIVE and CLOSED auctions
+            if ($status === 'active' && $start->isPast()) {
+                // LIVE auctions get 0-10 bids
+                $bidCount = rand(0, 10);
+                $this->seedBids($auction, $bidCount, $users);
+            } elseif ($status === 'closed') {
+                // CLOSED auctions get 5-15 bids and a winner
+                $bidCount = rand(5, 15);
+                $this->seedBids($auction, $bidCount, $users);
+                
+                // Set winner as highest bidder
+                $highestBid = $auction->bids()->first();
+                if ($highestBid) {
+                    $auction->update(['winner_id' => $highestBid->user_id]);
+                }
+            }
+        }
+    }
+
+    private function seedBids($auction, $count, $users)
+    {
+        $currentPrice = $auction->starting_price;
+        $increment = $auction->min_increment;
+
+        for ($j = 0; $j < $count; $j++) {
+            $currentPrice += (rand(1, 5) * $increment);
+            $bidder = $users->random();
+            
+            Bid::create([
+                'auction_id' => $auction->id,
+                'user_id' => $bidder->id,
+                'amount' => $currentPrice,
+                'created_at' => $auction->start_time->addMinutes($j * rand(10, 60)),
+            ]);
+
+            $auction->update(['current_price' => $currentPrice]);
         }
     }
 }

@@ -440,5 +440,88 @@ class UserController extends Controller
             'message' => 'User strike removed successfully'
         ]);
     }
+
+    // Bulk Actions
+    public function bulkAction(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+            'action' => 'required|string|in:delete,restore,force_delete'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $ids = $request->ids;
+        $action = $request->action;
+        $currentUser = Auth::user();
+
+        // Prevent self action
+        if (in_array($currentUser->id, $ids)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You cannot perform bulk actions on your own account.'
+            ], 422);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $users = User::withTrashed()->whereIn('id', $ids)->get();
+            $processedCount = 0;
+
+            foreach ($users as $user) {
+                // Permission checks
+                if ($currentUser->hasRole('super admin') && $user->hasRole('super admin') && $user->id !== $currentUser->id) {
+                    if ($user->created_by !== $currentUser->id) {
+                        continue; // Skip or throw error? In bulk, skipping might be better or collect errors
+                    }
+                }
+                
+                if ($currentUser->hasRole('admin') && !$currentUser->hasRole('super admin') && ($user->hasRole('super admin') || $user->hasRole('admin'))) {
+                    continue;
+                }
+
+                if ($action === 'delete') {
+                    $user->update(['deleted_by' => Auth::id()]);
+                    $user->delete();
+                    $processedCount++;
+                } elseif ($action === 'restore') {
+                    $user->restore();
+                    $user->update(['deleted_by' => null]);
+                    $processedCount++;
+                } elseif ($action === 'force_delete') {
+                    $user->roles()->detach();
+                    $user->forceDelete();
+                    $processedCount++;
+                }
+            }
+
+            DB::commit();
+
+            $actionMessage = match($action) {
+                'delete' => 'suspended',
+                'restore' => 'restored',
+                'force_delete' => 'permanently deleted',
+                default => 'processed'
+            };
+
+            return response()->json([
+                'status' => true,
+                'message' => $processedCount . " user(s) have been successfully {$actionMessage}."
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => false,
+                'message' => 'Failed to perform bulk action: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
 

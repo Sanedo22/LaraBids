@@ -119,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Category Management
             Route::apiResource('_categories', AdminCategoryController::class);
+            Route::post('_categories/bulk-action', [AdminCategoryController::class, 'bulkAction']);
             
             // Auction Management
             Route::apiResource('_auctions', AdminAuctionController::class);
@@ -126,16 +127,19 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('_auctions/{id}/force-delete', [AdminAuctionController::class, 'forceDelete']);
             Route::post('_auctions/{id}/approve', [AdminAuctionController::class, 'approve']);
             Route::post('_auctions/{id}/cancel', [AdminAuctionController::class, 'cancel']);
+            Route::post('_auctions/bulk-action', [AdminAuctionController::class, 'bulkAction']);
 
             // User Management
             Route::post('_users/send-otp', [AdminUserController::class, 'sendOtp']);
             Route::apiResource('_users', AdminUserController::class);
+            Route::post('_users/bulk-action', [AdminUserController::class, 'bulkAction']);
             Route::post('_users/{id}/restore', [AdminUserController::class, 'restore']);
             Route::delete('_users/{id}/force-delete', [AdminUserController::class, 'forceDelete']);
             Route::delete('_users/{id}/strikes/{strike}', [AdminUserController::class, 'removeStrike']);
 
             // Contact Management
             Route::apiResource('_contacts', AdminContactController::class);
+            Route::post('_contacts/bulk-action', [AdminContactController::class, 'bulkAction']);
             Route::post('_contacts/{id}/restore', [AdminContactController::class, 'restore']);
             Route::delete('_contacts/{id}/force-delete', [AdminContactController::class, 'forceDelete']);
 
