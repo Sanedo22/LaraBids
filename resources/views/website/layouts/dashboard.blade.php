@@ -189,8 +189,8 @@
                 
                 <div class="sidebar-heading mt-2">Settings</div>
                 
-                <a href="{{ route('user.profile') }}" 
-                   class="sidebar-link rounded mb-1 {{ request()->routeIs('user.profile') ? 'active' : '' }}">
+                <a href="{{ route('profile.edit') }}" 
+                   class="sidebar-link rounded mb-1 {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                     <i class="fas fa-fw fa-cog me-2"></i> Profile
                 </a>
 
