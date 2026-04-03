@@ -108,9 +108,19 @@
                                 @endif
                             </div>
                         </div>
-                        <a href="{{ route('sellers.show', $auction->user->id) }}" class="hibid-contact-btn">Contact</a>
+                        <div class="d-flex flex-column gap-2 ms-auto">
+                            <a href="{{ route('sellers.show', $auction->user->id) }}" class="hibid-contact-btn w-100 text-center">Contact</a>
+                            @auth
+                                @if(auth()->id() !== $auction->user_id)
+                                    <button type="button" class="btn btn-link btn-sm text-danger text-decoration-none p-0 mt-1" data-bs-toggle="modal" data-bs-target="#reportSellerModal">
+                                        <i class="fas fa-flag me-1"></i> Report Seller
+                                    </button>
+                                @endif
+                            @endauth
+                        </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- Right: Action Sidebar -->
@@ -1595,6 +1605,41 @@
 </script>
 @endif
 @endpush
+
+    @auth
+    <!-- Report Seller Modal -->
+    <div class="modal fade" id="reportSellerModal" tabindex="-1" aria-labelledby="reportSellerModalLabel" aria-hidden="true" style="z-index: 9999;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header border-bottom-0 pt-4 px-4">
+                    <h5 class="modal-title fw-bold" id="reportSellerModalLabel"><i class="fas fa-flag text-danger me-2"></i> Report Seller</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="{{ route('user.auctions.report_seller', $auction->id) }}" method="POST">
+                    @csrf
+                    <div class="modal-body px-4 pb-4">
+                        <div class="alert alert-info border-0 rounded-3 small mb-3">
+                            <i class="fas fa-info-circle me-2"></i> Your report will be reviewed by our moderation team. Misuse of the reporting system may lead to penalties.
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason" class="form-label fw-bold small text-uppercase">Reason for reporting</label>
+                            <textarea class="form-control" name="reason" id="reason" rows="4" placeholder="Please describe the issue in detail (min 20 characters)..." required minlength="20"></textarea>
+                            <div class="form-text mt-2 extra-small">Includes: Fake items, non-responsive after winning, misleading description, etc.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 px-4 pb-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4 fw-bold shadow-sm">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endauth
+
+    </div>
+</div>
+</section>
 
 @endsection
 

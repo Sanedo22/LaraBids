@@ -151,6 +151,6 @@ class User extends Authenticatable
 
     public function getUnpaidStrikesCountAttribute(): int
     {
-        return $this->strikes()->count();
+        return $this->strikes()->active()->count();
     }
 }
