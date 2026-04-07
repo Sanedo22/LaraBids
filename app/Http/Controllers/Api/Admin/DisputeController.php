@@ -43,10 +43,23 @@ class DisputeController extends Controller
             'admin_note' => 'nullable|string|max:1000'
         ]);
 
+        $newStatus = $request->status;
+        if ($newStatus === 'resolved') {
+            $newStatus = 'active'; // Uphold the strike so it penalizes the user
+        }
+
         $strike->update([
-            'status' => $request->status,
+            'status' => $newStatus,
             'admin_note' => $request->admin_note
         ]);
+
+        if ($newStatus === 'active') {
+            $user = $strike->user;
+            if ($user && $user->unpaid_strikes_count >= \App\Models\User::MAX_GLOBAL_STRIKES) {
+                // Suspend the user globally if limit is reached
+                $user->delete(); 
+            }
+        }
 
         return response()->json([
             'status' => true,

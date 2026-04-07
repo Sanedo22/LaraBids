@@ -55,6 +55,13 @@
             <span>Payments</span></a>
     </li>
 
+    <!-- Nav Item - Disputes -->
+    <li class="nav-item {{ request()->routeIs('admin.disputes.*') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.disputes.index') }}">
+            <i class="fas fa-fw fa-balance-scale"></i>
+            <span>Disputes & Reports</span></a>
+    </li>
+
     <!-- Divider -->
     <hr class="sidebar-divider">
 

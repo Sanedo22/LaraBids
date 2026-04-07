@@ -41,14 +41,9 @@ class DisputeController extends Controller
     {
         $auction = Auction::findOrFail($id);
 
-        // Basic authorization: Only bidders or winners can report
-        $hasBid = $auction->bids()->where('user_id', Auth::id())->exists();
-        if (!$hasBid && $auction->user_id !== Auth::id()) {
-             // If not a bidder and not the owner (owner shouldn't report self but check logic)
-             // Allow winners too
-             if($auction->winner_id !== Auth::id()){
-                return redirect()->back()->with('error', 'You are not authorized to report this seller.');
-             }
+        // Authorization: Any authenticated user can report a seller, except the seller themselves
+        if ($auction->user_id === Auth::id()) {
+            return redirect()->back()->with('error', 'You cannot report yourself.');
         }
 
         $request->validate([
