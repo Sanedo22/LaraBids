@@ -53,8 +53,15 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Set permissions
-RUN chmod +x /usr/local/bin/entrypoint.sh
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod +x /usr/local/bin/entrypoint.sh && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache && \
+    chmod 644 /etc/ssl/certs/isrgrootx1.pem
+
+# Fix PHP-FPM logging permissions
+RUN touch /var/log/php-fpm.log && \
+    chown www-data:www-data /var/log/php-fpm.log && \
+    sed -i 's/error_log = \/proc\/self\/fd\/2/error_log = \/var\/log\/php-fpm.log/g' /usr/local/etc/php-fpm.d/docker.conf || true
 
 # Expose the port Render expects
 EXPOSE 10000
