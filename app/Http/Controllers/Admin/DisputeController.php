@@ -53,7 +53,7 @@ class DisputeController extends Controller
                             <div class="text-muted">@'.$username.'</div>
                         </div>';
             })
-            ->editColumn('status', function($strike) {
+            ->addColumn('status_badge', function($strike) {
                 $badges = [
                     'active' => 'danger',
                     'appealed' => 'warning text-dark',
@@ -63,7 +63,7 @@ class DisputeController extends Controller
                 $color = $badges[$strike->status] ?? 'secondary';
                 return '<span class="badge bg-'.$color.'">'.ucfirst($strike->status).'</span>';
             })
-            ->editColumn('type', function($strike) {
+            ->addColumn('type_badge', function($strike) {
                 return '<span class="small text-uppercase fw-bold">'.str_replace('_', ' ', $strike->type).'</span>';
             })
             ->editColumn('created_at', function($strike) {
@@ -73,18 +73,18 @@ class DisputeController extends Controller
                 return \Illuminate\Support\Str::limit($strike->reason, 50);
             })
             ->addColumn('action', function($strike) {
-                $html = '<div class="btn-group">';
-                $html .= '<button type="button" class="btn btn-sm btn-primary" onclick="viewDispute('.$strike->id.')" title="View Details"><i class="fas fa-eye"></i></button>';
+                $html = '<div class="d-flex justify-content-center">';
+                $html .= '<button type="button" class="btn btn-sm btn-outline-primary btn-action mx-1" onclick="viewDispute('.$strike->id.')" title="View Details"><i class="fas fa-eye"></i></button>';
                 
                 if ($strike->status === 'appealed' || $strike->status === 'active') {
-                    $html .= '<button type="button" class="btn btn-sm btn-success" onclick="resolveDispute('.$strike->id.', \'dismissed\')" title="Dismiss Strike"><i class="fas fa-check"></i></button>';
-                    $html .= '<button type="button" class="btn btn-sm btn-danger" onclick="resolveDispute('.$strike->id.', \'resolved\')" title="Keep/Resolve Strike"><i class="fas fa-times"></i></button>';
+                    $html .= '<button type="button" class="btn btn-sm btn-outline-success btn-action mx-1" onclick="resolveDispute('.$strike->id.', \'dismissed\')" title="Dismiss Strike"><i class="fas fa-check"></i></button>';
+                    $html .= '<button type="button" class="btn btn-sm btn-outline-danger btn-action mx-1" onclick="resolveDispute('.$strike->id.', \'resolved\')" title="Keep/Resolve Strike"><i class="fas fa-times"></i></button>';
                 }
                 
                 $html .= '</div>';
                 return $html;
             })
-            ->rawColumns(['user_info', 'reporter_info', 'status', 'type', 'action'])
+            ->rawColumns(['user_info', 'reporter_info', 'status_badge', 'type_badge', 'action'])
             ->make(true);
     }
 

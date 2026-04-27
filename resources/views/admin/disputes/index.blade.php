@@ -2,21 +2,112 @@
 
 @section('title', 'Reputation & Dispute Management | Admin')
 
+@push('styles')
+    <link href="{{ asset('admin-assets/vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    <style>
+        .filter-label {
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .filter-control {
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            color: #1a202c;
+            font-size: 0.95rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .filter-control:focus {
+            background-color: #fff;
+            border-color: #a3bffa;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+            outline: none;
+        }
+        #disputes-table th {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            font-weight: 700;
+            border-top: none;
+            padding-top: 1.25rem;
+            padding-bottom: 1.25rem;
+        }
+        #disputes-table td {
+            vertical-align: middle;
+            font-size: 0.9rem;
+        }
+        
+        .dataTables_wrapper .dataTables_filter input {
+            border-radius: 20px;
+            padding: 0.4rem 1rem;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            outline: none;
+            border-color: #a3bffa;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        }
+        .btn-reset-filter {
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background-color: #fff;
+            color: #4a5568;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-reset-filter:hover {
+            background-color: #f1f5f9;
+            color: #1a202c;
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            line-height: 32px;
+            text-align: center;
+            border-radius: 0.35rem;
+            display: inline-block;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+    </style>
+@endpush
+
 @section('content')
-<div class="container-fluid pf-5">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold"><i class="fas fa-balance-scale text-primary me-2"></i> Reputation & Dispute Management</h2>
-            <p class="text-muted">Review Buyer appeals and Seller misconduct reports.</p>
+
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Reputation & Dispute Management</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 small">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Disputes & Reports</li>
+                </ol>
+            </nav>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4">
+    <!-- Filters Section -->
+    <div class="card shadow-sm border-0 mb-4 rounded-lg" style="border-left: 4px solid #4e73df !important;">
         <div class="card-body p-4">
-            <div class="row mb-4 g-3">
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Filter Status</label>
-                    <select id="filter-status" class="form-select border-0 bg-light">
+            <div class="row align-items-end">
+                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <label class="filter-label"><i class="fas fa-circle-notch mr-1"></i> Filter Status</label>
+                    <select id="filter-status" class="custom-select filter-control w-100">
                         <option value="all" selected>All Statuses</option>
                         <option value="active">Active Strikes</option>
                         <option value="appealed">Pending Appeals/Reports</option>
@@ -24,35 +115,49 @@
                         <option value="resolved">Resolved/Closed</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label small fw-bold">Filter Type</label>
-                    <select id="filter-type" class="form-select border-0 bg-light">
+                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3">
+                    <label class="filter-label"><i class="fas fa-filter mr-1"></i> Filter Type</label>
+                    <select id="filter-type" class="custom-select filter-control w-100">
                         <option value="all">All Types</option>
                         <option value="buyer_non_payment">Buyer Non-Payment</option>
                         <option value="seller_misconduct">Seller Misconduct</option>
                     </select>
                 </div>
+                <div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 mb-3">
+                    <button type="button" class="btn btn-light border w-100 font-weight-bold" id="resetFilters" style="height: calc(1.5em + .75rem + 2px);">
+                        <i class="fas fa-sync-alt mr-1 text-primary"></i> <span class="text-primary">Reset</span>
+                    </button>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <div class="table-responsive">
-                <table id="disputes-table" class="table table-hover align-middle w-100">
-                    <thead class="bg-light">
+    <!-- Directory Card -->
+    <div class="card shadow-sm border-0 rounded-lg">
+        <div class="card-header py-3 px-4 bg-white d-flex align-items-center justify-content-between" style="min-height: 60px;">
+            <h6 class="m-0 font-weight-bold text-secondary">
+                <i class="fas fa-balance-scale mr-2 text-primary"></i>Disputes Directory
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive px-3 py-4">
+                <table class="table table-hover border-bottom" id="disputes-table" width="100%" cellspacing="0">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Target User</th>
                             <th>Type</th>
                             <th>Reason / Dispute</th>
                             <th>Reported By</th>
-                            <th>Status</th>
+                            <th class="text-center">Status</th>
                             <th>Date</th>
-                            <th>Action</th>
+                            <th class="text-center text-nowrap">Action</th>
                         </tr>
                     </thead>
                 </table>
             </div>
         </div>
     </div>
-</div>
 
 <!-- Dispute Detail Modal -->
 <div class="modal fade" id="disputeModal" tabindex="-1" aria-hidden="true">
@@ -84,6 +189,9 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('admin-assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('admin-assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+
 <script>
     let disputesTable;
     let currentDisputeId = null;
@@ -102,10 +210,10 @@
             columns: [
                 {data: 'id', name: 'id'},
                 {data: 'user_info', name: 'user_id'},
-                {data: 'type', name: 'type'},
+                {data: 'type_badge', name: 'type'},
                 {data: 'reason_short', name: 'reason', orderable: false},
                 {data: 'reporter_info', name: 'reported_by'},
-                {data: 'status', name: 'status'},
+                {data: 'status_badge', name: 'status'},
                 {data: 'created_at', name: 'created_at'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
@@ -118,6 +226,13 @@
         });
 
         $('#filter-status, #filter-type').on('change', function() {
+            disputesTable.ajax.reload();
+        });
+
+        $('#resetFilters').on('click', function() {
+            $('#filter-status').val('all');
+            $('#filter-type').val('all');
+            disputesTable.search('');
             disputesTable.ajax.reload();
         });
     });
@@ -151,7 +266,7 @@
                     <h6 class="fw-bold small text-muted text-uppercase mb-3">Case Information</h6>
                     <p class="mb-1"><strong>Auction:</strong> ${rowData.auction ? rowData.auction.title : 'N/A'}</p>
                     ${rowData.type !== 'seller_misconduct' ? `<p class="mb-1"><strong>Strike Reason:</strong> ${rowData.reason}</p>` : ''}
-                    <p class="mb-1"><strong>Type:</strong> ${rowData.type}</p>
+                    <p class="mb-1"><strong>Type:</strong> ${rowData.type_badge}</p>
                 </div>
                 <div class="col-md-6">
                     <h6 class="fw-bold small text-muted text-uppercase mb-3">Target User</h6>
@@ -188,7 +303,13 @@
             if(response.status) {
                 $('#disputeModal').modal('hide');
                 disputesTable.ajax.reload(null, false);
-                toastr.success(response.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: response.message,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
             }
         });
     }
