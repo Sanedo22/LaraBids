@@ -131,7 +131,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item text-dark small" href="{{ route('user.profile') }}">
+                                <a class="dropdown-item text-dark small" href="{{ route('profile.edit') }}">
                                     <i class="fas fa-user-edit me-2 text-primary"></i> Profile
                                 </a>
                             </li>

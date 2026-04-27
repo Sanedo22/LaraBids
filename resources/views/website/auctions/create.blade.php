@@ -163,8 +163,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction Start Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-alt text-primary"></i></span>
-                                    <input type="text" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
-                                        placeholder="Select start date & time" value="{{ old('start_time', now()->format('Y-m-d h:i A')) }}">
+                                    <input type="datetime-local" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
+                                        value="{{ old('start_time', now()->format('Y-m-d\TH:i')) }}" min="{{ now()->format('Y-m-d\TH:i') }}">
                                 </div>
                                 <small class="text-muted d-block mt-2">When should the bidding begin?</small>
                                 @error('start_time')
@@ -176,8 +176,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction End Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-check text-primary"></i></span>
-                                    <input type="text" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
-                                        placeholder="Select end date & time" value="{{ old('end_time') }}">
+                                    <input type="datetime-local" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
+                                        value="{{ old('end_time') }}" min="{{ now()->format('Y-m-d\TH:i') }}">
                                 </div>
                                 <small class="text-muted d-block mt-2">When should the bidding conclude?</small>
                                 @error('end_time')
@@ -411,30 +411,23 @@
                 console.error('CKEditor Error:', error);
             });
 
-        const startPicker = flatpickr("#start_time_picker", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K",
-            minDate: "today",
-            time_24hr: false,
-            onChange: function(selectedDates, dateStr, instance) {
-                instance.element.dispatchEvent(new Event('input', { bubbles: true }));
-                // When start time changes, re-validate end time
-                const endPickerElement = document.getElementById('end_time_picker');
-                if (endPickerElement && endPickerElement.value) {
-                    endPickerElement.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }
-        });
+        // Native datetime-local inputs enforce constraints directly
+        const startPickerElement = document.getElementById('start_time_picker');
+        const endPickerElement = document.getElementById('end_time_picker');
         
-        const endPicker = flatpickr("#end_time_picker", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K",
-            minDate: "today",
-            time_24hr: false,
-            onChange: function(selectedDates, dateStr, instance) {
-                instance.element.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
+        if (startPickerElement && endPickerElement) {
+            startPickerElement.addEventListener('input', function() {
+                // Keep end time at least 1 hour after start time if possible
+                if (startPickerElement.value) {
+                    let minEndDate = new Date(startPickerElement.value);
+                    minEndDate.setHours(minEndDate.getHours() + 1);
+                    // Extract local ISO string without timezone shifts
+                    let tzOffset = (new Date()).getTimezoneOffset() * 60000;
+                    let localISOTime = (new Date(minEndDate - tzOffset)).toISOString().slice(0, 16);
+                    endPickerElement.min = localISOTime;
+                }
+            });
+        }
     });
 </script>
 @endpush

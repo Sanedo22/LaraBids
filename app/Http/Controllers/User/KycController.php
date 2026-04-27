@@ -16,7 +16,7 @@ class KycController extends Controller
         
         // Block if KYC is already pending
         if ($user->kyc && $user->kyc->status === 'pending') {
-            return redirect()->route('user.profile')->with('info', 'Your KYC request is already being processed.');
+            return redirect()->route('profile.edit')->with('info', 'Your KYC request is already being processed.');
         }
 
         return view('website.user.kyc_form');
@@ -134,7 +134,7 @@ class KycController extends Controller
             ]);
         }
 
-        return redirect()->route('user.profile')->with('success', 'KYC submitted successfully and is pending verification.');
+        return redirect()->route('profile.edit')->with('success', 'KYC submitted successfully and is pending verification.');
     }
 
 }

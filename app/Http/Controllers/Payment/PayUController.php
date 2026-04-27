@@ -137,8 +137,6 @@ class PayUController extends Controller
                 'additional_data' => $request->all(),
             ]);
 
-            // Optional: Mark auction as paid if we had a paid_at field, or notify seller
-            
             return redirect()->route('user.winning-items')->with('success', 'Payment successful! Order confirmed.');
         } else {
             $payment->update([

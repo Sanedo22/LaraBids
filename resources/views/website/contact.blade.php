@@ -67,7 +67,7 @@
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-1 opacity-90">Phone Number</h6>
-                                    <a href="tel:+919876543210" class="text-white text-decoration-none d-block">+91 98765 43210</a>
+                                    <a href="tel:+917940008888" class="text-white text-decoration-none d-block">+91 79 4000 8888</a>
                                     <span class="small opacity-50">Mon-Fri 9am-6pm</span>
                                 </div>
                             </div>
@@ -89,7 +89,7 @@
                                 </div>
                                 <div>
                                     <h6 class="fw-bold mb-1 opacity-90">Office Address</h6>
-                                    <p class="mb-0 opacity-75 small">123, Business Park, Sector 18<br>Gurugram, Haryana - 122001, India</p>
+                                    <p class="mb-0 opacity-75 small">B-405, Titanium City Center, 100 Ft Rd<br>Prahlad Nagar, Ahmedabad, Gujarat - 380015</p>
                                 </div>
                             </div>
 

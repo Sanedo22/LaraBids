@@ -48,7 +48,7 @@ Route::get('/sellers/{id}', [PublicProfileController::class, 'show'])->name('sel
 
 Route::middleware('auth')->group(function () {
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
@@ -75,7 +75,7 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/watchlist/{auction}/toggle', [WatchlistController::class, 'toggle'])->name('watchlist.toggle');
 
-        Route::get('/profile', [UserDashboardController::class, 'profile'])->name('profile');
+        // Profile (Removed duplicate, using profile.edit instead)
         Route::post('/auctions/{auction}/mark-unpaid', [UserDashboardController::class, 'markAsUnpaid'])->name('auctions.mark-unpaid');
         Route::delete('/auctions/{auction}/remove-strike', [UserDashboardController::class, 'removeStrike'])->name('auctions.remove-strike');
 
