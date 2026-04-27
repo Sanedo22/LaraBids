@@ -101,6 +101,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // KYC Submission
     Route::get('/user/kyc', [KycController::class, 'show'])->name('api.user.kyc.show');
     Route::post('/user/kyc', [KycController::class, 'store'])->name('api.user.kyc.store');
+    
+    // Disputes & Appeals
+    Route::post('/user/strikes/{id}/appeal', [\App\Http\Controllers\Api\User\DisputeController::class, 'submitAppeal']);
+    Route::post('/user/auctions/{id}/report-seller', [\App\Http\Controllers\Api\User\DisputeController::class, 'reportSeller']);
 
     // PayU Payment Integration (API/Mobile SDK)
     Route::prefix('payments')->group(function () {
@@ -156,6 +160,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
             // Settings
             Route::get('_settings', [App\Http\Controllers\Api\Admin\SettingController::class, 'index']);
+
+            // Dispute & Appeal Management
+            Route::get('_disputes', [\App\Http\Controllers\Api\Admin\DisputeController::class, 'index']);
+            Route::post('_disputes/{id}/resolve', [\App\Http\Controllers\Api\Admin\DisputeController::class, 'resolve']);
         });
 });
 

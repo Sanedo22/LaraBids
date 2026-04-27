@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -18,7 +18,10 @@ class DisputeController extends Controller
         $strike = UserStrike::where('user_id', Auth::id())->findOrFail($id);
 
         if ($strike->status !== 'active') {
-            return redirect()->back()->with('error', 'This strike cannot be appealed.');
+            return response()->json([
+                'status' => false,
+                'message' => 'This strike cannot be appealed.'
+            ], 400);
         }
 
         $request->validate([
@@ -31,7 +34,11 @@ class DisputeController extends Controller
             'appeal_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Your appeal has been submitted successfully and is under review.');
+        return response()->json([
+            'status' => true,
+            'message' => 'Your appeal has been submitted successfully and is under review.',
+            'data' => $strike
+        ]);
     }
 
     /**
@@ -43,15 +50,17 @@ class DisputeController extends Controller
 
         // Authorization: Any authenticated user can report a seller, except the seller themselves
         if ($auction->user_id === Auth::id()) {
-            return redirect()->back()->with('error', 'You cannot report yourself.');
+            return response()->json([
+                'status' => false,
+                'message' => 'You cannot report yourself.'
+            ], 403);
         }
 
         $request->validate([
             'reason' => 'required|string|min:20|max:1000',
         ]);
 
-        // Create a 'pending' strike/report for the seller
-        UserStrike::create([
+        $strike = UserStrike::create([
             'user_id' => $auction->user_id, // The seller
             'auction_id' => $auction->id,
             'reported_by' => Auth::id(),
@@ -61,6 +70,10 @@ class DisputeController extends Controller
             'appeal_at' => now(),
         ]);
 
-        return redirect()->back()->with('success', 'Seller has been reported. Admin will review the case.');
+        return response()->json([
+            'status' => true,
+            'message' => 'Seller has been reported. Admin will review the case.',
+            'data' => $strike
+        ], 201);
     }
 }

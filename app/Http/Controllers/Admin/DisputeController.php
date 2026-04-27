@@ -34,18 +34,23 @@ class DisputeController extends Controller
 
         return DataTables::of($query)
             ->addColumn('user_info', function($strike) {
+                $avatar = $strike->user ? $strike->user->avatar_url : asset('website/images/default-avatar.png');
+                $name = $strike->user ? $strike->user->name : 'Unknown User';
+                $username = $strike->user ? $strike->user->username : 'unknown';
                 return '<div class="d-flex align-items-center">
-                            <img src="'.$strike->user->avatar_url.'" class="rounded-circle me-2" width="30" height="30">
+                            <img src="'.$avatar.'" class="rounded-circle me-2" width="30" height="30">
                             <div>
-                                <div class="fw-bold">'.$strike->user->name.'</div>
-                                <div class="small text-muted">@'.$strike->user->username.'</div>
+                                <div class="fw-bold">'.$name.'</div>
+                                <div class="small text-muted">@'.$username.'</div>
                             </div>
                         </div>';
             })
             ->addColumn('reporter_info', function($strike) {
+                $name = $strike->reporter ? $strike->reporter->name : 'System / Unknown';
+                $username = $strike->reporter ? $strike->reporter->username : 'system';
                 return '<div class="small">
-                            <div class="fw-bold">'.$strike->reporter->name.'</div>
-                            <div class="text-muted">@'.$strike->reporter->username.'</div>
+                            <div class="fw-bold">'.$name.'</div>
+                            <div class="text-muted">@'.$username.'</div>
                         </div>';
             })
             ->editColumn('status', function($strike) {
@@ -60,6 +65,12 @@ class DisputeController extends Controller
             })
             ->editColumn('type', function($strike) {
                 return '<span class="small text-uppercase fw-bold">'.str_replace('_', ' ', $strike->type).'</span>';
+            })
+            ->editColumn('created_at', function($strike) {
+                return $strike->created_at->format('M d, Y');
+            })
+            ->addColumn('reason_short', function($strike) {
+                return \Illuminate\Support\Str::limit($strike->reason, 50);
             })
             ->addColumn('action', function($strike) {
                 $html = '<div class="btn-group">';
@@ -89,10 +100,23 @@ class DisputeController extends Controller
             'admin_note' => 'nullable|string|max:1000'
         ]);
 
+        $newStatus = $request->status;
+        if ($newStatus === 'resolved') {
+            $newStatus = 'active'; // Uphold the strike so it penalizes the user
+        }
+
         $strike->update([
-            'status' => $request->status,
+            'status' => $newStatus,
             'admin_note' => $request->admin_note
         ]);
+
+        if ($newStatus === 'active') {
+            $user = $strike->user;
+            if ($user && $user->unpaid_strikes_count >= \App\Models\User::MAX_GLOBAL_STRIKES) {
+                // Suspend the user globally if limit is reached
+                $user->delete(); 
+            }
+        }
 
         // If it was a seller misconduct report and we 'resolved' it (meaning we verified it), 
         // the strike stays active on the seller. 

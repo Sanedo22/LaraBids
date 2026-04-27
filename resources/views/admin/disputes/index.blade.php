@@ -1,4 +1,4 @@
-@extends('admin.layouts.app')
+@extends('admin.layouts.admin')
 
 @section('title', 'Reputation & Dispute Management | Admin')
 
@@ -17,9 +17,9 @@
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">Filter Status</label>
                     <select id="filter-status" class="form-select border-0 bg-light">
-                        <option value="all">All Statuses</option>
+                        <option value="all" selected>All Statuses</option>
                         <option value="active">Active Strikes</option>
-                        <option value="appealed" selected>Pending Appeals/Reports</option>
+                        <option value="appealed">Pending Appeals/Reports</option>
                         <option value="dismissed">Dismissed</option>
                         <option value="resolved">Resolved/Closed</option>
                     </select>
@@ -103,12 +103,10 @@
                 {data: 'id', name: 'id'},
                 {data: 'user_info', name: 'user_id'},
                 {data: 'type', name: 'type'},
-                {data: 'reason', name: 'reason', orderable: false},
+                {data: 'reason_short', name: 'reason', orderable: false},
                 {data: 'reporter_info', name: 'reported_by'},
                 {data: 'status', name: 'status'},
-                {data: 'created_at', name: 'created_at', render: function(data){
-                    return moment(data).format('MMM DD, YYYY');
-                }},
+                {data: 'created_at', name: 'created_at'},
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
             order: [[0, 'desc']],
@@ -130,12 +128,29 @@
             return data.id === id;
         }).data();
 
+        let reasonBox = '';
+        if (rowData.type === 'seller_misconduct') {
+            reasonBox = `
+                <div class="p-3 bg-light rounded-3 border-start border-4 border-danger">
+                    <h6 class="fw-bold mb-2 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Report Description (Misconduct Details):</h6>
+                    <p class="mb-0 italic" style="white-space: pre-wrap;">"${rowData.reason}"</p>
+                </div>
+            `;
+        } else {
+            reasonBox = `
+                <div class="p-3 bg-light rounded-3 border-start border-4 border-warning">
+                    <h6 class="fw-bold mb-2"><i class="fas fa-comment-dots me-2"></i>User Dispute/Appeal Reason:</h6>
+                    <p class="mb-0 italic" style="white-space: pre-wrap;">"${rowData.appeal_reason || 'No appeal message provided.'}"</p>
+                </div>
+            `;
+        }
+
         let html = `
             <div class="row g-4">
                 <div class="col-md-6">
                     <h6 class="fw-bold small text-muted text-uppercase mb-3">Case Information</h6>
                     <p class="mb-1"><strong>Auction:</strong> ${rowData.auction ? rowData.auction.title : 'N/A'}</p>
-                    <p class="mb-1"><strong>Strike Reason:</strong> ${rowData.reason}</p>
+                    ${rowData.type !== 'seller_misconduct' ? `<p class="mb-1"><strong>Strike Reason:</strong> ${rowData.reason}</p>` : ''}
                     <p class="mb-1"><strong>Type:</strong> ${rowData.type}</p>
                 </div>
                 <div class="col-md-6">
@@ -143,10 +158,7 @@
                     ${rowData.user_info}
                 </div>
                 <div class="col-12 mt-3">
-                    <div class="p-3 bg-light rounded-3 border-start border-4 border-warning">
-                        <h6 class="fw-bold mb-2"><i class="fas fa-comment-dots me-2"></i>User Dispute/Appeal Reason:</h6>
-                        <p class="mb-0 italic">"${rowData.appeal_reason || 'No appeal message provided.'}"</p>
-                    </div>
+                    ${reasonBox}
                 </div>
             </div>
         `;

@@ -464,6 +464,12 @@
                                 @endif
                             </a>
                         </div>
+                        <div class="col-md-auto col-lg mb-3">
+                            <a href="{{ route('admin.disputes.index') }}" class="btn btn-block quick-action-btn shadow-sm h-100">
+                                <i class="fas fa-balance-scale fa-2x mb-2"></i>
+                                <div class="font-weight-bold">Manage Disputes</div>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
