@@ -127,6 +127,8 @@ class AuctionService
         $auction->status         = $user->hasAnyRole(['admin', 'super admin']) ? 'active' : 'pending';
         $auction->specifications = $data['specifications'] ?? null;
         $auction->min_increment  = $data['min_increment'] ?? 0.01;
+        $auction->location       = $data['location'] ?? null;
+        $auction->reserve_price  = $data['reserve_price'] ?? null;
 
         // Start time (snap to now if past)
         $startTime = Carbon::parse($data['start_time']);
@@ -191,6 +193,7 @@ class AuctionService
         if (isset($data['title']) && $data['title'] !== $auction->title) $hasChanges = true;
         if (isset($data['description']) && $data['description'] !== $auction->description) $hasChanges = true;
         if (isset($data['min_increment']) && (float)$data['min_increment'] !== (float)$auction->min_increment) $hasChanges = true;
+        if (isset($data['location']) && $data['location'] !== $auction->location) $hasChanges = true;
         
         // Compare specifications array
         if (isset($data['specifications']) && json_encode($data['specifications']) !== json_encode($auction->specifications)) {
@@ -201,6 +204,7 @@ class AuctionService
         if (!$hasBids) {
             if (isset($data['starting_price']) && (float)$data['starting_price'] !== (float)$auction->starting_price) $hasChanges = true;
             if (isset($data['category_id']) && (int)$data['category_id'] !== (int)$auction->category_id) $hasChanges = true;
+            if (isset($data['reserve_price']) && (float)$data['reserve_price'] !== (float)$auction->reserve_price) $hasChanges = true;
         }
 
         // Check times
@@ -244,17 +248,19 @@ class AuctionService
         if (isset($data['title'])) $auction->title = $data['title'];
         if (isset($data['description'])) $auction->description = $data['description'];
         
-        // Only allow price/category change if no bids exist
+        // Only allow price/category/reserve change if no bids exist
         if (!$hasBids) {
             if (isset($data['starting_price'])) {
                 $auction->starting_price = $data['starting_price'];
                 $auction->current_price  = $data['starting_price'];
             }
             if (isset($data['category_id'])) $auction->category_id = $data['category_id'];
+            if (isset($data['reserve_price'])) $auction->reserve_price = $data['reserve_price'];
         }
 
         if (isset($data['specifications'])) $auction->specifications = $data['specifications'];
         if (isset($data['min_increment'])) $auction->min_increment = $data['min_increment'];
+        if (isset($data['location'])) $auction->location = $data['location'];
 
         // Start time
         if (isset($data['start_time'])) {

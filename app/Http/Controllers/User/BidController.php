@@ -48,6 +48,9 @@ class BidController extends Controller
                 $highestBid = $auction->bids()->first();
                 $currentWinnerId = $highestBid ? (int)$highestBid->user_id : null;
                 
+                $userProxy = $auction->autoBids()->where('user_id', $user->id)->where('active', true)->first();
+                $maxAutoBidAmount = $userProxy ? (float)$userProxy->max_bid_amount : null;
+
                 if ($currentWinnerId === (int)$user->id) {
                     $message = 'Great news! Your bid has been placed successfully and you are currently the highest bidder.';
                     if ($result['is_extended']) {
@@ -61,6 +64,7 @@ class BidController extends Controller
                             'bid' => $result['bid'],
                             'current_price' => (float)$auction->current_price,
                             'min_increment' => (float)$auction->min_increment,
+                            'max_auto_bid_amount' => $maxAutoBidAmount,
                             'is_winning' => true,
                             'current_user_id' => (int)$user->id,
                             'winner_username' => $user->username,
@@ -81,6 +85,7 @@ class BidController extends Controller
                             'bid' => $result['bid'],
                             'current_price' => (float)$auction->current_price,
                             'min_increment' => (float)$auction->min_increment,
+                            'max_auto_bid_amount' => $maxAutoBidAmount,
                             'is_winning' => false,
                             'winner_id' => $currentWinnerId,
                             'current_user_id' => (int)$user->id,

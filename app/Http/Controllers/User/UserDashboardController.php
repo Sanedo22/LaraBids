@@ -388,14 +388,14 @@ class UserDashboardController extends Controller
                         $csrf = csrf_field();
                         if ($strikeExists) {
                             $removeStrikeUrl = route('user.auctions.remove-strike', $auction->id);
-                            $html .= '<form action="'.$removeStrikeUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to remove the strike from this buyer? This will un-cancel the auction.\')">
+                            $html .= '<form action="'.$removeStrikeUrl.'" method="POST" class="d-inline" onsubmit="event.preventDefault(); Swal.fire({title: \'Are you sure?\', text: \'Are you sure you want to remove the strike from this buyer? This will un-cancel the auction.\', icon: \'warning\', showCancelButton: true, confirmButtonColor: \'#1cc88a\', cancelButtonColor: \'#858796\', confirmButtonText: \'Yes, remove it!\'}).then((result) => { if (result.isConfirmed) { this.submit(); } });">
                                         '.$csrf.'
                                         <input type="hidden" name="_method" value="DELETE">
                                         <button type="submit" class="btn btn-outline-success btn-sm btn-action shadow-sm" title="Remove Strike"><i class="fas fa-user-check"></i></button>
                                       </form>';
                         } else {
                             $markUnpaidUrl = route('user.auctions.mark-unpaid', $auction->id);
-                            $html .= '<form action="'.$markUnpaidUrl.'" method="POST" class="d-inline" onsubmit="return confirm(\'Are you sure you want to mark this buyer as Unpaid? This will penalize their account.\')">
+                            $html .= '<form action="'.$markUnpaidUrl.'" method="POST" class="d-inline" onsubmit="event.preventDefault(); Swal.fire({title: \'Are you sure?\', text: \'Are you sure you want to mark this buyer as Unpaid? This will penalize their account.\', icon: \'warning\', showCancelButton: true, confirmButtonColor: \'#f6c23e\', cancelButtonColor: \'#858796\', confirmButtonText: \'Yes, mark unpaid!\'}).then((result) => { if (result.isConfirmed) { this.submit(); } });">
                                         '.$csrf.'
                                         <button type="submit" class="btn btn-outline-warning btn-sm btn-action shadow-sm" title="Mark Buyer as Unpaid"><i class="fas fa-user-slash"></i></button>
                                       </form>';

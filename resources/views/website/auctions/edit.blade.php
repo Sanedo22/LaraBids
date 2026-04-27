@@ -126,14 +126,14 @@
                                 @enderror
                             </div>
 
-                            <div class="col-12">
+                            <div class="col-md-6">
                                 <label class="form-label fw-bold text-dark small">Item Location</label>
-                                <div class="input-group input-group-lg">
+                                <div class="input-group input-group-lg position-relative">
                                     <span class="input-group-text bg-light border-0"><i class="fas fa-map-marker-alt text-primary"></i></span>
-                                    <input type="text" name="location" class="form-control bg-light border-0 shadow-none @error('location') is-invalid @enderror" 
-                                        placeholder="e.g. Mumbai, India or Local Pickup Only" value="{{ old('location', $auction->location) }}">
+                                    <input type="text" name="location" id="locationInput" class="form-control bg-light border-0 shadow-none @error('location') is-invalid @enderror" 
+                                        placeholder="e.g. Mumbai, India" value="{{ old('location', $auction->location) }}" autocomplete="off">
+                                    <div id="locationSuggestions" class="location-suggestions-container d-none"></div>
                                 </div>
-                                <small class="text-muted"><i class="fas fa-info-circle me-1"></i>Where the item is physically located, or 'Online / Ships Worldwide'.</small>
                                 @error('location')
                                     <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                                 @enderror
@@ -159,8 +159,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction Start Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-alt text-primary"></i></span>
-                                    <input type="text" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
-                                        placeholder="Select start date & time" value="{{ old('start_time', $auction->start_time->format('Y-m-d h:i A')) }}" {{ $hasBids ? 'disabled' : '' }}>
+                                    <input type="datetime-local" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
+                                        value="{{ old('start_time', $auction->start_time->format('Y-m-d\TH:i')) }}" {{ $hasBids ? 'disabled' : '' }} min="{{ $auction->start_time->isPast() ? $auction->start_time->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i') }}">
                                 </div>
                                 @if($hasBids)
                                     <small class="text-muted mt-1 d-block"><i class="fas fa-lock me-1"></i> Start time is locked.</small>
@@ -174,8 +174,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction End Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-check text-primary"></i></span>
-                                    <input type="text" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
-                                        placeholder="Select end date & time" value="{{ old('end_time', $auction->end_time->format('Y-m-d h:i A')) }}">
+                                    <input type="datetime-local" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
+                                        value="{{ old('end_time', $auction->end_time->format('Y-m-d\TH:i')) }}" min="{{ now()->format('Y-m-d\TH:i') }}">
                                 </div>
                                 <small class="text-muted d-block mt-2"><i class="fas fa-info-circle me-1"></i>The exact moment your auction will automatically close to new bids.</small>
                                 @error('end_time')
@@ -359,6 +359,7 @@
 <!-- Flatpickr CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/airbnb.css">
+<link rel="stylesheet" href="{{ asset('assets/css/location-autocomplete.css') }}">
 <!-- CKEditor 5 CSS Customization -->
 <style>
     .ck-editor__editable_inline {
@@ -393,6 +394,7 @@
 <script src="{{ asset('assets/js/image-upload-manager.js') }}"></script>
 <script src="{{ asset('assets/js/auction-form-validation.js') }}"></script>
 <script src="{{ asset('assets/js/category-selection.js') }}"></script>
+<script src="{{ asset('assets/js/location-autocomplete.js') }}"></script>
 <script src="{{ asset('assets/js/auction-edit.js') }}"></script>
 
 <!-- CKEditor 5 JS -->
@@ -434,26 +436,23 @@
             });
         }
 
-        // Initialize Time Pickers
-        const startPicker = flatpickr("#start_time_picker", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K",
-            minDate: @json($hasBids ? null : 'today'), // If has bids, don't restrict min date for start time (though it's disabled anyway)
-            time_24hr: false,
-            onChange: function(selectedDates, dateStr, instance) {
-                instance.element.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
+        // Native datetime-local inputs enforce constraints directly
+        const startPickerElement = document.getElementById('start_time_picker');
+        const endPickerElement = document.getElementById('end_time_picker');
         
-        const endPicker = flatpickr("#end_time_picker", {
-            enableTime: true,
-            dateFormat: "Y-m-d h:i K",
-            minDate: "today",
-            time_24hr: false,
-            onChange: function(selectedDates, dateStr, instance) {
-                instance.element.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
+        if (startPickerElement && endPickerElement) {
+            startPickerElement.addEventListener('input', function() {
+                // Keep end time at least 1 hour after start time if possible
+                if (startPickerElement.value) {
+                    let minEndDate = new Date(startPickerElement.value);
+                    minEndDate.setHours(minEndDate.getHours() + 1);
+                    // Extract local ISO string without timezone shifts
+                    let tzOffset = (new Date()).getTimezoneOffset() * 60000;
+                    let localISOTime = (new Date(minEndDate - tzOffset)).toISOString().slice(0, 16);
+                    endPickerElement.min = localISOTime;
+                }
+            });
+        }
     });
 </script>
 @endpush

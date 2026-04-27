@@ -23,24 +23,29 @@ class ImageUploadManager {
 
         this.input.addEventListener('change', (e) => this.handleFileSelect(e));
 
-        // Setup dropzone file upload
+        // Setup dropzone file upload styling. 
+        // We let the native file input (which covers the wrapper) handle the actual drop and 'change' event to prevent duplicate triggers.
         const wrapper = this.input.closest('.image-upload-wrapper');
         if (wrapper) {
-            wrapper.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                wrapper.classList.add('border-primary', 'bg-light');
+            ['dragenter', 'dragover'].forEach(eventName => {
+                wrapper.addEventListener(eventName, (e) => {
+                    wrapper.classList.add('border-primary', 'bg-light');
+                });
             });
-            wrapper.addEventListener('dragleave', (e) => {
-                e.preventDefault();
-                wrapper.classList.remove('border-primary', 'bg-light');
+            ['dragleave', 'drop'].forEach(eventName => {
+                wrapper.addEventListener(eventName, (e) => {
+                    wrapper.classList.remove('border-primary', 'bg-light');
+                });
             });
+            
+            // If the drop target isn't the input itself for some reason, manually handle it
             wrapper.addEventListener('drop', (e) => {
-                e.preventDefault();
-                wrapper.classList.remove('border-primary', 'bg-light');
-                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    // Update input files and trigger change
-                    this.input.files = e.dataTransfer.files;
-                    this.input.dispatchEvent(new Event('change', { bubbles: true }));
+                if (e.target !== this.input) {
+                    e.preventDefault(); // only prevent if not on the input
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                        this.input.files = e.dataTransfer.files;
+                        this.input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
                 }
             });
         }
@@ -77,7 +82,26 @@ class ImageUploadManager {
         });
 
         if (skipped > 0) {
-            alert(`Some files were skipped. They might exceed the 2MB size limit, not be valid images, or you reached the ${this.maxFiles} file limit.`);
+            const wrapper = this.input.closest('.image-upload-wrapper');
+            if (wrapper) {
+                const existingError = wrapper.parentElement.querySelector('.skip-feedback');
+                if (existingError) existingError.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'invalid-feedback d-block skip-feedback mt-2 fw-bold text-center';
+                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-1"></i> Some files were skipped (exceeded 2MB limit, invalid format, or reached ${this.maxFiles} file limit).`;
+                wrapper.parentElement.appendChild(errorDiv);
+                
+                wrapper.classList.remove('border-primary');
+                wrapper.classList.add('border-danger');
+
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.remove();
+                    }
+                    wrapper.classList.remove('border-danger');
+                }, 6000);
+            }
         }
 
         this.render();

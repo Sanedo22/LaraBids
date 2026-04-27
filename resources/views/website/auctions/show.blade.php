@@ -135,7 +135,6 @@
                         <div class="mb-3 d-flex align-items-center gap-3">
                             <a href="{{ route('auctions.index', ['category' => $auction->category->slug ?? '']) }}"
                                class="hibid-category-link">{{ $auction->category->name ?? 'Uncategorized' }}</a>
-                            <span class="copy-id text-muted extra-small" style="font-size: 0.75rem;" onclick="copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
                         </div>
 
                         <!-- Timer -->
@@ -281,14 +280,16 @@
                                         </div>
                                     @endif
                                 </div>
+                                <div id="auto-bid-limit-container">
                                     @if($userProxy)
                                         <div class="card border-primary-subtle bg-primary-subtle bg-opacity-10 border-dashed rounded-3 p-2 text-center mb-2">
                                             <div class="small text-primary fw-bold">
                                                 <i class="fas fa-robot me-1"></i> Your Auto-Bid Limit: 
-                                                <span class="fs-6">₹{{ number_format($userProxy->max_bid_amount, 2) }}</span>
+                                                <span class="fs-6" id="auto-bid-limit-value">₹{{ number_format($userProxy->max_bid_amount, 2) }}</span>
                                             </div>
                                         </div>
                                     @endif
+                                </div>
                                 
                                 @if(session('success'))
                                     <div class="alert alert-success alert-dismissible fade show mb-3 rounded-3" role="alert">
@@ -463,12 +464,7 @@
                                                 <th class="bg-light ps-4 py-3" style="width: 200px;">Item Name</th>
                                                 <td class="ps-4 py-3 fw-medium">{{ $auction->title }}</td>
                                             </tr>
-                                            <tr>
-                                                <th class="bg-light ps-4 py-3">Auction ID</th>
-                                                <td class="ps-4 py-3 fw-medium">
-                                                    <span class="copy-id" onclick="copyToClipboard('{{ $auction->id }}', this)" title="Click to copy ID">#{{ str_pad($auction->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1 text-primary"></i></span>
-                                                </td>
-                                            </tr>
+
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Auctioneer</th>
                                                 <td class="ps-4 py-3 fw-medium">@_{{ $auction->user->username }}</td>
@@ -480,28 +476,15 @@
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Duration</th>
                                                 <td class="ps-4 py-3 fw-medium">
-                                                    {{ \Carbon\Carbon::parse($auction->start_time)->format('M d, Y') }} - {{ \Carbon\Carbon::parse($auction->end_time)->format('M d, Y') }}
+                                                    {{ \Carbon\Carbon::parse($auction->start_time)->format('F d, Y \a\t g:i A') }}  &mdash; 
+                                                    <span id="auction-end-time-display">{{ \Carbon\Carbon::parse($auction->end_time)->format('F d, Y \a\t g:i A') }}</span>
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-light ps-4 py-3">Closing Time</th>
-                                                <td class="ps-4 py-3 fw-medium" id="auction-end-time-display">{{ \Carbon\Carbon::parse($auction->end_time)->format('F d, Y \a\t g:i A') }}</td>
                                             </tr>
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Location</th>
                                                 <td class="ps-4 py-3 fw-medium">
-                                                    @if($auction->location)
-                                                        {{ $auction->location }}
-                                                    @elseif($auction->user->location)
-                                                        {{ $auction->user->location }}
-                                                    @else
-                                                        Online Auction - Ships Worldwide
-                                                    @endif
+                                                    {{ $auction->location ?: 'Not specified' }}
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <th class="bg-light ps-4 py-3">Bid Currency</th>
-                                                <td class="ps-4 py-3 fw-medium">INR (₹)</td>
                                             </tr>
                                             @if($auction->specifications)
                                                 @foreach($auction->specifications as $key => $value)
@@ -600,7 +583,7 @@
         <!-- Related Products Section -->
         @if(isset($relatedAuctions) && $relatedAuctions->count() > 0)
         <div class="row mt-4 pt-2">
-            <div class="col-12 mb-4 border-bottom pb-3 d-flex align-items-center justify-content-between">
+            <div class="col-12 mb-2 border-bottom pb-2 d-flex align-items-center justify-content-between">
                 <h3 class="h4 fw-bold mb-0 text-dark">
                     <i class="fas fa-layer-group me-2 text-primary"></i>Related Products
                 </h3>
@@ -666,12 +649,9 @@
                             </div>
                             @endif
 
-                            <h3 class="h6 mb-1 fw-bold text-dark text-truncate title-hover">
+                            <h3 class="h6 mb-2 fw-bold text-dark text-truncate title-hover">
                                 {{ $related->title }}
                             </h3>
-                            <div class="mb-2">
-                                <span class="copy-id text-muted extra-small" style="font-size: 0.65rem;" onclick="event.preventDefault(); event.stopPropagation(); copyToClipboard('{{ $related->id }}', this)" title="Click to copy ID">ID: #{{ str_pad($related->id, 5, '0', STR_PAD_LEFT) }} <i class="far fa-copy ms-1"></i></span>
-                            </div>
                             
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div class="d-flex align-items-center">
@@ -1392,6 +1372,22 @@
                     <td class="text-secondary small pe-4">just now</td>
                 `;
                 tbody.insertBefore(newRow, tbody.firstChild);
+            }
+
+            // 5. Update Auto-Bid Limit
+            if (typeof data.max_auto_bid_amount !== 'undefined' && data.max_auto_bid_amount !== null) {
+                const autoBidContainer = document.getElementById('auto-bid-limit-container');
+                if (autoBidContainer) {
+                    const formattedAmount = '₹' + parseFloat(data.max_auto_bid_amount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    autoBidContainer.innerHTML = `
+                        <div class="card border-primary-subtle bg-primary-subtle bg-opacity-10 border-dashed rounded-3 p-2 text-center mb-2 animate__animated animate__fadeIn">
+                            <div class="small text-primary fw-bold">
+                                <i class="fas fa-robot me-1"></i> Your Auto-Bid Limit: 
+                                <span class="fs-6" id="auto-bid-limit-value">${formattedAmount}</span>
+                            </div>
+                        </div>
+                    `;
+                }
             }
 
             updateBidFeedback();
