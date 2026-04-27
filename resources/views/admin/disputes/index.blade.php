@@ -105,7 +105,7 @@
     <div class="card shadow-sm border-0 mb-4 rounded-lg" style="border-left: 4px solid #4e73df !important;">
         <div class="card-body p-4">
             <div class="row align-items-end">
-                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-6 mb-3">
                     <label class="filter-label"><i class="fas fa-circle-notch mr-1"></i> Filter Status</label>
                     <select id="filter-status" class="custom-select filter-control w-100">
                         <option value="all" selected>All Statuses</option>
@@ -115,7 +115,7 @@
                         <option value="resolved">Resolved/Closed</option>
                     </select>
                 </div>
-                <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6 mb-3">
+                <div class="col-xl-5 col-lg-5 col-md-5 col-sm-6 mb-3">
                     <label class="filter-label"><i class="fas fa-filter mr-1"></i> Filter Type</label>
                     <select id="filter-type" class="custom-select filter-control w-100">
                         <option value="all">All Types</option>
@@ -123,7 +123,8 @@
                         <option value="seller_misconduct">Seller Misconduct</option>
                     </select>
                 </div>
-                <div class="col-xl-2 col-lg-2 col-md-4 col-sm-12 mb-3">
+                <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12 mb-3">
+                    <label class="filter-label d-none d-md-block">&nbsp;</label>
                     <button type="button" class="btn btn-light border w-100 font-weight-bold" id="resetFilters" style="height: calc(1.5em + .75rem + 2px);">
                         <i class="fas fa-sync-alt mr-1 text-primary"></i> <span class="text-primary">Reset</span>
                     </button>
@@ -218,11 +219,13 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
             order: [[0, 'desc']],
-            pageLength: 25,
             language: {
-                search: "",
-                searchPlaceholder: "Search disputes..."
-            }
+                search: "Search:",
+                searchPlaceholder: "User, Type or Reason...",
+                lengthMenu: "Entries per page: _MENU_",
+                info: "Showing _START_ to _END_ of _TOTAL_ disputes"
+            },
+            dom: "<'row mb-3'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>rt<'row mt-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
         });
 
         $('#filter-status, #filter-type').on('change', function() {
