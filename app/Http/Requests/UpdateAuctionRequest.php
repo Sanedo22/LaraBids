@@ -43,9 +43,9 @@ class UpdateAuctionRequest extends FormRequest
             'title' => ['sometimes', 'string', 'min:3', 'max:100'],
             'description' => ['sometimes', 'string', 'min:20', 'max:5000'],
             'category_id' => ['sometimes', 'exists:categories,id'],
-            'start_time' => ['sometimes', 'date'],
+            'start_time' => ['sometimes', 'date', 'after_or_equal:' . now()->toDateTimeString()],
             'end_time' => ['sometimes', 'date', 'after:start_time'],
-            'min_increment' => 'nullable|numeric|min:0.01',
+            'min_increment' => 'nullable|numeric|min:0.01|max:1000',
             'specifications' => ['nullable', 'array'],
             'images' => ['nullable', 'array', 'max:5'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
@@ -88,10 +88,12 @@ class UpdateAuctionRequest extends FormRequest
     {
         return [
             'end_time.after' => 'The auction end time must be after the start time.',
+            'start_time.after_or_equal' => 'Auction start time cannot be in the past.',
             'starting_price.min' => 'Starting price must be at least ₹100.00.',
             'images.max' => 'You can only upload up to 5 images.',
             'images.*.image' => 'Each file must be an image.',
             'images.*.max' => 'Each image must not exceed 2MB.',
+            'min_increment.max' => 'The minimum bid increment cannot exceed ₹1000.',
         ];
     }
 }

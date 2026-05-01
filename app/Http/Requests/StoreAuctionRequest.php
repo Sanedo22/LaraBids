@@ -20,14 +20,14 @@ class StoreAuctionRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'description' => ['required', 'string', 'min:20', 'max:5000'],
             'starting_price' => ['required', 'numeric', 'min:100.00', 'max:999999999'],
-            'start_time' => ['required', 'date', 'after_or_equal:' . now()->subDay()->toDateTimeString()],
+            'start_time' => ['required', 'date', 'after_or_equal:' . now()->toDateTimeString()],
             'end_time' => ['required', 'date', 'after:start_time'],
             'images' => ['required', 'array', 'min:1', 'max:5'],
             'images.*' => ['file', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'primary_image_index' => ['nullable', 'integer', 'min:0'],
             'document' => ['nullable', 'file', 'mimes:pdf,jpg,png,jpeg,doc,docx', 'max:5120'],
             'specifications' => ['nullable', 'array'],
-            'min_increment' => 'nullable|numeric|min:0.01',
+            'min_increment' => 'nullable|numeric|min:0.01|max:1000',
             'reserve_price' => 'nullable|numeric|gte:starting_price',
             'location' => 'nullable|string|max:255',
         ];
@@ -67,6 +67,7 @@ class StoreAuctionRequest extends FormRequest
             'document.file' => 'The uploaded file is invalid.',
             'document.mimes' => 'Document must be a PDF, JPG, PNG, DOC, or DOCX file.',
             'document.max' => 'Document size must not exceed 5MB.',
+            'min_increment.max' => 'The minimum bid increment cannot exceed ₹1000.',
         ];
     }
 }

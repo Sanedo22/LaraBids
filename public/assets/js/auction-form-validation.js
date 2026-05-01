@@ -238,8 +238,8 @@ class AuctionFormValidator {
         if (!value) return null; // It's optional on client side
         const inc = parseFloat(value);
         if (isNaN(inc)) return 'Min increment must be a number.';
-        if (inc < 100) return 'Min increment must be at least ₹100.00.';
-        if (inc > 100000) return 'Min increment cannot exceed ₹100,000.';
+        if (inc < 0.01) return 'Min increment must be at least ₹0.01.';
+        if (inc > 1000) return 'Min increment cannot exceed ₹1000.';
         return null;
     }
 
@@ -253,11 +253,7 @@ class AuctionFormValidator {
             const start = startTimePicker.selectedDates[0];
             const now = new Date();
 
-            // Check if it's more than a few days in the past (matching server validation subDay())
-            const pastLimit = new Date();
-            pastLimit.setDate(pastLimit.getDate() - 1);
-
-            if (start < pastLimit) {
+            if (start < now) {
                 return 'Auction start time cannot be in the past.';
             }
         }

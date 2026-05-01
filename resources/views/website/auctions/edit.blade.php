@@ -104,10 +104,10 @@
                                 <label class="form-label fw-bold text-dark small">Min Bid Increment (₹)</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0 text-primary fw-bold border-end">₹</span>
-                                    <input type="number" name="min_increment" step="0.01" min="0.01" class="form-control bg-light border-0 shadow-none @error('min_increment') is-invalid @enderror" 
+                                    <input type="number" name="min_increment" step="0.01" min="0.01" max="1000" class="form-control bg-light border-0 shadow-none @error('min_increment') is-invalid @enderror" 
                                         placeholder="100" value="{{ old('min_increment', $auction->min_increment) }}">
                                 </div>
-                                <small class="text-muted">Minimum amount each next bid must increase by.</small>
+                                <small class="text-muted">Minimum amount each next bid must increase by (Max ₹1000).</small>
                                 @error('min_increment')
                                     <div class="invalid-feedback d-block" data-server-error>{{ $message }}</div>
                                 @enderror
@@ -159,8 +159,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction Start Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-alt text-primary"></i></span>
-                                    <input type="datetime-local" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
-                                        value="{{ old('start_time', $auction->start_time->format('Y-m-d\TH:i')) }}" {{ $hasBids ? 'disabled' : '' }} min="{{ $auction->start_time->isPast() ? $auction->start_time->format('Y-m-d\TH:i') : now()->format('Y-m-d\TH:i') }}">
+                                    <input type="text" name="start_time" id="start_time_picker" class="form-control bg-light border-0 shadow-none @error('start_time') is-invalid @enderror" 
+                                        value="{{ old('start_time', $auction->start_time->format('Y-m-d H:i')) }}" {{ $hasBids ? 'disabled' : '' }} placeholder="Select Date & Time">
                                 </div>
                                 @if($hasBids)
                                     <small class="text-muted mt-1 d-block"><i class="fas fa-lock me-1"></i> Start time is locked.</small>
@@ -174,8 +174,8 @@
                                 <label class="form-label fw-bold text-dark small">Auction End Date & Time</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text bg-light border-0"><i class="far fa-calendar-check text-primary"></i></span>
-                                    <input type="datetime-local" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
-                                        value="{{ old('end_time', $auction->end_time->format('Y-m-d\TH:i')) }}" min="{{ now()->format('Y-m-d\TH:i') }}">
+                                    <input type="text" name="end_time" id="end_time_picker" class="form-control bg-light border-0 shadow-none @error('end_time') is-invalid @enderror" 
+                                        value="{{ old('end_time', $auction->end_time->format('Y-m-d H:i')) }}" placeholder="Select Date & Time">
                                 </div>
                                 <small class="text-muted d-block mt-2"><i class="fas fa-info-circle me-1"></i>The exact moment your auction will automatically close to new bids.</small>
                                 @error('end_time')
@@ -397,6 +397,8 @@
 <script src="{{ asset('assets/js/location-autocomplete.js') }}"></script>
 <script src="{{ asset('assets/js/auction-edit.js') }}"></script>
 
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <!-- CKEditor 5 JS -->
 <script src="https://cdn.ckeditor.com/ckeditor5/41.1.0/classic/ckeditor.js"></script>
 <script>
@@ -436,21 +438,29 @@
             });
         }
 
-        // Native datetime-local inputs enforce constraints directly
+        // Initialize Flatpickr for better date control
         const startPickerElement = document.getElementById('start_time_picker');
         const endPickerElement = document.getElementById('end_time_picker');
         
         if (startPickerElement && endPickerElement) {
-            startPickerElement.addEventListener('input', function() {
-                // Keep end time at least 1 hour after start time if possible
-                if (startPickerElement.value) {
-                    let minEndDate = new Date(startPickerElement.value);
-                    minEndDate.setHours(minEndDate.getHours() + 1);
-                    // Extract local ISO string without timezone shifts
-                    let tzOffset = (new Date()).getTimezoneOffset() * 60000;
-                    let localISOTime = (new Date(minEndDate - tzOffset)).toISOString().slice(0, 16);
-                    endPickerElement.min = localISOTime;
+            const startPicker = flatpickr(startPickerElement, {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                // If it's already in the past (locked or ongoing), we allow keeping it but not picking new past dates
+                minDate: startPickerElement.value && new Date(startPickerElement.value) < new Date() ? startPickerElement.value : new Date(),
+                defaultDate: startPickerElement.value,
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        endPicker.set('minDate', dateStr);
+                    }
                 }
+            });
+
+            const endPicker = flatpickr(endPickerElement, {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                minDate: startPickerElement.value || new Date(),
+                defaultDate: endPickerElement.value
             });
         }
     });
