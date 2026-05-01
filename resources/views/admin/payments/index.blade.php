@@ -267,6 +267,7 @@
                     }
                 },
                 language: {
+                    search: "Search:",
                     searchPlaceholder: "Search ID, Buyer, Seller or Item...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ payments"

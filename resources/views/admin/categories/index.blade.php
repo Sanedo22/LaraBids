@@ -256,6 +256,7 @@
                     }
                 },
                 language: {
+                    search: "Search:",
                     searchPlaceholder: "Name or Slug...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ categories"

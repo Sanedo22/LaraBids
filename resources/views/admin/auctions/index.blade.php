@@ -241,7 +241,8 @@
                     }
                 },
                 language: {
-                    searchPlaceholder: "Title, Category or Seller Name...",
+                    search: "Search:",
+                    searchPlaceholder: "Title, Category or Seller...",
                     lengthMenu: "Entries per page: _MENU_",
                     info: "Showing _START_ to _END_ of _TOTAL_ auctions"
                 },

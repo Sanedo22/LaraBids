@@ -161,12 +161,14 @@
     </div>
 
 <!-- Dispute Detail Modal -->
-<div class="modal fade" id="disputeModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg rounded-4">
+<div class="modal fade" id="disputeModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg rounded">
             <div class="modal-header px-4 pt-4 border-0">
-                <h5 class="modal-title fw-bold">Dispute Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title font-weight-bold">Dispute Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body px-4 pb-4">
                 <div id="dispute-details-content">
@@ -174,12 +176,12 @@
                 </div>
                 <hr class="my-4">
                 <div class="mt-3">
-                    <label class="form-label fw-bold small text-uppercase">Admin Resolution Note</label>
+                    <label class="font-weight-bold small text-uppercase">Admin Resolution Note</label>
                     <textarea id="admin-note" class="form-control" rows="3" placeholder="Explain the reasoning for this decision..."></textarea>
                 </div>
             </div>
             <div class="modal-footer px-4 pb-4 border-0">
-                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-light rounded-pill px-4" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success rounded-pill px-4" onclick="submitResolution('dismissed')">Dismiss/Remove Strike</button>
                 <button type="button" class="btn btn-danger rounded-pill px-4" onclick="submitResolution('resolved')">Keep/Uphold Strike</button>
             </div>
@@ -249,30 +251,30 @@
         let reasonBox = '';
         if (rowData.type === 'seller_misconduct') {
             reasonBox = `
-                <div class="p-3 bg-light rounded-3 border-start border-4 border-danger">
-                    <h6 class="fw-bold mb-2 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Report Description (Misconduct Details):</h6>
+                <div class="p-3 bg-light rounded border-left border-danger" style="border-left-width: 4px !important;">
+                    <h6 class="font-weight-bold mb-2 text-danger"><i class="fas fa-exclamation-triangle mr-2"></i>Report Description (Misconduct Details):</h6>
                     <p class="mb-0 italic" style="white-space: pre-wrap;">"${rowData.reason}"</p>
                 </div>
             `;
         } else {
             reasonBox = `
-                <div class="p-3 bg-light rounded-3 border-start border-4 border-warning">
-                    <h6 class="fw-bold mb-2"><i class="fas fa-comment-dots me-2"></i>User Dispute/Appeal Reason:</h6>
+                <div class="p-3 bg-light rounded border-left border-warning" style="border-left-width: 4px !important;">
+                    <h6 class="font-weight-bold mb-2"><i class="fas fa-comment-dots mr-2"></i>User Dispute/Appeal Reason:</h6>
                     <p class="mb-0 italic" style="white-space: pre-wrap;">"${rowData.appeal_reason || 'No appeal message provided.'}"</p>
                 </div>
             `;
         }
 
         let html = `
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Case Information</h6>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <h6 class="font-weight-bold small text-muted text-uppercase mb-3">Case Information</h6>
                     <p class="mb-1"><strong>Auction:</strong> ${rowData.auction ? rowData.auction.title : 'N/A'}</p>
                     ${rowData.type !== 'seller_misconduct' ? `<p class="mb-1"><strong>Strike Reason:</strong> ${rowData.reason}</p>` : ''}
                     <p class="mb-1"><strong>Type:</strong> ${rowData.type_badge}</p>
                 </div>
-                <div class="col-md-6">
-                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Target User</h6>
+                <div class="col-md-6 mb-3">
+                    <h6 class="font-weight-bold small text-muted text-uppercase mb-3">Target User</h6>
                     ${rowData.user_info}
                 </div>
                 <div class="col-12 mt-3">

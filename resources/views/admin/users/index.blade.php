@@ -241,6 +241,7 @@
                 }
             },
             language: {
+                search: "Search:",
                 searchPlaceholder: "Name, Email or Phone...",
                 lengthMenu: "Entries per page: _MENU_",
                 info: "Showing _START_ to _END_ of _TOTAL_ users"
