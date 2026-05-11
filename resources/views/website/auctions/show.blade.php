@@ -94,6 +94,7 @@
                 <!-- Seller Info Card (below gallery) -->
                 <div class="hibid-seller-card mt-3" data-aos="fade-up" data-aos-delay="100">
                     <div class="hibid-seller-inner">
+                        @if($auction->user)
                         <a href="{{ route('sellers.show', $auction->user->id) }}">
                             <img src="{{ $auction->user->avatar_url }}"
                                 class="hibid-seller-avatar" alt="Seller">
@@ -118,6 +119,14 @@
                                 @endif
                             @endauth
                         </div>
+                        @else
+                        <div class="hibid-seller-info">
+                            <span class="hibid-seller-name">Unknown Seller</span>
+                            <div class="hibid-seller-meta mt-1">
+                                <span class="badge bg-light text-secondary border fw-normal py-1">Account Deleted</span>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
 
@@ -467,7 +476,7 @@
 
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Auctioneer</th>
-                                                <td class="ps-4 py-3 fw-medium">@_{{ $auction->user->username }}</td>
+                                                <td class="ps-4 py-3 fw-medium">@_{{ $auction->user?->username ?? 'Unknown' }}</td>
                                             </tr>
                                             <tr>
                                                 <th class="bg-light ps-4 py-3">Category</th>
@@ -655,7 +664,7 @@
                             
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div class="d-flex align-items-center">
-                                    <img src="{{ $related->user->avatar_url }}" class="rounded-circle me-1 border" width="18" height="18" style="object-fit: cover;" alt="p">
+                                    <img src="{{ $related->user?->avatar_url ?? 'https://ui-avatars.com/api/?name=Seller&background=4e73df&color=ffffff&size=150' }}" class="rounded-circle me-1 border" width="18" height="18" style="object-fit: cover;" alt="p">
                                     <span class="text-xs text-muted text-truncate" style="max-width: 60px;">{{ $related->user->name ?? 'Seller' }}</span>
                                 </div>
                                 <span class="badge bg-light text-secondary border fw-normal text-xs px-2 py-1">

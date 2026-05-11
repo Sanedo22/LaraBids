@@ -71,8 +71,8 @@ class AuctionResource extends JsonResource
                         'id' => $bid->id,
                         'amount' => $bid->amount,
                         'user' => [
-                            'id' => $bid->user->id,
-                            'name' => $bid->user->name
+                            'id' => $bid->user?->id,
+                            'name' => $bid->user?->name ?? 'Deleted User'
                         ]
                     ];
                 });

@@ -52,7 +52,7 @@ class AdminKycController extends Controller
                 });
             })
             ->addColumn('user', function ($kyc) {
-                return $kyc->user->username;
+                return $kyc->user?->username ?? 'Deleted User';
             })
             ->editColumn('id_type', function ($kyc) {
                 return ucfirst(str_replace('_', ' ', $kyc->id_type));
@@ -100,7 +100,9 @@ class AdminKycController extends Controller
         $kyc = Kyc::findOrFail($id);
         $kyc->update(['status' => 'approved', 'admin_note' => null, 'is_resubmitted' => false]);
 
-        $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
+        if ($kyc->user) {
+            $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
+        }
 
         return redirect()->back()->with('success', 'KYC approved successfully.');
     }
@@ -118,7 +120,9 @@ class AdminKycController extends Controller
             'is_resubmitted' => false,
         ]);
 
-        $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
+        if ($kyc->user) {
+            $kyc->user->notify(new \App\Notifications\KycStatusUpdatedNotification($kyc));
+        }
 
         return redirect()->back()->with('success', 'KYC rejected with note.');
     }

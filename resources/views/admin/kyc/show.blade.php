@@ -45,14 +45,14 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <img class="img-profile rounded-circle mb-3" width="100" height="100" style="object-fit: cover;" src="{{ $kyc->user->avatar_url }}">
-                        <h5 class="font-weight-bold">{{ $kyc->user->name }}</h5>
-                        <p class="text-muted small">{{ $kyc->user->email }}</p>
+                        <img class="img-profile rounded-circle mb-3" width="100" height="100" style="object-fit: cover;" src="{{ $kyc->user?->avatar_url ?? 'https://ui-avatars.com/api/?name=User&background=4e73df&color=ffffff&size=100' }}">
+                        <h5 class="font-weight-bold">{{ $kyc->user?->name ?? 'Deleted User' }}</h5>
+                        <p class="text-muted small">{{ $kyc->user?->email ?? 'N/A' }}</p>
                     </div>
                     <hr>
                     <div class="small">
-                        <p><strong>Username:</strong> {{ $kyc->user->username }}</p>
-                        <p><strong>Joined:</strong> {{ $kyc->user->created_at->format('M d, Y') }}</p>
+                        <p><strong>Username:</strong> {{ $kyc->user?->username ?? 'N/A' }}</p>
+                        <p><strong>Joined:</strong> {{ $kyc->user?->created_at?->format('M d, Y') ?? 'N/A' }}</p>
                     </div>
                 </div>
             </div>

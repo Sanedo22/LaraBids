@@ -109,7 +109,7 @@
                                 <i class="fas fa-user text-secondary" style="font-size: 10px;"></i>
                             </div>
                         @endif
-                        <span class="text-xs text-muted text-truncate" style="max-width: 80px;">{{ $auction->user->name ?? 'Seller' }}</span>
+                        <span class="text-xs text-muted text-truncate" style="max-width: 80px;">{{ $auction->user?->name ?? 'Seller' }}</span>
                     </div>
                     <span class="badge bg-light text-secondary border fw-normal text-xs px-2 py-1">
                         {{ $auction->bids->count() }} Bids

@@ -353,7 +353,7 @@ class UserDashboardController extends Controller
                     if ($auction->status === 'active' && $auction->end_time->isFuture()) {
                         $highestBid = $auction->highestBid();
                         if ($highestBid) {
-                            return '<span class="text-primary small fw-bold">Current: ' . e($highestBid->user->name) . '</span>';
+                            return '<span class="text-primary small fw-bold">Current: ' . e($highestBid->user?->name ?? 'Deleted User') . '</span>';
                         }
                         return '<span class="text-muted italic small">No Bids Yet</span>';
                     }
@@ -577,7 +577,7 @@ class UserDashboardController extends Controller
                     if(strlen($title) > 45) {
                         $title = substr($title, 0, 45) . '...';
                     }
-                    $seller = e($auction->user->name ?? 'Unknown');
+                    $seller = e($auction->user?->name ?? 'Unknown');
                     return '
                         <div class="d-flex align-items-center text-nowrap">
                             <div class="position-relative me-3">

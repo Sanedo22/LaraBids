@@ -34,7 +34,7 @@ class UserStrike extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'user_id')->withTrashed();
     }
 
     public function auction()
@@ -44,6 +44,6 @@ class UserStrike extends Model
 
     public function reporter()
     {
-        return $this->belongsTo(User::class, 'reported_by');
+        return $this->belongsTo(User::class, 'reported_by')->withTrashed();
     }
 }

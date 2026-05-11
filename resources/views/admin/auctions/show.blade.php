@@ -189,11 +189,11 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="rounded-circle {{ $loop->first ? 'bg-success' : 'bg-secondary' }} text-white d-flex align-items-center justify-content-center mr-3 shadow-sm" style="width: 35px; height: 35px; min-width: 35px;">
-                                                        {{ strtoupper(substr($bid->user->name ?? 'U', 0, 1)) }}
+                                                        {{ strtoupper(substr($bid->user?->name ?? 'U', 0, 1)) }}
                                                     </div>
                                                     <div class="text-truncate">
-                                                        <div class="font-weight-bold text-dark">@_{{ $bid->user->username ?? 'unknown' }}</div>
-                                                        <div class="small text-muted">{{ $bid->user->email ?? '' }}</div>
+                                                        <div class="font-weight-bold text-dark">@_{{ $bid->user?->username ?? 'unknown' }}</div>
+                                                        <div class="small text-muted">{{ $bid->user?->email ?? '' }}</div>
                                                     </div>
                                                 </div>
                                             </td>

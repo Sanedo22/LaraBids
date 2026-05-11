@@ -118,10 +118,10 @@
                                         <td class="py-2 px-3 border-0 align-middle">
                                             <div class="d-flex align-items-center">
                                                 <div class="bg-gray-200 rounded-circle d-flex align-items-center justify-content-center mr-2 font-weight-bold text-muted" style="width: 25px; height: 25px; font-size: 0.75rem;">
-                                                    {{ substr($bid->user->name ?? '?', 0, 1) }}
+                                                    {{ substr($bid->user?->name ?? '?', 0, 1) }}
                                                 </div>
                                                 <span class="font-weight-bold {{ $index === 0 ? 'text-primary' : 'text-dark' }}">
-                                                    {{ $bid->user->name ?? 'Unknown' }}
+                                                    {{ $bid->user?->name ?? 'Unknown' }}
                                                     @if($index === 0) <i class="fas fa-crown text-warning ml-1"></i> @endif
                                                 </span>
                                             </div>

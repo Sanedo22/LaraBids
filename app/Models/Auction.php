@@ -130,7 +130,7 @@ class Auction extends Model
     // Get owner
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     // Get category
@@ -185,7 +185,7 @@ class Auction extends Model
      */
     public function winner(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'winner_id');
+        return $this->belongsTo(User::class, 'winner_id')->withTrashed();
     }
 
     /**

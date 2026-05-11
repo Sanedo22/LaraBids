@@ -69,7 +69,7 @@ class AuctionController extends Controller
             ->where('id', '!=', $id)
             ->where('category_id', $auction->category_id)
             ->where('end_time', '>', now())
-            ->with(['category', 'images'])
+            ->with(['category', 'images', 'user'])
             ->take(4)
             ->get();
 
@@ -78,7 +78,7 @@ class AuctionController extends Controller
                 ->where('id', '!=', $id)
                 ->where('end_time', '>', now())
                 ->whereNotIn('id', $relatedAuctions->pluck('id'))
-                ->with(['category', 'images'])
+                ->with(['category', 'images', 'user'])
                 ->inRandomOrder()
                 ->take(4 - $relatedAuctions->count())
                 ->get();
