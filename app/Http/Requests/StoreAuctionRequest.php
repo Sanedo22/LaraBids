@@ -12,6 +12,27 @@ class StoreAuctionRequest extends FormRequest
         return auth()->check();
     }
 
+    protected function prepareForValidation()
+    {
+        if ($this->has('start_time') && $this->start_time) {
+            try {
+                $startTime = \Carbon\Carbon::parse($this->start_time);
+                $now = now();
+                
+                // If the user took time to fill the form or there is a clock desync,
+                // and the start time is now in the past by up to 30 minutes,
+                // automatically adjust it to 1 minute in the future to start immediately.
+                if ($startTime->isPast() && $startTime->diffInMinutes($now) <= 30) {
+                    $this->merge([
+                        'start_time' => $now->addMinute()->toDateTimeString(),
+                    ]);
+                }
+            } catch (\Exception $e) {
+                // Let validation handle invalid date formats
+            }
+        }
+    }
+
     // Validation rules
     public function rules(): array
     {
@@ -20,7 +41,7 @@ class StoreAuctionRequest extends FormRequest
             'category_id' => ['required', 'exists:categories,id'],
             'description' => ['required', 'string', 'min:20', 'max:5000'],
             'starting_price' => ['required', 'numeric', 'min:100.00', 'max:999999999'],
-            'start_time' => ['required', 'date', 'after_or_equal:' . now()->toDateTimeString()],
+            'start_time' => ['required', 'date', 'after_or_equal:' . now()->subMinutes(30)->toDateTimeString()],
             'end_time' => ['required', 'date', 'after:start_time'],
             'images' => ['required', 'array', 'min:1', 'max:5'],
             'images.*' => ['file', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
